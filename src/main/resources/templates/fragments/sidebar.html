@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<aside th:fragment="sidebar">
+    <nav aria-label="Navegación secundaria">
+        <h2>Menú</h2>
+
+        <ul>
+            <li>
+                <a th:href="@{/inicio}">Inicio</a>
+            </li>
+            <li>
+                <a th:href="@{/conversaciones}">Mis conversaciones</a>
+            </li>
+            <li>
+                <a th:href="@{/contactos}">Mis contactos</a>
+            </li>
+            <li>
+                <a th:href="@{/grupos}">Grupos</a>
+            </li>
+            <li>
+                <a th:href="@{/perfil}">Mi perfil</a>
+            </li>
+            <li>
+                <a th:href="@{/configuracion}">Configuración</a>
+            </li>
+        </ul>
+    </nav>
+</aside>
+
+</body>
+</html>

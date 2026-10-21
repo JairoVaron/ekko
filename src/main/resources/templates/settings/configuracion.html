@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración | Plataforma de Comunicación</title>
+
+    <style>
+        :root {
+            color-scheme: light;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --background: #f5f7fb;
+            --surface: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --danger: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont,
+                "Segoe UI", sans-serif;
+            background: var(--background);
+            color: var(--text);
+        }
+
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 17px 24px;
+        }
+
+        .header-content {
+            max-width: 950px;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .brand {
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 18px;
+            text-decoration: none;
+        }
+
+        .back-link {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+
+        main {
+            width: min(900px, calc(100% - 32px));
+            margin: 38px auto;
+        }
+
+        .page-heading {
+            margin-bottom: 25px;
+        }
+
+        .page-heading h1 {
+            margin: 0 0 8px;
+            font-size: clamp(26px, 4vw, 34px);
+        }
+
+        .page-heading p {
+            color: var(--muted);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .section-title {
+            margin: 28px 0 12px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .settings-list {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .setting {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 19px;
+            color: inherit;
+            text-decoration: none;
+            border-bottom: 1px solid var(--border);
+            transition: background .15s ease;
+        }
+
+        .setting:last-child {
+            border-bottom: none;
+        }
+
+        .setting:hover {
+            background: #f8fafc;
+        }
+
+        .setting-icon {
+            width: 44px;
+            height: 44px;
+            flex: 0 0 44px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: #eef2ff;
+            color: var(--primary);
+            font-size: 21px;
+        }
+
+        .setting-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .setting-info strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
+
+        .setting-info span {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .arrow {
+            color: #9ca3af;
+            font-size: 22px;
+        }
+
+        .danger .setting-icon {
+            background: #fef2f2;
+            color: var(--danger);
+        }
+
+        .danger .setting-info strong {
+            color: var(--danger);
+        }
+
+        .logout-form {
+            margin: 0;
+        }
+
+        .logout-button {
+            width: 100%;
+            border: 0;
+            text-align: left;
+            background: transparent;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            background: #fff7ed;
+        }
+
+        .notice {
+            margin-top: 24px;
+            padding: 15px 17px;
+            background: #eef2ff;
+            border: 1px solid #c7d2fe;
+            border-radius: 12px;
+            color: #3730a3;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            padding: 24px;
+        }
+
+        @media (max-width: 520px) {
+            header {
+                padding: 15px 16px;
+            }
+
+            main {
+                margin-top: 25px;
+            }
+
+            .setting {
+                padding: 15px 12px;
+                gap: 11px;
+            }
+
+            .setting-icon {
+                width: 39px;
+                height: 39px;
+                flex-basis: 39px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<header>
+    <div class="header-content">
+        <a class="brand" th:href="@{/inicio}">
+            Comunicación Social
+        </a>
+
+        <a class="back-link" th:href="@{/inicio}">
+            ← Volver al inicio
+        </a>
+    </div>
+</header>
+
+<main>
+    <section class="page-heading">
+        <h1>Configuración</h1>
+        <p>
+            Administra las opciones de tu cuenta, tu privacidad
+            y la seguridad de tu sesión.
+        </p>
+    </section>
+
+    <h2 class="section-title">Tu cuenta</h2>
+
+    <div class="settings-list">
+        <a class="setting" th:href="@{/perfil}">
+            <div class="setting-icon" aria-hidden="true">👤</div>
+            <div class="setting-info">
+                <strong>Editar perfil</strong>
+                <span>Próximamente podrás modificar la información de tu perfil.</span>
+            </div>
+            <span class="arrow" aria-hidden="true">›</span>
+        </a>
+
+        <a class="setting" th:href="@{/politica-privacidad}">
+            <div class="setting-icon" aria-hidden="true">🛡️</div>
+            <div class="setting-info">
+                <strong>Política y privacidad</strong>
+                <span>Consulta cómo se plantea el tratamiento de tus datos y el uso de la plataforma.</span>
+            </div>
+            <span class="arrow" aria-hidden="true">›</span>
+        </a>
+    </div>
+
+    <h2 class="section-title">Seguridad</h2>
+
+    <div class="settings-list">
+        <form class="logout-form"
+              th:action="@{/logout}"
+              method="post"
+              onsubmit="return confirm('¿Seguro que deseas cerrar tu sesión?');">
+
+            <button type="submit"
+                    class="setting logout-button">
+                <div class="setting-icon" aria-hidden="true">↪</div>
+                <div class="setting-info">
+                    <strong>Cerrar sesión</strong>
+                    <span>Salir de tu cuenta en este dispositivo.</span>
+                </div>
+                <span class="arrow" aria-hidden="true">›</span>
+            </button>
+        </form>
+
+        <a class="setting danger" th:href="@{/cuenta/eliminar}">
+            <div class="setting-icon" aria-hidden="true">⚠</div>
+            <div class="setting-info">
+                <strong>Cerrar o eliminar cuenta</strong>
+                <span>Accede al proceso de eliminación y sus verificaciones.</span>
+            </div>
+            <span class="arrow" aria-hidden="true">›</span>
+        </a>
+    </div>
+
+    <div class="notice">
+        <strong>Importante:</strong> cerrar sesión no elimina tu cuenta.
+        La eliminación debe continuar utilizando el proceso de verificación
+        que ya tiene implementado la plataforma.
+    </div>
+</main>
+
+<footer>
+    Plataforma de Comunicación Social · Configuración
+</footer>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar cuenta</title>
+</head>
+<body>
+
+<header>
+    <h1>Eliminar mi cuenta</h1>
+
+    <nav>
+        <a th:href="@{/inicio}">Inicio</a>
+        <a th:href="@{/mensajes}">Conversaciones</a>
+        <a th:href="@{/contactos}">Contactos</a>
+    </nav>
+</header>
+
+<main>
+    <section>
+        <h2>¿Deseas eliminar tu cuenta?</h2>
+
+        <p>
+            Al confirmar, tu cuenta quedará desactivada y no podrás
+            volver a iniciar sesión con ella.
+        </p>
+
+        <p>
+            Se anonimizarán tus datos personales. Los mensajes anteriores
+            se conservarán para mantener el historial de las conversaciones
+            y el remitente aparecerá como "Cuenta eliminada".
+        </p>
+
+        <p>
+            Esta acción no se puede deshacer desde la aplicación.
+        </p>
+
+        <p th:if="${error}" th:text="${error}"></p>
+
+        <form th:action="@{/cuenta/eliminar}" method="post">
+            <input
+                type="hidden"
+                th:name="${_csrf.parameterName}"
+                th:value="${_csrf.token}"
+            >
+
+            <label>
+                <input
+                    type="checkbox"
+                    name="confirmar"
+                    value="true"
+                    required
+                >
+                Confirmo que deseo eliminar mi cuenta.
+            </label>
+
+            <p>
+                <button type="submit">
+                    Eliminar mi cuenta
+                </button>
+            </p>
+        </form>
+
+        <p>
+            <a th:href="@{/inicio}">
+                Cancelar y volver al inicio
+            </a>
+        </p>
+    </section>
+</main>
+
+</body>
+</html>

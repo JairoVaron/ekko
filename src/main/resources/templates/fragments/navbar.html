@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<header th:fragment="navbar">
+    <nav aria-label="Navegación principal">
+        <a th:href="@{/inicio}">Inicio</a>
+        |
+        <a th:href="@{/conversaciones}">Conversaciones</a>
+        |
+        <a th:href="@{/contactos}">Contactos</a>
+        |
+        <a th:href="@{/configuracion}">Configuración</a>
+    </nav>
+</header>
+
+</body>
+</html>

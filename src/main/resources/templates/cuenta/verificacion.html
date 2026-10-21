@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación del correo</title>
+</head>
+<body>
+<header>
+    <h1>Verificación del correo electrónico</h1>
+</header>
+
+<main>
+    <section>
+        <p th:text="${mensaje}">Estado de la verificación</p>
+
+        <p>
+            <a th:href="@{/login}">Ir al inicio de sesión</a>
+        </p>
+    </section>
+</main>
+</body>
+</html>
