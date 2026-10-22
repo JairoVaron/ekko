@@ -9,6 +9,7 @@ public record ConversationSummary(
         String otherDisplayName,
         String lastMessage,
         Instant lastMessageAt,
-        long unreadCount
-) {
+        long unreadCount,
+        String otherAvatarUrl
+) {     
 }
