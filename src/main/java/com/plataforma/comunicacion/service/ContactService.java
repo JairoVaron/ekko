@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ContactService {
@@ -33,12 +35,12 @@ public class ContactService {
 
     private AppUser requireActiveUser(Long id) {
         AppUser user = users.findById(id)
-            .orElseThrow(() ->
-                new IllegalArgumentException("El usuario no existe"));
+                .orElseThrow(() ->
+                        new IllegalArgumentException("El usuario no existe"));
 
         if (user.isAccountDeleted()) {
             throw new IllegalArgumentException(
-                "La cuenta ya no está disponible");
+                    "La cuenta ya no está disponible");
         }
 
         return user;
@@ -47,7 +49,7 @@ public class ContactService {
     private void requireDifferentUsers(Long first, Long second) {
         if (first.equals(second)) {
             throw new IllegalArgumentException(
-                "No puedes realizar esta acción sobre tu propia cuenta");
+                    "No puedes realizar esta acción sobre tu propia cuenta");
         }
     }
 
@@ -55,29 +57,30 @@ public class ContactService {
         if (blocks.existsByBlocker_IdAndBlocked_Id(first, second)
                 || blocks.existsByBlocker_IdAndBlocked_Id(second, first)) {
             throw new IllegalArgumentException(
-                "No puedes realizar esta acción debido a un bloqueo");
+                    "No puedes realizar esta acción debido a un bloqueo");
         }
     }
 
     private ContactUserView toUserView(AppUser user) {
         return new ContactUserView(
-            user.getId(),
-            user.getUsername(),
-            user.getDisplayName(),
-            user.getBio(),
-            user.getAvatarUrl()
+                user.getId(),
+                user.getUsername(),
+                user.getDisplayName(),
+                user.getBio(),
+                user.isAccountDeleted() ? null : user.getAvatarUrl()
         );
     }
 
     private ContactRequestView toRequestView(ContactRequest request) {
-        AppUser other = request.getRequester();
+        AppUser requester = request.getRequester();
 
         return new ContactRequestView(
-            request.getId(),
-            other.getId(),
-            other.getUsername(),
-            other.getDisplayName(),
-            request.getCreatedAt()
+                request.getId(),
+                requester.getId(),
+                requester.getUsername(),
+                requester.getDisplayName(),
+                request.getCreatedAt(),
+                requester.isAccountDeleted() ? null : requester.getAvatarUrl()
         );
     }
 
@@ -95,21 +98,20 @@ public class ContactService {
 
         if (term.length() > 30) {
             throw new IllegalArgumentException(
-                "La búsqueda no puede superar 30 caracteres");
+                    "La búsqueda no puede superar 30 caracteres");
         }
 
         return users
-            .findTop20ByUsernameContainingIgnoreCaseAndAccountDeletedFalseOrderByUsernameAsc(
-                term
-            )
-            .stream()
-            .filter(user -> !user.getId().equals(currentUserId))
-            .filter(user -> !blocks.existsByBlocker_IdAndBlocked_Id(
-                currentUserId, user.getId()))
-            .filter(user -> !blocks.existsByBlocker_IdAndBlocked_Id(
-                user.getId(), currentUserId))
-            .map(this::toUserView)
-            .toList();
+                .findTop20ByUsernameContainingIgnoreCaseAndAccountDeletedFalseOrderByUsernameAsc(
+                        term)
+                .stream()
+                .filter(user -> !user.getId().equals(currentUserId))
+                .filter(user -> !blocks.existsByBlocker_IdAndBlocked_Id(
+                        currentUserId, user.getId()))
+                .filter(user -> !blocks.existsByBlocker_IdAndBlocked_Id(
+                        user.getId(), currentUserId))
+                .map(this::toUserView)
+                .toList();
     }
 
     @Transactional
@@ -122,27 +124,27 @@ public class ContactService {
         requireNotBlocked(requesterId, addresseeId);
 
         ContactRequest existing = requests
-            .findByRequester_IdAndAddressee_Id(
-                requesterId, addresseeId)
-            .orElse(null);
+                .findByRequester_IdAndAddressee_Id(
+                        requesterId, addresseeId)
+                .orElse(null);
 
         ContactRequest reverse = requests
-            .findByRequester_IdAndAddressee_Id(
-                addresseeId, requesterId)
-            .orElse(null);
+                .findByRequester_IdAndAddressee_Id(
+                        addresseeId, requesterId)
+                .orElse(null);
 
         if (existing != null
                 && ("PENDING".equals(existing.getStatus())
-                    || "ACCEPTED".equals(existing.getStatus()))) {
+                || "ACCEPTED".equals(existing.getStatus()))) {
             throw new IllegalArgumentException(
-                "Ya existe una solicitud o relación con este usuario");
+                    "Ya existe una solicitud o relación con este usuario");
         }
 
         if (reverse != null
                 && ("PENDING".equals(reverse.getStatus())
-                    || "ACCEPTED".equals(reverse.getStatus()))) {
+                || "ACCEPTED".equals(reverse.getStatus()))) {
             throw new IllegalArgumentException(
-                "Ya existe una solicitud o relación con este usuario");
+                    "Ya existe una solicitud o relación con este usuario");
         }
 
         if (existing != null) {
@@ -164,12 +166,12 @@ public class ContactService {
         requireActiveUser(userId);
 
         return requests
-            .findByAddressee_IdAndStatusOrderByCreatedAtDesc(
-                userId, "PENDING")
-            .stream()
-            .filter(r -> !r.getRequester().isAccountDeleted())
-            .map(this::toRequestView)
-            .toList();
+                .findByAddressee_IdAndStatusOrderByCreatedAtDesc(
+                        userId, "PENDING")
+                .stream()
+                .filter(request -> !request.getRequester().isAccountDeleted())
+                .map(this::toRequestView)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -179,37 +181,35 @@ public class ContactService {
         List<ContactUserView> result = new ArrayList<>();
 
         List<ContactRequest> sent = requests
-            .findByRequester_IdAndStatusOrderByCreatedAtDesc(
-                userId, "ACCEPTED");
+                .findByRequester_IdAndStatusOrderByCreatedAtDesc(
+                        userId, "ACCEPTED");
 
         List<ContactRequest> received = requests
-            .findByAddressee_IdAndStatusOrderByCreatedAtDesc(
-                userId, "ACCEPTED");
+                .findByAddressee_IdAndStatusOrderByCreatedAtDesc(
+                        userId, "ACCEPTED");
 
         sent.stream()
-            .map(ContactRequest::getAddressee)
-            .filter(u -> !u.isAccountDeleted())
-            .map(this::toUserView)
-            .forEach(result::add);
+                .map(ContactRequest::getAddressee)
+                .filter(user -> !user.isAccountDeleted())
+                .map(this::toUserView)
+                .forEach(result::add);
 
         received.stream()
-            .map(ContactRequest::getRequester)
-            .filter(u -> !u.isAccountDeleted())
-            .map(this::toUserView)
-            .forEach(result::add);
+                .map(ContactRequest::getRequester)
+                .filter(user -> !user.isAccountDeleted())
+                .map(this::toUserView)
+                .forEach(result::add);
 
         return result.stream()
-            .collect(
-                java.util.stream.Collectors.toMap(
-                    ContactUserView::id,
-                    user -> user,
-                    (first, second) -> first,
-                    java.util.LinkedHashMap::new
-                )
-            )
-            .values()
-            .stream()
-            .toList();
+                .collect(Collectors.toMap(
+                        ContactUserView::id,
+                        user -> user,
+                        (first, second) -> first,
+                        LinkedHashMap::new
+                ))
+                .values()
+                .stream()
+                .toList();
     }
 
     @Transactional
@@ -217,22 +217,20 @@ public class ContactService {
         requireActiveUser(currentUserId);
 
         ContactRequest request = requests.findById(requestId)
-            .orElseThrow(() ->
-                new IllegalArgumentException("Solicitud no encontrada"));
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Solicitud no encontrada"));
 
         if (!request.getAddressee().getId().equals(currentUserId)) {
             throw new IllegalArgumentException(
-                "No tienes permiso para aceptar esta solicitud");
+                    "No tienes permiso para aceptar esta solicitud");
         }
 
         if (!"PENDING".equals(request.getStatus())) {
             throw new IllegalArgumentException(
-                "La solicitud ya no está pendiente");
+                    "La solicitud ya no está pendiente");
         }
 
-        requireNotBlocked(
-            request.getRequester().getId(), currentUserId);
-
+        requireNotBlocked(request.getRequester().getId(), currentUserId);
         requireActiveUser(request.getRequester().getId());
 
         request.setStatus("ACCEPTED");
@@ -244,17 +242,17 @@ public class ContactService {
         requireActiveUser(currentUserId);
 
         ContactRequest request = requests.findById(requestId)
-            .orElseThrow(() ->
-                new IllegalArgumentException("Solicitud no encontrada"));
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Solicitud no encontrada"));
 
         if (!request.getAddressee().getId().equals(currentUserId)) {
             throw new IllegalArgumentException(
-                "No tienes permiso para rechazar esta solicitud");
+                    "No tienes permiso para rechazar esta solicitud");
         }
 
         if (!"PENDING".equals(request.getStatus())) {
             throw new IllegalArgumentException(
-                "La solicitud ya no está pendiente");
+                    "La solicitud ya no está pendiente");
         }
 
         request.setStatus("REJECTED");
@@ -267,27 +265,27 @@ public class ContactService {
         requireActiveUser(currentUserId);
 
         boolean first = requests
-            .findByRequester_IdAndAddressee_Id(
-                currentUserId, otherUserId)
-            .filter(r -> "ACCEPTED".equals(r.getStatus()))
-            .isPresent();
+                .findByRequester_IdAndAddressee_Id(
+                        currentUserId, otherUserId)
+                .filter(request -> "ACCEPTED".equals(request.getStatus()))
+                .isPresent();
 
         boolean second = requests
-            .findByRequester_IdAndAddressee_Id(
-                otherUserId, currentUserId)
-            .filter(r -> "ACCEPTED".equals(r.getStatus()))
-            .isPresent();
+                .findByRequester_IdAndAddressee_Id(
+                        otherUserId, currentUserId)
+                .filter(request -> "ACCEPTED".equals(request.getStatus()))
+                .isPresent();
 
         if (!first && !second) {
             throw new IllegalArgumentException(
-                "No existe un contacto aceptado con este usuario");
+                    "No existe un contacto aceptado con este usuario");
         }
 
         requests.deleteByRequester_IdAndAddressee_IdAndStatus(
-            currentUserId, otherUserId, "ACCEPTED");
+                currentUserId, otherUserId, "ACCEPTED");
 
         requests.deleteByRequester_IdAndAddressee_IdAndStatus(
-            otherUserId, currentUserId, "ACCEPTED");
+                otherUserId, currentUserId, "ACCEPTED");
     }
 
     @Transactional
@@ -295,18 +293,14 @@ public class ContactService {
         requireDifferentUsers(blockerId, blockedId);
 
         AppUser blocker = requireActiveUser(blockerId);
-        requireActiveUser(blockedId);
+        AppUser blocked = requireActiveUser(blockedId);
 
-        if (!blocks.existsByBlocker_IdAndBlocked_Id(
-                blockerId, blockedId)) {
-            blocks.save(new UserBlock(blocker, requireActiveUser(blockedId)));
+        if (!blocks.existsByBlocker_IdAndBlocked_Id(blockerId, blockedId)) {
+            blocks.save(new UserBlock(blocker, blocked));
         }
 
-        requests.deleteByRequester_IdAndAddressee_Id(
-            blockerId, blockedId);
-
-        requests.deleteByRequester_IdAndAddressee_Id(
-            blockedId, blockerId);
+        requests.deleteByRequester_IdAndAddressee_Id(blockerId, blockedId);
+        requests.deleteByRequester_IdAndAddressee_Id(blockedId, blockerId);
     }
 
     @Transactional
@@ -314,25 +308,23 @@ public class ContactService {
         requireDifferentUsers(blockerId, blockedId);
         requireActiveUser(blockerId);
 
-        if (!blocks.existsByBlocker_IdAndBlocked_Id(
-                blockerId, blockedId)) {
+        if (!blocks.existsByBlocker_IdAndBlocked_Id(blockerId, blockedId)) {
             throw new IllegalArgumentException(
-                "No tienes bloqueado a este usuario");
+                    "No tienes bloqueado a este usuario");
         }
 
         blocks.deleteByBlocker_IdAndBlocked_Id(blockerId, blockedId);
     }
-
 
     @Transactional(readOnly = true)
     public List<ContactUserView> blockedUsers(Long userId) {
         requireActiveUser(userId);
 
         return blocks.findByBlocker_Id(userId)
-            .stream()
-            .map(UserBlock::getBlocked)
-            .filter(user -> !user.isAccountDeleted())
-            .map(this::toUserView)
-            .toList();
+                .stream()
+                .map(UserBlock::getBlocked)
+                .filter(user -> !user.isAccountDeleted())
+                .map(this::toUserView)
+                .toList();
     }
 }
