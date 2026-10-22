@@ -6,7 +6,6 @@ import com.plataforma.comunicacion.repository.AppUserRepository;
 import com.plataforma.comunicacion.repository.ConversationMemberRepository;
 import com.plataforma.comunicacion.service.ConversationService;
 
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -123,19 +122,30 @@ public class ConversationController {
                             new IllegalArgumentException(
                                     "El otro participante ya no existe."));
 
-            String otherUsername = otherUser.isAccountDeleted()
+            boolean otherAccountDeleted = otherUser.isAccountDeleted();
+
+            String otherUsername = otherAccountDeleted
                     ? "Cuenta eliminada"
                     : otherUser.getUsername();
 
-            String otherDisplayName = otherUser.isAccountDeleted()
+            String otherDisplayName = otherAccountDeleted
                     ? "Cuenta eliminada"
-                    : otherUser.getDisplayName();
+                    : (otherUser.getDisplayName() != null
+                        && !otherUser.getDisplayName().isBlank()
+                            ? otherUser.getDisplayName()
+                            : otherUser.getUsername());
+
+            String otherAvatarUrl = otherAccountDeleted
+                    ? null
+                    : otherUser.getAvatarUrl();
 
             model.addAttribute("username", user.getUsername());
             model.addAttribute("currentUserId", user.getId());
+            model.addAttribute("currentUserAvatarUrl", user.getAvatarUrl());
             model.addAttribute("conversationId", conversationId);
             model.addAttribute("otherUsername", otherUsername);
             model.addAttribute("otherDisplayName", otherDisplayName);
+            model.addAttribute("otherAvatarUrl", otherAvatarUrl);
 
             return "chat/conversacion";
 
@@ -159,7 +169,7 @@ public class ConversationController {
             MessageView savedMessage = conversationService.sendMessage(
                     conversationId, user.getId(), content);
 
-            // El mismo evento llega a todos los navegadores suscritos.
+            // Se conserva la publicación del mensaje guardado por WebSocket.
             messageWebSocketController.publishMessage(
                     conversationId, savedMessage);
 

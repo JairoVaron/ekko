@@ -24,6 +24,7 @@ public class MessageWebSocketController {
             ConversationService conversationService,
             AppUserRepository appUserRepository,
             SimpMessagingTemplate messagingTemplate) {
+
         this.conversationService = conversationService;
         this.appUserRepository = appUserRepository;
         this.messagingTemplate = messagingTemplate;
@@ -34,7 +35,9 @@ public class MessageWebSocketController {
             @Payload ChatMessageRequest request,
             Principal principal) {
 
-        if (principal == null || principal.getName() == null) {
+        if (principal == null
+                || principal.getName() == null
+                || principal.getName().isBlank()) {
             throw new IllegalArgumentException(
                     "Debes iniciar sesión para enviar mensajes.");
         }
@@ -49,8 +52,9 @@ public class MessageWebSocketController {
 
         AppUser currentUser = appUserRepository
                 .findByUsernameIgnoreCase(principal.getName())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "No se encontró el usuario autenticado."));
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "No se encontró el usuario autenticado."));
 
         if (currentUser.isAccountDeleted()) {
             throw new IllegalArgumentException(
@@ -67,12 +71,18 @@ public class MessageWebSocketController {
     }
 
     /**
-     * Publica el mensaje en el canal compartido.
-     * El campo mine se recalcula en cada navegador usando senderId.
+     * Publica el mensaje guardado en el canal compartido.
+     * Cada navegador determina si el mensaje es propio mediante senderId.
+     * Se conservan el nombre visible y el avatar del remitente.
      */
     public void publishMessage(
             Long conversationId,
             MessageView message) {
+
+        if (conversationId == null || message == null) {
+            throw new IllegalArgumentException(
+                    "La conversación y el mensaje son obligatorios.");
+        }
 
         MessageView sharedMessage = new MessageView(
                 message.id(),
@@ -82,7 +92,9 @@ public class MessageWebSocketController {
                 message.sentAt(),
                 false,
                 message.deliveredAt(),
-                message.readAt()
+                message.readAt(),
+                message.senderDisplayName(),
+                message.senderAvatarUrl()
         );
 
         messagingTemplate.convertAndSend(
