@@ -54,7 +54,6 @@ public class ConversationService {
     }
 
     private AppUser requireActiveUser(Long userId) {
-
         AppUser user = appUserRepository.findById(userId)
                 .orElseThrow(() ->
                         new IllegalArgumentException(
@@ -123,7 +122,7 @@ public class ConversationService {
         }
     }
 
-    /*
+    /**
      * Conserva el historial de conversaciones con cuentas eliminadas.
      * No permite enviar mensajes nuevos a cuentas eliminadas.
      */
@@ -138,11 +137,9 @@ public class ConversationService {
                         conversationId);
 
         for (ConversationMember member : members) {
-
             Long otherUserId = member.getUser().getId();
 
             if (!Objects.equals(otherUserId, currentUserId)) {
-
                 AppUser otherUser = appUserRepository.findById(otherUserId)
                         .orElseThrow(() ->
                                 new IllegalArgumentException(
@@ -159,8 +156,7 @@ public class ConversationService {
     }
 
     /**
-     * Valida el acceso a una conversación sin recuperar mensajes
-     * ni modificar sus estados de entrega o lectura.
+     * Valida el acceso sin recuperar mensajes ni modificar estados.
      */
     @Transactional(readOnly = true)
     public void validateConversationAccess(
@@ -168,10 +164,7 @@ public class ConversationService {
             Long currentUserId) {
 
         requireActiveUser(currentUserId);
-
-        requireConversationAvailable(
-                conversationId,
-                currentUserId);
+        requireConversationAvailable(conversationId, currentUserId);
     }
 
     /**
@@ -197,9 +190,7 @@ public class ConversationService {
                         .findByUser_IdOrderByJoinedAtDesc(currentUserId);
 
         for (ConversationMember membership : currentMemberships) {
-
-            Long conversationId =
-                    membership.getConversation().getId();
+            Long conversationId = membership.getConversation().getId();
 
             List<ConversationMember> members =
                     conversationMemberRepository.findByConversation_Id(
@@ -217,8 +208,7 @@ public class ConversationService {
         }
 
         Conversation conversation =
-                conversationRepository.saveAndFlush(
-                        new Conversation());
+                conversationRepository.saveAndFlush(new Conversation());
 
         ConversationMember firstMember =
                 new ConversationMember(conversation, currentUser);
@@ -233,7 +223,7 @@ public class ConversationService {
     }
 
     /**
-     * Lista conversaciones y conserva las asociadas a cuentas eliminadas.
+     * Lista conversaciones, incluyendo las asociadas a cuentas eliminadas.
      */
     @Transactional(readOnly = true)
     public List<ConversationSummary> listConversations(Long userId) {
@@ -247,9 +237,7 @@ public class ConversationService {
                         .findByUser_IdOrderByJoinedAtDesc(userId);
 
         for (ConversationMember membership : memberships) {
-
-            Long conversationId =
-                    membership.getConversation().getId();
+            Long conversationId = membership.getConversation().getId();
 
             List<ConversationMember> members =
                     conversationMemberRepository.findByConversation_Id(
@@ -270,10 +258,9 @@ public class ConversationService {
             AppUser otherUser = otherMembership.get().getUser();
             boolean deleted = otherUser.isAccountDeleted();
 
-            // Se ocultan conversaciones bloqueadas con cuentas activas.
-            // Se conserva el historial de cuentas eliminadas.
+            // Las conversaciones bloqueadas con cuentas activas se ocultan.
+            // El historial de cuentas eliminadas se conserva.
             if (!deleted) {
-
                 boolean blocked =
                         userBlockRepository
                                 .existsByBlocker_IdAndBlocked_Id(
@@ -304,8 +291,7 @@ public class ConversationService {
             long unreadCount =
                     messageRepository
                             .countByConversation_IdAndReadAtIsNullAndSender_IdNot(
-                                    conversationId,
-                                    userId);
+                                    conversationId, userId);
 
             String otherUsername = deleted
                     ? "Cuenta eliminada"
@@ -313,7 +299,14 @@ public class ConversationService {
 
             String otherDisplayName = deleted
                     ? "Cuenta eliminada"
-                    : otherUser.getDisplayName();
+                    : (otherUser.getDisplayName() != null
+                        && !otherUser.getDisplayName().isBlank()
+                            ? otherUser.getDisplayName()
+                            : otherUser.getUsername());
+
+            String otherAvatarUrl = deleted
+                    ? null
+                    : otherUser.getAvatarUrl();
 
             summaries.add(new ConversationSummary(
                     conversationId,
@@ -322,7 +315,9 @@ public class ConversationService {
                     otherDisplayName,
                     lastMessage,
                     lastMessageAt,
-                    unreadCount));
+                    unreadCount,
+                    otherAvatarUrl
+            ));
         }
 
         summaries.sort(
@@ -337,28 +332,23 @@ public class ConversationService {
     /**
      * Recupera los últimos 50 mensajes en orden cronológico.
      * Los mensajes recibidos se marcan como entregados y leídos
-     * al recuperar el historial, manteniendo el comportamiento original.
+     * al recuperar el historial.
      */
     public List<MessageView> getMessages(
             Long conversationId,
             Long currentUserId) {
 
         requireActiveUser(currentUserId);
-
-        requireConversationAvailable(
-                conversationId,
-                currentUserId);
+        requireConversationAvailable(conversationId, currentUserId);
 
         List<Message> unreadMessages =
                 messageRepository
                         .findByConversation_IdAndReadAtIsNullAndSender_IdNot(
-                                conversationId,
-                                currentUserId);
+                                conversationId, currentUserId);
 
         Instant now = Instant.now();
 
         for (Message message : unreadMessages) {
-
             if (message.getDeliveredAt() == null) {
                 message.setDeliveredAt(now);
             }
@@ -380,18 +370,29 @@ public class ConversationService {
 
         return messages.stream()
                 .map(message -> {
-
                     AppUser sender = message.getSender();
 
-                    String senderUsername =
-                            sender == null || sender.isAccountDeleted()
-                                    ? "Cuenta eliminada"
-                                    : sender.getUsername();
+                    boolean senderDeleted =
+                            sender == null || sender.isAccountDeleted();
+
+                    String senderUsername = senderDeleted
+                            ? "Cuenta eliminada"
+                            : sender.getUsername();
+
+                    String senderDisplayName = senderDeleted
+                            ? "Cuenta eliminada"
+                            : (sender.getDisplayName() != null
+                                && !sender.getDisplayName().isBlank()
+                                    ? sender.getDisplayName()
+                                    : sender.getUsername());
+
+                    String senderAvatarUrl = senderDeleted
+                            ? null
+                            : sender.getAvatarUrl();
 
                     boolean mine = sender != null
                             && Objects.equals(
-                                    sender.getId(),
-                                    currentUserId);
+                                    sender.getId(), currentUserId);
 
                     return new MessageView(
                             message.getId(),
@@ -401,7 +402,10 @@ public class ConversationService {
                             message.getSentAt(),
                             mine,
                             message.getDeliveredAt(),
-                            message.getReadAt());
+                            message.getReadAt(),
+                            senderDisplayName,
+                            senderAvatarUrl
+                    );
                 })
                 .sorted(Comparator.comparing(
                         MessageView::sentAt,
@@ -410,14 +414,13 @@ public class ConversationService {
                 .toList();
     }
 
-        /**
-         * Guarda el mensaje y devuelve exactamente el registro guardado.
-         * Conserva las validaciones de permisos, contactos y bloqueos.
-         */
-        public MessageView sendMessage(
-                Long conversationId,
-                Long currentUserId,
-                String content) {
+    /**
+     * Guarda el mensaje y devuelve el registro guardado.
+     */
+    public MessageView sendMessage(
+            Long conversationId,
+            Long currentUserId,
+            String content) {
 
         AppUser sender = requireActiveUser(currentUserId);
 
@@ -428,8 +431,8 @@ public class ConversationService {
                         conversationId);
 
         if (members.size() != 2) {
-                throw new IllegalArgumentException(
-                        "Esta función solo admite conversaciones privadas.");
+            throw new IllegalArgumentException(
+                    "Esta función solo admite conversaciones privadas.");
         }
 
         AppUser otherUser = members.stream()
@@ -437,27 +440,28 @@ public class ConversationService {
                 .filter(user -> !Objects.equals(
                         user.getId(), currentUserId))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "No se encontró al otro participante."));
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "No se encontró al otro participante."));
 
         if (otherUser.isAccountDeleted()) {
-                throw new IllegalArgumentException(
-                        "No puedes enviar mensajes a una cuenta eliminada.");
+            throw new IllegalArgumentException(
+                    "No puedes enviar mensajes a una cuenta eliminada.");
         }
 
         requireAcceptedContact(currentUserId, otherUser.getId());
         requireNotBlocked(currentUserId, otherUser.getId());
 
         if (content == null || content.isBlank()) {
-                throw new IllegalArgumentException(
-                        "El mensaje no puede estar vacío.");
+            throw new IllegalArgumentException(
+                    "El mensaje no puede estar vacío.");
         }
 
         String normalizedContent = content.strip();
 
         if (normalizedContent.length() > 5000) {
-                throw new IllegalArgumentException(
-                        "El mensaje no puede superar los 5000 caracteres.");
+            throw new IllegalArgumentException(
+                    "El mensaje no puede superar los 5000 caracteres.");
         }
 
         Message message = new Message();
@@ -465,8 +469,13 @@ public class ConversationService {
         message.setSender(sender);
         message.setContent(normalizedContent);
 
-        // Se fuerza la persistencia para obtener el registro definitivo.
         Message saved = messageRepository.saveAndFlush(message);
+
+        String senderDisplayName =
+                sender.getDisplayName() != null
+                        && !sender.getDisplayName().isBlank()
+                        ? sender.getDisplayName()
+                        : sender.getUsername();
 
         return new MessageView(
                 saved.getId(),
@@ -476,9 +485,11 @@ public class ConversationService {
                 saved.getSentAt(),
                 true,
                 saved.getDeliveredAt(),
-                saved.getReadAt()
+                saved.getReadAt(),
+                senderDisplayName,
+                sender.getAvatarUrl()
         );
-        }
+    }
 
     /**
      * Registra la entrega de un mensaje al destinatario.
@@ -495,27 +506,18 @@ public class ConversationService {
                         new IllegalArgumentException(
                                 "El mensaje no existe."));
 
-        Long conversationId =
-                message.getConversation().getId();
+        Long conversationId = message.getConversation().getId();
 
-        // Verifica que el mensaje pertenezca a la conversación indicada.
-        if (!Objects.equals(
-                conversationId,
-                expectedConversationId)) {
-
+        if (!Objects.equals(conversationId, expectedConversationId)) {
             throw new IllegalArgumentException(
                     "El mensaje no pertenece a esa conversación.");
         }
 
-        requireConversationAvailable(
-                conversationId,
-                currentUserId);
+        requireConversationAvailable(conversationId, currentUserId);
 
         if (message.getSender() != null
                 && Objects.equals(
-                        message.getSender().getId(),
-                        currentUserId)) {
-
+                        message.getSender().getId(), currentUserId)) {
             throw new IllegalArgumentException(
                     "No puedes confirmar la entrega de tu propio mensaje.");
         }
@@ -550,27 +552,18 @@ public class ConversationService {
                         new IllegalArgumentException(
                                 "El mensaje no existe."));
 
-        Long conversationId =
-                message.getConversation().getId();
+        Long conversationId = message.getConversation().getId();
 
-        // Verifica que el mensaje pertenezca a la conversación indicada.
-        if (!Objects.equals(
-                conversationId,
-                expectedConversationId)) {
-
+        if (!Objects.equals(conversationId, expectedConversationId)) {
             throw new IllegalArgumentException(
                     "El mensaje no pertenece a esa conversación.");
         }
 
-        requireConversationAvailable(
-                conversationId,
-                currentUserId);
+        requireConversationAvailable(conversationId, currentUserId);
 
         if (message.getSender() != null
                 && Objects.equals(
-                        message.getSender().getId(),
-                        currentUserId)) {
-
+                        message.getSender().getId(), currentUserId)) {
             throw new IllegalArgumentException(
                     "No puedes marcar tu propio mensaje como leído.");
         }
