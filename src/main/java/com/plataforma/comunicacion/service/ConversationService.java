@@ -590,4 +590,42 @@ public class ConversationService {
                 message.getDeliveredAt(),
                 message.getReadAt());
     }
+    
+        /**
+         * Obtiene el nombre de usuario del otro participante
+         * para enviarle notificaciones privadas.
+         */
+        @Transactional(readOnly = true)
+        public String getOtherParticipantUsername(
+                Long conversationId,
+                Long currentUserId) {
+
+        requireActiveUser(currentUserId);
+        requireConversationAvailable(conversationId, currentUserId);
+
+        List<ConversationMember> members =
+                conversationMemberRepository.findByConversation_Id(
+                        conversationId);
+
+        if (members.size() != 2) {
+                throw new IllegalArgumentException(
+                        "La conversación no es privada o no tiene dos participantes.");
+        }
+
+        AppUser recipient = members.stream()
+                .map(ConversationMember::getUser)
+                .filter(user -> !Objects.equals(
+                        user.getId(), currentUserId))
+                .findFirst()
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "No se encontró al destinatario de la notificación."));
+
+        if (recipient.isAccountDeleted()) {
+                throw new IllegalArgumentException(
+                        "No se puede notificar a una cuenta eliminada.");
+        }
+
+        return recipient.getUsername();
+        }
 }

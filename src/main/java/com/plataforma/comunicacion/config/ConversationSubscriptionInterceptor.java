@@ -18,7 +18,11 @@ import org.springframework.stereotype.Component;
 public class ConversationSubscriptionInterceptor
         implements ChannelInterceptor {
 
-    private static final String PREFIX = "/topic/conversations/";
+    private static final String CONVERSATION_PREFIX =
+            "/topic/conversations/";
+
+    private static final String NOTIFICATIONS_DESTINATION =
+            "/user/queue/notifications";
 
     private final AppUserRepository appUserRepository;
     private final ConversationService conversationService;
@@ -26,6 +30,7 @@ public class ConversationSubscriptionInterceptor
     public ConversationSubscriptionInterceptor(
             AppUserRepository appUserRepository,
             ConversationService conversationService) {
+
         this.appUserRepository = appUserRepository;
         this.conversationService = conversationService;
     }
@@ -47,24 +52,38 @@ public class ConversationSubscriptionInterceptor
 
         String destination = accessor.getDestination();
 
-        if (destination == null
-                || !destination.startsWith(PREFIX)) {
+        if (destination == null) {
             return message;
         }
 
         Principal principal = accessor.getUser();
 
-        if (principal == null) {
-            throw new IllegalArgumentException(
-                    "Debes iniciar sesión para acceder a la conversación.");
+        // Validar la suscripción al canal privado de notificaciones.
+        if (NOTIFICATIONS_DESTINATION.equals(destination)) {
+            AppUser user = requireAuthenticatedActiveUser(principal);
+
+            if (user.isAccountDeleted()) {
+                throw new IllegalArgumentException(
+                        "La cuenta ya no está activa.");
+            }
+
+            return message;
         }
 
-        String suffix = destination.substring(PREFIX.length());
+        // Mantener la validación existente de las conversaciones.
+        if (!destination.startsWith(CONVERSATION_PREFIX)) {
+            return message;
+        }
 
-        // Admite el canal de mensajes y el canal de confirmaciones.
+        AppUser user = requireAuthenticatedActiveUser(principal);
+
+        String suffix =
+                destination.substring(CONVERSATION_PREFIX.length());
+
         if (suffix.endsWith("/status")) {
             suffix = suffix.substring(
-                    0, suffix.length() - "/status".length());
+                    0,
+                    suffix.length() - "/status".length());
         }
 
         final Long conversationId;
@@ -80,16 +99,35 @@ public class ConversationSubscriptionInterceptor
                     "El identificador de conversación no es válido.");
         }
 
+        conversationService.validateConversationAccess(
+                conversationId,
+                user.getId());
+
+        return message;
+    }
+
+    private AppUser requireAuthenticatedActiveUser(
+            Principal principal) {
+
+        if (principal == null
+                || principal.getName() == null
+                || principal.getName().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Debes iniciar sesión para recibir notificaciones.");
+        }
+
         AppUser user = appUserRepository
                 .findByUsernameIgnoreCase(principal.getName())
                 .orElseThrow(() ->
                         new IllegalArgumentException(
                                 "No se encontró el usuario autenticado."));
 
-        conversationService.validateConversationAccess(
-                conversationId,
-                user.getId());
+        if (user.isAccountDeleted()) {
+            throw new IllegalArgumentException(
+                    "La cuenta ya no está activa.");
+        }
 
-        return message;
+        return user;
     }
 }

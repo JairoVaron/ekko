@@ -139,6 +139,10 @@ public class ConversationController {
                     ? null
                     : otherUser.getAvatarUrl();
 
+            String otherBio = otherAccountDeleted
+                    ? null
+                    : otherUser.getBio();        
+
             model.addAttribute("username", user.getUsername());
             model.addAttribute("currentUserId", user.getId());
             model.addAttribute("currentUserAvatarUrl", user.getAvatarUrl());
@@ -146,6 +150,7 @@ public class ConversationController {
             model.addAttribute("otherUsername", otherUsername);
             model.addAttribute("otherDisplayName", otherDisplayName);
             model.addAttribute("otherAvatarUrl", otherAvatarUrl);
+            model.addAttribute("otherBio", otherBio);
 
             return "chat/conversacion";
 

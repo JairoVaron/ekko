@@ -1,6 +1,7 @@
 package com.plataforma.comunicacion.controller;
 
 import com.plataforma.comunicacion.dto.ChatMessageRequest;
+import com.plataforma.comunicacion.dto.ChatNotification;
 import com.plataforma.comunicacion.dto.MessageView;
 import com.plataforma.comunicacion.entity.AppUser;
 import com.plataforma.comunicacion.repository.AppUserRepository;
@@ -61,19 +62,47 @@ public class MessageWebSocketController {
                     "La cuenta fue eliminada.");
         }
 
+        Long conversationId = request.conversationId();
+
+        // Guarda y valida el mensaje mediante el servicio existente.
         MessageView savedMessage = conversationService.sendMessage(
-                request.conversationId(),
+                conversationId,
                 currentUser.getId(),
                 request.content()
         );
 
-        publishMessage(request.conversationId(), savedMessage);
+        // Mantiene el canal original del chat en tiempo real.
+        publishMessage(conversationId, savedMessage);
+
+        // Busca al otro participante de la conversación.
+        String recipientUsername =
+                conversationService.getOtherParticipantUsername(
+                        conversationId,
+                        currentUser.getId()
+                );
+
+        // Crea el aviso privado para la campana global.
+        ChatNotification notification = new ChatNotification(
+                conversationId,
+                savedMessage.id(),
+                currentUser.getId(),
+                savedMessage.senderDisplayName(),
+                savedMessage.content(),
+                savedMessage.sentAt() == null
+                        ? null
+                        : savedMessage.sentAt().toString()
+        );
+
+        messagingTemplate.convertAndSendToUser(
+                recipientUsername,
+                "/queue/notifications",
+                notification
+        );
     }
 
     /**
      * Publica el mensaje guardado en el canal compartido.
-     * Cada navegador determina si el mensaje es propio mediante senderId.
-     * Se conservan el nombre visible y el avatar del remitente.
+     * No cambia la estructura de MessageView que consume chat.js.
      */
     public void publishMessage(
             Long conversationId,
