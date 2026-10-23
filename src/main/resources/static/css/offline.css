@@ -1,0 +1,9 @@
+/* EKKO · Página sin conexión (funciona sin Bootstrap ni CDN) */
+body { margin: 0; font-family: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif; background: var(--ek-bg); color: var(--ek-text); }
+h1 { margin: 0 0 1rem; }
+.offline-hint { display: block; margin: 1rem 0 1.5rem; }
+.offline-btn {
+    font: inherit; font-weight: 700; color: #fff; border: 0; border-radius: 999px; padding: .7rem 1.6rem; cursor: pointer;
+    background: var(--ek-gradient); box-shadow: 0 10px 22px -10px rgba(26, 143, 209, .8);
+}
+.offline-btn:active { transform: scale(.97); }
