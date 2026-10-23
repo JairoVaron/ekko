@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Ekko">
+  <defs>
+    <linearGradient id="ekg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3c5"/>
+      <stop offset="0.6" stop-color="#1a8fd1"/>
+      <stop offset="1" stop-color="#0a5a8e"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="31" fill="url(#ekg)"/>
+  <g fill="#fff">
+    <!-- cuerpo arqueado con hocico -->
+    <path d="M13 43C14.500 31 22 21.500 33 19.500 41 18 47 20.500 51 24.500c2 1.500 5 2 8 3.200-3 1.300-5.500 1.300-7.500 1.500C47 34.500 38.500 38.500 30.500 39.500 24 40.300 18 41.500 13 43z"/>
+    <!-- cola -->
+    <path d="M14 43C11 42 8.500 39.500 6.500 35.500 10.500 35.800 14 38 16 41z"/>
+    <path d="M13 44C11.500 46.500 9 48.500 5.500 49.500 7 46 9.500 43.500 12.500 42z"/>
+    <!-- aleta dorsal y pectoral -->
+    <path d="M30 20.500C31.500 15.500 35.500 13 39.500 12.800 38 15 38 17.500 39 20z"/>
+    <path d="M37 35C37.500 39 35.500 42 32 44.500 32.500 41 32.500 38 33.500 36z"/>
+  </g>
+  <circle cx="48.500" cy="25" r="1.100" fill="#0a5a8e"/>
+  <path d="M6 52c5.300-4 10.700-4 16 0s10.700 4 16 0 10.700-4 20 0" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="3" stroke-linecap="round"/>
+  <path d="M10 58.500c4.600-3 9.300-3 14 0s9.300 3 14 0 9.300-3 14 0" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="2.400" stroke-linecap="round"/>
+</svg>

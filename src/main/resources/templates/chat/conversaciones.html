@@ -1,325 +1,140 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis conversaciones</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        nav {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        .conversation {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 14px;
-            margin: 12px 0;
-        }
-        .unread {
-            font-weight: bold;
-        }
-        #connectionStatus {
-            color: #555;
-            font-size: 0.9rem;
-        }
-    </style>
-</head>
+<head th:replace="~{fragments/head :: head('Mis conversaciones')}"></head>
 <body th:attr="data-current-user-id=${currentUserId}">
-<header>
-    <h1>Mis conversaciones</h1>
-    <p>Sesión iniciada como:
-        <strong th:text="${username}"></strong>
-    </p>
-    <nav>
-        <a th:href="@{/inicio}">Inicio</a>
-        <a th:href="@{/contactos}">Contactos</a>
-    </nav>
-</header>
 
-<p id="connectionStatus" role="status" aria-live="polite">
-    Conectando a las conversaciones en tiempo real...
-</p>
-<p th:if="${error}" th:text="${error}"></p>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<main>
-    <h2>Conversaciones privadas</h2>
+<div class="ek-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 
-    <p th:if="${#lists.isEmpty(conversations)}" id="emptyConversations">
-        Todavía no tienes conversaciones. Ve a Contactos para iniciar una.
-    </p>
+    <main class="ek-main">
+        <div class="ek-container">
 
-    <article th:each="conversation : ${conversations}"
-             class="conversation"
-             th:attr="data-conversation-id=${conversation.conversationId},
-                      data-other-user-id=${conversation.otherUserId}">
-        <h3>
-            <a th:href="@{/mensajes/{id}(id=${conversation.conversationId})}"
-               th:text="${conversation.otherDisplayName != null
-                   and !#strings.isEmpty(conversation.otherDisplayName)
-                   ? conversation.otherDisplayName
-                   : conversation.otherUsername}">
-            </a>
-        </h3>
+            <header class="ek-page-head">
+                <div>
+                    <h1 class="ek-display">Mis conversaciones</h1>
+                    <p>Sesión iniciada como <strong th:text="${username}"></strong></p>
+                </div>
 
-        <p>
-            Último mensaje:
-            <span class="last-message"
-                  th:text="${conversation.lastMessage}">
-            </span>
-        </p>
+                <p id="connectionStatus"
+                   class="ek-status-pill"
+                   role="status"
+                   aria-live="polite"
+                   data-state="connecting">
+                    Conectando a las conversaciones en tiempo real...
+                </p>
+            </header>
 
-        <p>
-            <small class="last-message-at"
-                   th:if="${conversation.lastMessageAt != null}"
-                   th:text="${#temporals.format(
-                       conversation.lastMessageAt, 'dd/MM/yyyy HH:mm')}">
-            </small>
-            <small class="last-message-at"
-                   th:unless="${conversation.lastMessageAt != null}">
-            </small>
-        </p>
+            <p class="alert alert-ek-error"
+               th:if="${error}"
+               th:text="${error}"
+               role="alert"
+               data-ekko-sound-on-load="error"></p>
 
-        <p class="unread"
-           th:classappend="${conversation.unreadCount > 0
-               ? ' has-unread' : ''}">
-            Mensajes sin leer:
-            <strong class="unread-count"
-                    th:text="${conversation.unreadCount}">0</strong>
-        </p>
+            <h2 class="visually-hidden">Conversaciones privadas</h2>
 
-        <a th:href="@{/mensajes/{id}(id=${conversation.conversationId})}">
-            Abrir conversación
-        </a>
-    </article>
-</main>
+            <div class="ek-search" th:unless="${#lists.isEmpty(conversations)}">
+                <i class="bi bi-search"></i>
+                <input id="conversationFilter"
+                       type="search"
+                       class="form-control"
+                       placeholder="Buscar en tus conversaciones"
+                       aria-label="Buscar en tus conversaciones"
+                       autocomplete="off">
+            </div>
 
-<script th:inline="javascript">
-(() => {
-    "use strict";
+            <div th:if="${#lists.isEmpty(conversations)}"
+                 id="emptyConversations"
+                 class="ek-empty-state">
+                <i class="bi bi-chat-heart"></i>
+                <p class="mb-3">
+                    Todavía no tienes conversaciones. Ve a Contactos para iniciar una.
+                </p>
+                <a class="btn btn-ekko" th:href="@{/contactos}">
+                    <i class="bi bi-people-fill me-1"></i>Ir a Contactos
+                </a>
+            </div>
 
-    const currentUserId = Number(
-        document.body.dataset.currentUserId
-    );
-    const status = document.getElementById("connectionStatus");
+            <div class="ek-conv-list">
 
-    if (!currentUserId || !Number.isFinite(currentUserId)) {
-        status.textContent = "No se pudo identificar al usuario.";
-        return;
-    }
+                <article th:each="conversation : ${conversations}"
+                         class="ek-conv conversation"
+                         th:with="nombre=${conversation.otherDisplayName != null and !#strings.isEmpty(conversation.otherDisplayName) ? conversation.otherDisplayName : conversation.otherUsername}"
+                         th:attr="data-conversation-id=${conversation.conversationId},
+                                  data-other-user-id=${conversation.otherUserId},
+                                  data-other-name=${nombre},
+                                  data-search=${#strings.toLowerCase(nombre + ' ' + conversation.otherUsername)}">
 
-    const conversations = Array.from(
-        document.querySelectorAll("[data-conversation-id]")
-    );
+                    <!-- Avatar del otro participante -->
+                    <div class="ek-conv-avatar"
+                         style="position:relative;width:48px;height:48px;flex-shrink:0;">
 
-    if (conversations.length === 0) {
-        status.textContent = "No hay conversaciones para escuchar.";
-        return;
-    }
+                        <!-- La inicial queda visible si no hay foto -->
+                        <span class="ek-initial"
+                              th:attr="data-name=${nombre}"
+                              th:text="${!#strings.isEmpty(nombre) ? #strings.toUpperCase(#strings.substring(nombre, 0, 1)) : '?'}"
+                              style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;">
+                            A
+                        </span>
 
-    let socket = null;
-    let connected = false;
-    let buffer = "";
-    let retryTimer = null;
-    let retryDelay = 1000;
-    let manuallyClosed = false;
-    let subscriptionSequence = 0;
+                        <!-- La URL debe venir en conversation.otherAvatarUrl -->
+                        <img th:if="${conversation.otherAvatarUrl != null and !#strings.isEmpty(conversation.otherAvatarUrl)}"
+                             th:src="${conversation.otherAvatarUrl}"
+                             th:alt="${'Foto de perfil de ' + nombre}"
+                             loading="lazy"
+                             decoding="async"
+                             referrerpolicy="no-referrer"
+                             style="position:absolute;inset:0;width:48px;height:48px;object-fit:cover;border-radius:50%;"
+                             onerror="this.onerror=null;this.style.display='none';">
+                    </div>
 
-    function sendFrame(command, headers = {}, body = "") {
-        if (!socket || socket.readyState !== WebSocket.OPEN) {
-            throw new Error("WebSocket no conectado.");
-        }
+                    <div class="ek-conv-body">
+                        <div class="ek-conv-top">
+                            <h3>
+                                <a class="stretched-link"
+                                   th:href="@{/mensajes/{id}(id=${conversation.conversationId})}"
+                                   th:text="${nombre}">
+                                </a>
+                            </h3>
 
-        const headerText = Object.entries(headers)
-            .map(([key, value]) => key + ":" + value)
-            .join("\n");
+                            <small class="ek-conv-time last-message-at"
+                                   th:if="${conversation.lastMessageAt != null}"
+                                   th:text="${#temporals.format(conversation.lastMessageAt, 'dd/MM HH:mm')}">
+                            </small>
 
-        socket.send(command + "\n" + headerText + "\n\n" + body + "\0");
-    }
+                            <small class="ek-conv-time last-message-at"
+                                   th:unless="${conversation.lastMessageAt != null}">
+                            </small>
+                        </div>
 
-    function subscribeAll() {
-        conversations.forEach(element => {
-            const id = element.dataset.conversationId;
-            if (!id) return;
+                        <p class="ek-conv-last">
+                            <span class="last-message"
+                                  th:text="${conversation.lastMessage}">
+                            </span>
+                        </p>
+                    </div>
 
-            sendFrame("SUBSCRIBE", {
-                id: "list-" + id + "-" + (++subscriptionSequence),
-                destination: "/topic/conversations/" + id
-            });
-        });
+                    <p class="ek-unread-pill unread"
+                       th:classappend="${conversation.unreadCount > 0 ? ' has-unread' : ''}"
+                       title="Mensajes sin leer">
+                        <span class="visually-hidden">Mensajes sin leer: </span>
+                        <strong class="unread-count"
+                                th:text="${conversation.unreadCount}">0</strong>
+                    </p>
 
-        connected = true;
-        retryDelay = 1000;
-        status.textContent = "Conectado. Lista actualizada en tiempo real.";
-    }
+                </article>
+            </div>
 
-    function updateConversation(message, conversationId) {
-        if (!message || message.id == null) return;
+            <p id="noMatches" class="ek-empty-state mt-3" hidden>
+                <i class="bi bi-search-heart"></i>
+                No encontramos conversaciones con ese nombre.
+            </p>
 
-        const element = conversations.find(item =>
-            item.dataset.conversationId === String(conversationId)
-        );
+        </div>
+    </main>
+</div>
 
-        if (!element) return;
-
-        const lastMessage = element.querySelector(".last-message");
-        const lastMessageAt = element.querySelector(".last-message-at");
-        const unreadCount = element.querySelector(".unread-count");
-        const unreadLabel = element.querySelector(".unread");
-
-        if (lastMessage) {
-            lastMessage.textContent = message.content || "";
-        }
-
-        if (lastMessageAt) {
-            if (message.sentAt) {
-                const date = new Date(message.sentAt);
-                lastMessageAt.textContent = Number.isNaN(date.getTime())
-                    ? "" : date.toLocaleString();
-            } else {
-                lastMessageAt.textContent = "";
-            }
-        }
-
-        const senderId = Number(message.senderId);
-        const incoming = Number.isFinite(senderId)
-            && senderId !== currentUserId;
-
-        if (incoming && unreadCount) {
-            const previous = Number(unreadCount.textContent) || 0;
-            unreadCount.textContent = String(previous + 1);
-            unreadLabel?.classList.add("has-unread");
-        }
-
-        // Mueve la conversación más reciente al comienzo de la lista.
-        const parent = element.parentElement;
-        if (parent && element !== parent.firstElementChild) {
-            parent.insertBefore(element, parent.firstElementChild);
-        }
-    }
-
-    function processFrame(frame) {
-        frame = frame.replace(/\r\n/g, "\n");
-        const separator = frame.indexOf("\n\n");
-        if (separator < 0) return;
-
-        const headerText = frame.substring(0, separator);
-        const body = frame.substring(separator + 2);
-        const lines = headerText.split("\n");
-        const command = lines.shift();
-        const headers = {};
-
-        lines.forEach(line => {
-            const index = line.indexOf(":");
-            if (index > 0) {
-                headers[line.substring(0, index).trim()] =
-                    line.substring(index + 1).trim();
-            }
-        });
-
-        if (command === "CONNECTED") {
-            try {
-                subscribeAll();
-            } catch (error) {
-                console.error("Error al suscribir conversaciones.", error);
-                socket?.close();
-            }
-            return;
-        }
-
-        if (command === "MESSAGE") {
-            try {
-                const destination = headers.destination || "";
-                const match = destination.match(
-                    /^\/topic\/conversations\/(\d+)$/
-                );
-
-                if (!match) return;
-
-                const conversationId = match[1];
-                const message = JSON.parse(body);
-                updateConversation(message, conversationId);
-            } catch (error) {
-                console.error("No se pudo actualizar la lista.", error);
-            }
-            return;
-        }
-
-        if (command === "ERROR") {
-            console.error("Error STOMP:", body);
-            status.textContent = "El servidor rechazó una suscripción.";
-        }
-    }
-
-    function connect() {
-        if (manuallyClosed) return;
-
-        connected = false;
-        status.textContent = "Conectando...";
-        const scheme = location.protocol === "https:" ? "wss:" : "ws:";
-        const ws = new WebSocket(scheme + "//" + location.host + "/ws");
-
-        socket = ws;
-        buffer = "";
-
-        ws.addEventListener("open", () => {
-            if (socket !== ws) return;
-
-            const headers = {
-                "accept-version": "1.2",
-                host: location.host,
-                "heart-beat": "0,0"
-            };
-
-            sendFrame("CONNECT", headers);
-        });
-
-        ws.addEventListener("message", event => {
-            if (socket !== ws) return;
-
-            buffer += event.data;
-            const frames = buffer.split("\0");
-            buffer = frames.pop() || "";
-
-            frames.forEach(frame => {
-                if (frame.trim()) processFrame(frame);
-            });
-        });
-
-        ws.addEventListener("close", () => {
-            if (socket !== ws) return;
-
-            connected = false;
-            status.textContent = "Desconectado. Intentando reconectar...";
-
-            if (!manuallyClosed) {
-                clearTimeout(retryTimer);
-                retryTimer = setTimeout(() => {
-                    retryDelay = Math.min(retryDelay * 2, 15000);
-                    connect();
-                }, retryDelay);
-            }
-        });
-
-        ws.addEventListener("error", error => {
-            console.error("Error WebSocket.", error);
-        });
-    }
-
-    window.addEventListener("beforeunload", () => {
-        manuallyClosed = true;
-        clearTimeout(retryTimer);
-        if (socket && socket.readyState === WebSocket.OPEN) socket.close();
-    });
-
-    connect();
-})();
-</script>
+<script th:src="@{/js/conversaciones.js}" defer></script>
 </body>
 </html>

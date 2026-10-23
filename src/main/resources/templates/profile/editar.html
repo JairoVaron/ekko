@@ -1,241 +1,119 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar perfil | Comunicación Social</title>
-
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            padding: 24px 16px;
-            font-family: Arial, sans-serif;
-            background: #f5f7fb;
-            color: #1f2937;
-        }
-
-        main {
-            max-width: 680px;
-            margin: 20px auto;
-            padding: 28px;
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 14px;
-        }
-
-        h1 {
-            margin-top: 0;
-        }
-
-        .description {
-            color: #6b7280;
-            line-height: 1.6;
-        }
-
-        .field {
-            margin-top: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 7px;
-            font-weight: bold;
-        }
-
-        input, textarea {
-            display: block;
-            width: 100%;
-            padding: 11px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font: inherit;
-        }
-
-        input:focus, textarea:focus {
-            outline: 2px solid #c7d2fe;
-            border-color: #4f46e5;
-        }
-
-        input[readonly] {
-            background: #f3f4f6;
-            color: #6b7280;
-        }
-
-        textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        .help {
-            display: block;
-            margin-top: 6px;
-            color: #6b7280;
-            font-size: 13px;
-        }
-
-        .message {
-            padding: 12px;
-            margin: 16px 0;
-            border-radius: 8px;
-            line-height: 1.5;
-        }
-
-        .success {
-            color: #166534;
-            background: #dcfce7;
-        }
-
-        .error {
-            color: #991b1b;
-            background: #fee2e2;
-        }
-
-        .actions {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-top: 26px;
-        }
-
-        .button {
-            display: inline-block;
-            padding: 11px 16px;
-            border: 0;
-            border-radius: 8px;
-            font: inherit;
-            font-weight: bold;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .primary {
-            background: #4f46e5;
-            color: white;
-        }
-
-        .primary:hover {
-            background: #4338ca;
-        }
-
-        .secondary {
-            background: #e5e7eb;
-            color: #1f2937;
-        }
-
-        @media (max-width: 480px) {
-            main {
-                padding: 20px 16px;
-            }
-
-            .actions > * {
-                width: 100%;
-                text-align: center;
-            }
-        }
-    </style>
-</head>
-
+<head th:replace="~{fragments/head :: head('Editar perfil')}"></head>
 <body>
-<main>
-    <h1>Editar perfil</h1>
 
-    <p class="description">
-        Actualiza la información que otras personas pueden ver
-        sobre ti en la plataforma.
-    </p>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <div th:if="${successMessage}"
-         class="message success"
-         role="status"
-         th:text="${successMessage}">
-        Perfil actualizado correctamente.
-    </div>
+<div class="ek-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 
-    <div th:if="${errorMessage}"
-         class="message error"
-         role="alert"
-         th:text="${errorMessage}">
-        No se pudieron guardar los cambios.
-    </div>
+    <main class="ek-main">
+        <div class="ek-container">
 
-    <form th:action="@{/perfil}"
-          th:object="${profileForm}"
-          method="post">
+            <header class="ek-page-head">
+                <div>
+                    <h1 class="ek-display">Editar perfil</h1>
+                    <p>Actualiza la información que otras personas pueden ver sobre ti en la plataforma.</p>
+                </div>
+            </header>
 
-        <div class="field">
-            <label for="username">Nombre de usuario</label>
-            <input id="username"
-                   type="text"
-                   th:value="${profileUser.username}"
-                   readonly>
-            <span class="help">
-                El nombre de usuario no se puede modificar.
-            </span>
+            <div class="alert alert-ek-ok" th:if="${successMessage}" role="status" data-ekko-sound-on-load="success">
+                <i class="bi bi-check-circle-fill"></i><span th:text="${successMessage}">Perfil actualizado correctamente.</span>
+            </div>
+            <div class="alert alert-ek-error" th:if="${errorMessage}" role="alert" data-ekko-sound-on-load="error">
+                <i class="bi bi-exclamation-octagon-fill"></i><span th:text="${errorMessage}">No se pudieron guardar los cambios.</span>
+            </div>
+
+            <div class="ek-edit-grid">
+
+                <form class="ek-card" th:action="@{/perfil}" th:object="${profileForm}" method="post" data-ekko-loading>
+
+                    <div class="ek-field ek-readonly">
+                        <label for="username">Nombre de usuario</label>
+                        <div class="ek-input-group">
+                            <i class="bi bi-at"></i>
+                            <input id="username" type="text" class="form-control" th:value="${profileUser.username}" readonly>
+                        </div>
+                        <span class="ek-hint">El nombre de usuario no se puede modificar.</span>
+                    </div>
+
+                    <div class="ek-field ek-readonly">
+                        <label for="email">Correo electrónico</label>
+                        <div class="ek-input-group">
+                            <i class="bi bi-envelope-fill"></i>
+                            <input id="email" type="email" class="form-control" th:value="${profileUser.email}" readonly>
+                        </div>
+                        <span class="ek-hint">El correo se administra por separado y no se cambia aquí.</span>
+                    </div>
+
+                    <div class="ek-field">
+                        <label for="displayName">Nombre visible</label>
+                        <div class="ek-input-group">
+                            <i class="bi bi-emoji-smile-fill"></i>
+                            <input id="displayName" type="text" class="form-control" th:field="*{displayName}"
+                                   th:classappend="${#fields.hasErrors('displayName')} ? 'is-invalid'"
+                                   maxlength="60" minlength="1" required autocomplete="nickname"
+                                   placeholder="¿Cómo quieres que te vean?">
+                        </div>
+                        <small class="ek-error" th:if="${#fields.hasErrors('displayName')}" th:errors="*{displayName}"></small>
+                    </div>
+
+                    <div class="ek-field">
+                        <label for="bio">Biografía</label>
+                        <textarea id="bio" class="form-control ek-textarea" th:field="*{bio}"
+                                  th:classappend="${#fields.hasErrors('bio')} ? 'is-invalid'"
+                                  maxlength="500" placeholder="Cuéntales algo sobre ti..."></textarea>
+                        <div class="d-flex justify-content-between">
+                            <span class="ek-hint">Máximo 500 caracteres. Puedes dejarlo vacío.</span>
+                            <span class="ek-char" id="bioCount">0/500</span>
+                        </div>
+                        <small class="ek-error" th:if="${#fields.hasErrors('bio')}" th:errors="*{bio}"></small>
+                    </div>
+
+                    <div class="ek-field">
+                        <label for="avatarUrl">URL de la imagen de perfil</label>
+                        <div class="ek-input-group">
+                            <i class="bi bi-image-fill"></i>
+                            <input id="avatarUrl" type="url" class="form-control" th:field="*{avatarUrl}"
+                                   th:classappend="${#fields.hasErrors('avatarUrl')} ? 'is-invalid'"
+                                   maxlength="500" placeholder="https://ejemplo.com/mi-avatar.jpg">
+                        </div>
+                        <span class="ek-hint">
+                            Introduce una dirección de imagen pública que comience por https:// o http://.
+                            Déjala vacía si no quieres usar una imagen.
+                        </span>
+                        <small class="ek-error" th:if="${#fields.hasErrors('avatarUrl')}" th:errors="*{avatarUrl}"></small>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        <button type="submit" class="btn btn-ekko" data-loading-text="Guardando…">
+                            <i class="bi bi-check2-circle me-1"></i>Guardar cambios
+                        </button>
+                        <a th:href="@{/configuracion}" class="btn btn-ekko-soft">Volver a configuración</a>
+                    </div>
+                </form>
+
+                <aside class="ek-card ek-preview" aria-label="Vista previa de tu perfil">
+                    <div class="ek-cover" aria-hidden="true">
+                        <div class="ek-waves"><div class="ek-wave"></div><div class="ek-wave"></div><div class="ek-wave"></div></div>
+                    </div>
+                    <div class="ek-preview-body">
+                        <img id="previewAvatar" class="ek-avatar-xl"
+                             th:src="${!#strings.isEmpty(profileForm.avatarUrl)} ? ${profileForm.avatarUrl} : @{/images/avatar-default.svg}"
+                             th:attr="data-fallback=@{/images/avatar-default.svg}"
+                             alt="Vista previa de tu foto de perfil">
+                        <h3 id="previewName" th:attr="data-fallback-name=${profileUser.username}"
+                            th:text="${!#strings.isEmpty(profileForm.displayName) ? profileForm.displayName : profileUser.username}">Nombre</h3>
+                        <small class="ek-handle" th:text="${'@' + profileUser.username}">@usuario</small>
+                        <p id="previewBio" th:text="${!#strings.isEmpty(profileForm.bio) ? profileForm.bio : 'Aquí aparecerá tu biografía.'}">Biografía</p>
+                    </div>
+                </aside>
+            </div>
         </div>
+    </main>
+</div>
 
-        <div class="field">
-            <label for="email">Correo electrónico</label>
-            <input id="email"
-                   type="email"
-                   th:value="${profileUser.email}"
-                   readonly>
-            <span class="help">
-                El correo se administra por separado y no se cambia aquí.
-            </span>
-        </div>
-
-        <div class="field">
-            <label for="displayName">Nombre visible</label>
-            <input id="displayName"
-                   type="text"
-                   th:field="*{displayName}"
-                   maxlength="60"
-                   minlength="1"
-                   required
-                   autocomplete="nickname"
-                   placeholder="¿Cómo quieres que te vean?">
-        </div>
-
-        <div class="field">
-            <label for="bio">Biografía</label>
-            <textarea id="bio"
-                      th:field="*{bio}"
-                      maxlength="500"
-                      placeholder="Cuéntales algo sobre ti..."></textarea>
-            <span class="help">
-                Máximo 500 caracteres. Puedes dejarlo vacío.
-            </span>
-        </div>
-
-        <div class="field">
-            <label for="avatarUrl">URL de la imagen de perfil</label>
-            <input id="avatarUrl"
-                   type="url"
-                   th:field="*{avatarUrl}"
-                   maxlength="500"
-                   placeholder="https://ejemplo.com/mi-avatar.jpg">
-            <span class="help">
-                Introduce una dirección de imagen pública que comience
-                por https:// o http://. Déjala vacía si no quieres usar
-                una imagen.
-            </span>
-        </div>
-
-        <div class="actions">
-            <button type="submit" class="button primary">
-                Guardar cambios
-            </button>
-
-            <a th:href="@{/configuracion}"
-               class="button secondary">
-                Volver a configuración
-            </a>
-        </div>
-    </form>
-</main>
+<script th:src="@{/js/perfil.js}" defer></script>
 </body>
 </html>

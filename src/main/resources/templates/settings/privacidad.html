@@ -1,228 +1,119 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Política y privacidad | Plataforma de Comunicación</title>
-
-    <style>
-        :root {
-            --primary: #4f46e5;
-            --background: #f5f7fb;
-            --surface: #ffffff;
-            --text: #1f2937;
-            --muted: #6b7280;
-            --border: #e5e7eb;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont,
-                "Segoe UI", sans-serif;
-            color: var(--text);
-            background: var(--background);
-            line-height: 1.75;
-        }
-
-        header {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 17px 24px;
-        }
-
-        .header-content {
-            max-width: 850px;
-            margin: auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .brand {
-            color: var(--primary);
-            font-weight: 800;
-            text-decoration: none;
-        }
-
-        .back-link {
-            color: var(--muted);
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        main {
-            width: min(850px, calc(100% - 32px));
-            margin: 35px auto;
-            background: var(--surface);
-            padding: clamp(22px, 5vw, 44px);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-        }
-
-        h1 {
-            margin: 0 0 10px;
-            font-size: clamp(26px, 4vw, 35px);
-            line-height: 1.25;
-        }
-
-        .subtitle {
-            color: var(--muted);
-            font-size: 14px;
-            margin-bottom: 30px;
-        }
-
-        h2 {
-            margin-top: 30px;
-            margin-bottom: 8px;
-            font-size: 19px;
-        }
-
-        p, li {
-            font-size: 15px;
-        }
-
-        a {
-            color: var(--primary);
-        }
-
-        .draft-notice {
-            background: #fffbeb;
-            border: 1px solid #fde68a;
-            color: #92400e;
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 14px;
-            margin-bottom: 28px;
-        }
-
-        footer {
-            text-align: center;
-            color: var(--muted);
-            font-size: 12px;
-            padding: 24px;
-        }
-    </style>
-</head>
-
+<head th:replace="~{fragments/head :: head('Política y privacidad')}"></head>
 <body>
-<header>
-    <div class="header-content">
-        <a class="brand" th:href="@{/inicio}">
-            Comunicación Social
-        </a>
 
-        <a class="back-link" th:href="@{/configuracion}">
-            ← Configuración
-        </a>
-    </div>
-</header>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<main>
-    <h1>Política de privacidad</h1>
+<div class="ek-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 
-    <p class="subtitle">
-        Plataforma de Comunicación Social
-    </p>
+    <main class="ek-main">
+        <div class="ek-container">
 
-    <div class="draft-notice">
-        <strong>Documento inicial:</strong>
-        este texto es un borrador informativo para el desarrollo del proyecto.
-        Debe adaptarse a las funciones reales de la plataforma y revisarse
-        antes de publicarlo como política legal definitiva.
-    </div>
+            <a class="btn btn-ekko-soft btn-sm mb-3" th:href="@{/configuracion}"><i class="bi bi-arrow-left me-1"></i>Configuración</a>
 
-    <h2>1. Objetivo</h2>
-    <p>
-        Esta política busca explicar de manera general cómo la Plataforma
-        de Comunicación Social pretende tratar la información de sus usuarios
-        y qué aspectos de privacidad deben tenerse en cuenta al utilizarla.
-    </p>
+            <article class="ek-doc">
+                <h1 class="ek-display">Política de privacidad</h1>
+                <p class="text-muted-ek">Plataforma de Comunicación Social</p>
 
-    <h2>2. Información de la cuenta</h2>
-    <p>
-        La plataforma puede tratar información necesaria para crear y mantener
-        una cuenta, como el nombre de usuario, los datos del perfil y los
-        datos técnicos requeridos para el funcionamiento del servicio.
-        La información concreta dependerá de los campos que se soliciten
-        y de las funciones que estén habilitadas.
-    </p>
+                <div class="ek-draft">
+                    <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                    <div>
+                        <strong>Documento inicial:</strong>
+                        este texto es un borrador informativo para el desarrollo del proyecto.
+                        Debe adaptarse a las funciones reales de la plataforma y revisarse
+                        antes de publicarlo como política legal definitiva.
+                    </div>
+                </div>
 
-    <h2>3. Mensajes y comunicaciones</h2>
-    <p>
-        La plataforma permite intercambiar mensajes entre usuarios.
-        Los mensajes y sus datos asociados pueden procesarse y almacenarse
-        para ofrecer el servicio, mostrar el historial de conversaciones
-        y gestionar funciones como la entrega y la lectura de mensajes.
-    </p>
-    <p>
-        No debe asumirse que los mensajes cuentan con cifrado de extremo
-        a extremo, salvo que esa función haya sido implementada y verificada.
-    </p>
+                <h2>1. Objetivo</h2>
+                <p>
+                    Esta política busca explicar de manera general cómo la Plataforma
+                    de Comunicación Social pretende tratar la información de sus usuarios
+                    y qué aspectos de privacidad deben tenerse en cuenta al utilizarla.
+                </p>
 
-    <h2>4. Uso de la información</h2>
-    <p>
-        La información se utilizará únicamente conforme a las finalidades
-        que se definan para el funcionamiento, mantenimiento, seguridad
-        y mejora del servicio. Las finalidades definitivas deberán
-        documentarse antes de la puesta en producción.
-    </p>
+                <h2>2. Información de la cuenta</h2>
+                <p>
+                    La plataforma puede tratar información necesaria para crear y mantener
+                    una cuenta, como el nombre de usuario, los datos del perfil y los
+                    datos técnicos requeridos para el funcionamiento del servicio.
+                    La información concreta dependerá de los campos que se soliciten
+                    y de las funciones que estén habilitadas.
+                </p>
 
-    <h2>5. Seguridad</h2>
-    <p>
-        Se deben aplicar medidas técnicas y organizativas razonables para
-        proteger las cuentas y la información almacenada. Ningún sistema
-        informático puede garantizar una seguridad absoluta.
-    </p>
+                <h2>3. Mensajes y comunicaciones</h2>
+                <p>
+                    La plataforma permite intercambiar mensajes entre usuarios.
+                    Los mensajes y sus datos asociados pueden procesarse y almacenarse
+                    para ofrecer el servicio, mostrar el historial de conversaciones
+                    y gestionar funciones como la entrega y la lectura de mensajes.
+                </p>
+                <p>
+                    No debe asumirse que los mensajes cuentan con cifrado de extremo
+                    a extremo, salvo que esa función haya sido implementada y verificada.
+                </p>
 
-    <h2>6. Conservación y eliminación de datos</h2>
-    <p>
-        Los periodos de conservación y las consecuencias de eliminar una
-        cuenta deberán definirse de acuerdo con el funcionamiento real
-        de la plataforma y las obligaciones legales aplicables.
-        La eliminación de una cuenta no implica necesariamente que todas
-        las copias de seguridad o registros técnicos desaparezcan de inmediato.
-    </p>
+                <h2>4. Uso de la información</h2>
+                <p>
+                    La información se utilizará únicamente conforme a las finalidades
+                    que se definan para el funcionamiento, mantenimiento, seguridad
+                    y mejora del servicio. Las finalidades definitivas deberán
+                    documentarse antes de la puesta en producción.
+                </p>
 
-    <h2>7. Derechos de los usuarios</h2>
-    <p>
-        Los procedimientos para consultar, actualizar, corregir o solicitar
-        la eliminación de información personal deben establecerse de acuerdo
-        con la normativa aplicable y las capacidades reales del servicio.
-    </p>
+                <h2>5. Seguridad</h2>
+                <p>
+                    Se deben aplicar medidas técnicas y organizativas razonables para
+                    proteger las cuentas y la información almacenada. Ningún sistema
+                    informático puede garantizar una seguridad absoluta.
+                </p>
 
-    <h2>8. Servicios de terceros</h2>
-    <p>
-        Si la plataforma utiliza proveedores de alojamiento, bases de datos
-        u otros servicios externos, se deberán identificar y explicar sus
-        funciones y el tratamiento de información que corresponda.
-    </p>
+                <h2>6. Conservación y eliminación de datos</h2>
+                <p>
+                    Los periodos de conservación y las consecuencias de eliminar una
+                    cuenta deberán definirse de acuerdo con el funcionamiento real
+                    de la plataforma y las obligaciones legales aplicables.
+                    La eliminación de una cuenta no implica necesariamente que todas
+                    las copias de seguridad o registros técnicos desaparezcan de inmediato.
+                </p>
 
-    <h2>9. Cambios en esta política</h2>
-    <p>
-        Este documento podrá actualizarse a medida que se incorporen nuevas
-        funciones. Cuando se publique una versión definitiva, deberán
-        indicarse la fecha de actualización y, cuando corresponda,
-        los mecanismos para informar a los usuarios.
-    </p>
+                <h2>7. Derechos de los usuarios</h2>
+                <p>
+                    Los procedimientos para consultar, actualizar, corregir o solicitar
+                    la eliminación de información personal deben establecerse de acuerdo
+                    con la normativa aplicable y las capacidades reales del servicio.
+                </p>
 
-    <h2>10. Contacto</h2>
-    <p>
-        Antes de publicar la versión definitiva, agrega un canal de contacto
-        válido para las consultas sobre privacidad y protección de datos.
-    </p>
+                <h2>8. Servicios de terceros</h2>
+                <p>
+                    Si la plataforma utiliza proveedores de alojamiento, bases de datos
+                    u otros servicios externos, se deberán identificar y explicar sus
+                    funciones y el tratamiento de información que corresponda.
+                </p>
 
-    <p class="subtitle">
-        Versión de desarrollo. Fecha de revisión: pendiente.
-    </p>
-</main>
+                <h2>9. Cambios en esta política</h2>
+                <p>
+                    Este documento podrá actualizarse a medida que se incorporen nuevas
+                    funciones. Cuando se publique una versión definitiva, deberán
+                    indicarse la fecha de actualización y, cuando corresponda,
+                    los mecanismos para informar a los usuarios.
+                </p>
 
-<footer>
-    Plataforma de Comunicación Social · Privacidad
-</footer>
+                <h2>10. Contacto</h2>
+                <p>
+                    Antes de publicar la versión definitiva, agrega un canal de contacto
+                    válido para las consultas sobre privacidad y protección de datos.
+                </p>
+
+                <p class="text-muted-ek mt-4 mb-0">
+                    Versión de desarrollo. Fecha de revisión: pendiente.
+                </p>
+            </article>
+        </div>
+    </main>
+</div>
+
 </body>
 </html>

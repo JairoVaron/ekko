@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verificación del correo</title>
-</head>
+<head th:replace="~{fragments/head :: head('Verificación del correo')}"></head>
 <body>
-<header>
-    <h1>Verificación del correo electrónico</h1>
-</header>
 
-<main>
-    <section>
-        <p th:text="${mensaje}">Estado de la verificación</p>
-        <span>Revisa tu correo spam</span>
+<main class="ek-center">
+    <div class="ek-bubbles" data-ekko-bubbles="14" aria-hidden="true"></div>
+    <div class="ek-waves" aria-hidden="true">
+        <div class="ek-wave"></div><div class="ek-wave"></div><div class="ek-wave"></div>
+    </div>
 
-        <p>
-            <a th:href="@{/login}">Ir al inicio de sesión</a>
-        </p>
+    <section class="ek-center-card">
+        <img class="ek-logo-mid" th:src="@{/images/ekko-logo.svg}" alt="Logo de Ekko" data-ekko-splash>
+
+        <h1 class="ek-display">Verificación del correo electrónico</h1>
+
+        <p class="ek-verify-msg" role="status" data-ekko-sound-on-load="notify" th:text="${mensaje}">Estado de la verificación</p>
+
+        <a class="btn btn-ekko" th:href="@{/login}">Ir al inicio de sesión</a>
     </section>
 </main>
+
 </body>
 </html>

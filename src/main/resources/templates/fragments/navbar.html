@@ -2,16 +2,81 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <body>
 
-<header th:fragment="navbar">
-    <nav aria-label="Navegación principal">
-        <a th:href="@{/inicio}">Inicio</a>
-        |
-        <a th:href="@{/conversaciones}">Conversaciones</a>
-        |
-        <a th:href="@{/contactos}">Contactos</a>
-        |
-        <a th:href="@{/configuracion}">Configuración</a>
-    </nav>
+<header th:fragment="navbar" class="ek-navbar">
+    <div class="ek-navbar-inner">
+
+        <a class="ek-brand" th:href="@{/inicio}" aria-label="Ekko, ir al inicio">
+            <img class="ek-brand-logo" th:src="@{/images/ekko-logo.svg}" alt="" width="36" height="36">
+            <span class="ek-brand-name">Ekko</span>
+        </a>
+
+        <nav class="ek-nav-actions" aria-label="Navegación principal">
+
+            <button type="button" class="ek-icon-btn" data-ekko-install hidden
+                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Instalar Ekko"
+                    aria-label="Instalar Ekko como aplicación">
+                <i class="bi bi-download"></i>
+            </button>
+
+            <button type="button" class="ek-icon-btn" data-ekko-sound-toggle
+                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Sonidos"
+                    aria-label="Activar o silenciar sonidos">
+                <i class="bi bi-volume-up-fill"></i>
+            </button>
+
+            <button type="button" class="ek-icon-btn" data-ekko-theme-toggle
+                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Modo claro u oscuro"
+                    aria-label="Cambiar tema">
+                <i class="bi bi-moon-stars-fill"></i>
+            </button>
+
+            <div class="dropdown">
+                <button type="button" class="ek-icon-btn" data-bs-toggle="dropdown"
+                        data-bs-auto-close="outside" aria-expanded="false" aria-label="Notificaciones">
+                    <i class="bi bi-bell-fill"></i>
+                    <span class="ek-dot" data-ekko-unread hidden>0</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end ek-bell-menu">
+                    <h6 class="px-2 pt-1 mb-1">Notificaciones</h6>
+                    <div data-ekko-bell-list>
+                        <div class="ek-empty" data-ekko-bell-empty>
+                            <i class="bi bi-water"></i>
+                            Todo en calma. Aquí verás tus avisos nuevos.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dropdown ms-1">
+                <button type="button" class="ek-user-btn" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img class="ek-avatar-sm"
+                        th:src="${currentUser != null and currentUser.avatarUrl != null and !#strings.isEmpty(currentUser.avatarUrl)} ? ${currentUser.avatarUrl} : @{/images/avatar-default.svg}"
+                        th:attr="data-fallback=@{/images/avatar-default.svg}"
+                        alt="Mi foto de perfil">
+                    <span class="ek-user-name"
+                          th:text="${currentUser != null ? (!#strings.isEmpty(currentUser.displayName) ? currentUser.displayName : currentUser.username) : 'Mi cuenta'}">
+                        Mi cuenta
+                    </span>
+                    <i class="bi bi-chevron-down small d-none d-md-inline"></i>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" th:href="@{/perfil}"><i class="bi bi-person-circle"></i>Mi perfil</a></li>
+                    <li><a class="dropdown-item" th:href="@{/configuracion}"><i class="bi bi-gear-fill"></i>Configuración</a></li>
+                    <li><a class="dropdown-item" th:href="@{/politica-privacidad}"><i class="bi bi-shield-check"></i>Política y privacidad</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form th:action="@{/logout}" method="post" class="m-0">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="dropdown-item text-danger w-100">
+                                <i class="bi bi-box-arrow-right"></i>Cerrar sesión
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
 </header>
 
 </body>

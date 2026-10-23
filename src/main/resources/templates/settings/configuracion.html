@@ -1,301 +1,116 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuración | Plataforma de Comunicación</title>
-
-    <style>
-        :root {
-            color-scheme: light;
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --background: #f5f7fb;
-            --surface: #ffffff;
-            --text: #1f2937;
-            --muted: #6b7280;
-            --border: #e5e7eb;
-            --danger: #dc2626;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont,
-                "Segoe UI", sans-serif;
-            background: var(--background);
-            color: var(--text);
-        }
-
-        header {
-            background: var(--surface);
-            border-bottom: 1px solid var(--border);
-            padding: 17px 24px;
-        }
-
-        .header-content {
-            max-width: 950px;
-            margin: auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-        }
-
-        .brand {
-            color: var(--primary);
-            font-weight: 800;
-            font-size: 18px;
-            text-decoration: none;
-        }
-
-        .back-link {
-            color: var(--muted);
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .back-link:hover {
-            color: var(--primary);
-        }
-
-        main {
-            width: min(900px, calc(100% - 32px));
-            margin: 38px auto;
-        }
-
-        .page-heading {
-            margin-bottom: 25px;
-        }
-
-        .page-heading h1 {
-            margin: 0 0 8px;
-            font-size: clamp(26px, 4vw, 34px);
-        }
-
-        .page-heading p {
-            color: var(--muted);
-            margin: 0;
-            line-height: 1.6;
-        }
-
-        .section-title {
-            margin: 28px 0 12px;
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .settings-list {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        .setting {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 19px;
-            color: inherit;
-            text-decoration: none;
-            border-bottom: 1px solid var(--border);
-            transition: background .15s ease;
-        }
-
-        .setting:last-child {
-            border-bottom: none;
-        }
-
-        .setting:hover {
-            background: #f8fafc;
-        }
-
-        .setting-icon {
-            width: 44px;
-            height: 44px;
-            flex: 0 0 44px;
-            border-radius: 12px;
-            display: grid;
-            place-items: center;
-            background: #eef2ff;
-            color: var(--primary);
-            font-size: 21px;
-        }
-
-        .setting-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .setting-info strong {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 15px;
-        }
-
-        .setting-info span {
-            color: var(--muted);
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .arrow {
-            color: #9ca3af;
-            font-size: 22px;
-        }
-
-        .danger .setting-icon {
-            background: #fef2f2;
-            color: var(--danger);
-        }
-
-        .danger .setting-info strong {
-            color: var(--danger);
-        }
-
-        .logout-form {
-            margin: 0;
-        }
-
-        .logout-button {
-            width: 100%;
-            border: 0;
-            text-align: left;
-            background: transparent;
-            font: inherit;
-            cursor: pointer;
-        }
-
-        .logout-button:hover {
-            background: #fff7ed;
-        }
-
-        .notice {
-            margin-top: 24px;
-            padding: 15px 17px;
-            background: #eef2ff;
-            border: 1px solid #c7d2fe;
-            border-radius: 12px;
-            color: #3730a3;
-            font-size: 13px;
-            line-height: 1.6;
-        }
-
-        footer {
-            text-align: center;
-            color: var(--muted);
-            font-size: 12px;
-            padding: 24px;
-        }
-
-        @media (max-width: 520px) {
-            header {
-                padding: 15px 16px;
-            }
-
-            main {
-                margin-top: 25px;
-            }
-
-            .setting {
-                padding: 15px 12px;
-                gap: 11px;
-            }
-
-            .setting-icon {
-                width: 39px;
-                height: 39px;
-                flex-basis: 39px;
-            }
-        }
-    </style>
-</head>
-
+<head th:replace="~{fragments/head :: head('Configuración')}"></head>
 <body>
-<header>
-    <div class="header-content">
-        <a class="brand" th:href="@{/inicio}">
-            Comunicación Social
-        </a>
 
-        <a class="back-link" th:href="@{/inicio}">
-            ← Volver al inicio
-        </a>
-    </div>
-</header>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<main>
-    <section class="page-heading">
-        <h1>Configuración</h1>
-        <p>
-            Administra las opciones de tu cuenta, tu privacidad
-            y la seguridad de tu sesión.
-        </p>
-    </section>
+<div class="ek-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 
-    <h2 class="section-title">Tu cuenta</h2>
+    <main class="ek-main">
+        <div class="ek-container">
 
-    <div class="settings-list">
-        <a class="setting" th:href="@{/perfil}">
-            <div class="setting-icon" aria-hidden="true">👤</div>
-            <div class="setting-info">
-                <strong>Editar perfil</strong>
-            </div>
-            <span class="arrow" aria-hidden="true">›</span>
-        </a>
-
-        <a class="setting" th:href="@{/politica-privacidad}">
-            <div class="setting-icon" aria-hidden="true">🛡️</div>
-            <div class="setting-info">
-                <strong>Política y privacidad</strong>
-                <span>Consulta cómo se plantea el tratamiento de tus datos y el uso de la plataforma.</span>
-            </div>
-            <span class="arrow" aria-hidden="true">›</span>
-        </a>
-    </div>
-
-    <h2 class="section-title">Seguridad</h2>
-
-    <div class="settings-list">
-        <form class="logout-form"
-              th:action="@{/logout}"
-              method="post"
-              onsubmit="return confirm('¿Seguro que deseas cerrar tu sesión?');">
-
-            <button type="submit"
-                    class="setting logout-button">
-                <div class="setting-icon" aria-hidden="true">↪</div>
-                <div class="setting-info">
-                    <strong>Cerrar sesión</strong>
-                    <span>Salir de tu cuenta en este dispositivo.</span>
+            <header class="ek-page-head">
+                <div>
+                    <h1 class="ek-display">Configuración</h1>
+                    <p>Administra las opciones de tu cuenta, tu privacidad y la seguridad de tu sesión.</p>
                 </div>
-                <span class="arrow" aria-hidden="true">›</span>
-            </button>
-        </form>
+            </header>
 
-        <a class="setting danger" th:href="@{/cuenta/eliminar}">
-            <div class="setting-icon" aria-hidden="true">⚠</div>
-            <div class="setting-info">
-                <strong>Cerrar o eliminar cuenta</strong>
-                <span>Accede al proceso de eliminación y sus verificaciones.</span>
+            <h2 class="ek-section-title">Tu cuenta</h2>
+            <div class="ek-settings">
+                <a class="ek-setting" th:href="@{/perfil}">
+                    <span class="ek-setting-icon" aria-hidden="true"><i class="bi bi-person-circle"></i></span>
+                    <span class="ek-setting-info"><strong>Editar perfil</strong><span>Nombre visible, biografía y foto.</span></span>
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                </a>
+                <a class="ek-setting" th:href="@{/politica-privacidad}">
+                    <span class="ek-setting-icon" aria-hidden="true"><i class="bi bi-shield-check"></i></span>
+                    <span class="ek-setting-info">
+                        <strong>Política y privacidad</strong>
+                        <span>Consulta cómo se plantea el tratamiento de tus datos y el uso de la plataforma.</span>
+                    </span>
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                </a>
             </div>
-            <span class="arrow" aria-hidden="true">›</span>
-        </a>
-    </div>
 
-    <div class="notice">
-        <strong>Importante:</strong> cerrar sesión no elimina tu cuenta.
-        La eliminación debe continuar utilizando el proceso de verificación
-        que ya tiene implementado la plataforma.
-    </div>
-</main>
+            <h2 class="ek-section-title">Aplicación</h2>
+            <div class="ek-settings">
+                <div class="ek-setting ek-pref">
+                    <span class="ek-setting-icon" aria-hidden="true"><i class="bi bi-phone-fill"></i></span>
+                    <span class="ek-setting-info"><strong>Instalar Ekko</strong><span class="ek-install-state" data-ekko-install-state>Comprobando…</span></span>
+                    <button type="button" class="btn btn-ekko btn-sm" data-ekko-install hidden><i class="bi bi-download me-1"></i>Instalar</button>
+                </div>
+            </div>
 
-<footer>
-    Plataforma de Comunicación Social · Configuración
-</footer>
+            <h2 class="ek-section-title">Preferencias en este dispositivo</h2>
+            <div class="ek-settings">
+                <div class="ek-setting ek-pref">
+                    <span class="ek-setting-icon" aria-hidden="true"><i class="bi bi-volume-up-fill"></i></span>
+                    <label class="ek-setting-info" for="prefSound"><strong>Sonidos de Ekko</strong><span>Mensajes, avisos y confirmaciones.</span></label>
+                    <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" role="switch" id="prefSound"></div>
+                </div>
+                <div class="ek-setting ek-pref">
+                    <span class="ek-setting-icon" aria-hidden="true"><i class="bi bi-sliders"></i></span>
+                    <label class="ek-setting-info" for="prefVolume"><strong>Volumen</strong><span>Prueba cómo suena cada aviso.</span></label>
+                    <div class="ek-pref-control">
+                        <input type="range" id="prefVolume" min="0" max="100" step="5">
+                        <button type="button" class="btn btn-ekko-soft btn-sm" data-test-sound="notify"><i class="bi bi-bell-fill"></i></button>
+                        <button type="button" class="btn btn-ekko-soft btn-sm" data-test-sound="received"><i class="bi bi-box-arrow-in-down"></i></button>
+                        <button type="button" class="btn btn-ekko-soft btn-sm" data-test-sound="sent"><i class="bi bi-send-fill"></i></button>
+                    </div>
+                </div>
+                <div class="ek-setting ek-pref">
+                    <span class="ek-setting-icon" aria-hidden="true"><i class="bi bi-stars"></i></span>
+                    <label class="ek-setting-info" for="prefFx"><strong>Efectos animados</strong><span>Olas y burbujas. Desactívalos si notas lentitud.</span></label>
+                    <div class="form-check form-switch m-0"><input class="form-check-input" type="checkbox" role="switch" id="prefFx"></div>
+                </div>
+                <div class="ek-setting ek-pref">
+                    <span class="ek-setting-icon" aria-hidden="true"><i class="bi bi-moon-stars-fill"></i></span>
+                    <span class="ek-setting-info"><strong>Apariencia</strong><span>Elige cómo quieres ver Ekko.</span></span>
+                    <div class="ek-seg" role="radiogroup" aria-label="Apariencia">
+                        <input type="radio" class="btn-check" name="prefTheme" id="themeAuto" value="auto"><label class="btn" for="themeAuto">Automático</label>
+                        <input type="radio" class="btn-check" name="prefTheme" id="themeLight" value="light"><label class="btn" for="themeLight">Claro</label>
+                        <input type="radio" class="btn-check" name="prefTheme" id="themeDark" value="dark"><label class="btn" for="themeDark">Oscuro</label>
+                    </div>
+                </div>
+                <div class="ek-setting ek-pref">
+                    <span class="ek-setting-icon" aria-hidden="true"><i class="bi bi-bell-fill"></i></span>
+                    <span class="ek-setting-info"><strong>Avisos del navegador</strong><span id="prefDesktopState">Comprobando…</span></span>
+                    <button type="button" class="btn btn-ekko btn-sm" id="prefDesktop">Activar avisos</button>
+                </div>
+            </div>
+
+            <h2 class="ek-section-title">Seguridad</h2>
+            <div class="ek-settings">
+                <form class="m-0" th:action="@{/logout}" method="post"
+                      data-ekko-confirm="Saldrás de tu cuenta en este dispositivo."
+                      data-confirm-title="¿Cerrar tu sesión?" data-confirm-ok="Cerrar sesión">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit" class="ek-setting">
+                        <span class="ek-setting-icon" aria-hidden="true"><i class="bi bi-box-arrow-right"></i></span>
+                        <span class="ek-setting-info"><strong>Cerrar sesión</strong><span>Salir de tu cuenta en este dispositivo.</span></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </form>
+
+                <a class="ek-setting is-danger" th:href="@{/cuenta/eliminar}">
+                    <span class="ek-setting-icon" aria-hidden="true"><i class="bi bi-exclamation-triangle-fill"></i></span>
+                    <span class="ek-setting-info"><strong>Cerrar o eliminar cuenta</strong><span>Accede al proceso de eliminación y sus verificaciones.</span></span>
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                </a>
+            </div>
+
+            <div class="ek-notice">
+                <strong>Importante:</strong> cerrar sesión no elimina tu cuenta.
+                La eliminación debe continuar utilizando el proceso de verificación
+                que ya tiene implementado la plataforma.
+            </div>
+        </div>
+    </main>
+</div>
+
+<script th:src="@{/js/configuracion.js}" defer></script>
 </body>
 </html>

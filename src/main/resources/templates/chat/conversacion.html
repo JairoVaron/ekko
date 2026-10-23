@@ -1,489 +1,176 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conversación</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        nav {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin: 15px 0;
-        }
-        #messageList {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        .message {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 8px;
-            overflow-wrap: anywhere;
-        }
-        .message-mine {
-            background: #e0f2fe;
-            margin-left: 10%;
-        }
-        .message-other {
-            background: #f3f4f6;
-            margin-right: 10%;
-        }
-        .message p {
-            white-space: pre-wrap;
-        }
-        textarea {
-            box-sizing: border-box;
-            display: block;
-            width: 100%;
-            margin: 8px 0;
-            padding: 10px;
-        }
-        button {
-            padding: 9px 15px;
-            cursor: pointer;
-        }
-        #sendError { color: #b91c1c; }
-        .message-status { display: block; }
-    </style>
-</head>
-<body th:attr="data-current-user-id=${currentUserId}">
+<head th:replace="~{fragments/head :: head('Conversación')}"></head>
 
-<header>
-    <h1>Conversación con
-        <span th:text="${otherDisplayName != null
-            and !#strings.isEmpty(otherDisplayName)
-            ? otherDisplayName : otherUsername}"></span>
-    </h1>
-    <nav>
-        <a th:href="@{/mensajes}">Volver a conversaciones</a>
-        <a th:href="@{/contactos}">Contactos</a>
-        <a th:href="@{/inicio}">Inicio</a>
-    </nav>
-</header>
+<body class="ek-chat-page"
+      th:attr="data-current-user-id=${currentUserId},data-conversation-id=${conversationId}">
 
-<p th:if="${error}" th:text="${error}"></p>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<p id="connectionStatus" role="status" aria-live="polite">
-    Conectando al chat...
-</p>
-<p id="sendError" role="alert" hidden></p>
+<div class="ek-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 
-<main>
-    <section>
-        <h2>Historial de mensajes</h2>
+    <main class="ek-main">
+        <div class="ek-chat"
+             th:with="nombreOtro=${otherDisplayName != null and !#strings.isEmpty(otherDisplayName) ? otherDisplayName : otherUsername}">
 
-        <div id="messageList" aria-live="polite">
-            <p th:if="${#lists.isEmpty(messages)}" id="emptyMessages">
-                Todavía no hay mensajes. ¡Envía el primero!
-            </p>
+            <!-- CABECERA DEL CHAT Y PERFIL DEL CONTACTO -->
+            <header class="ek-chat-head">
 
-            <article th:each="message : ${messages}"
-                     class="message"
-                     th:classappend="${message.mine
-                         ? ' message-mine' : ' message-other'}"
-                     th:attr="data-message-id=${message.id},
-                              data-mine=${message.mine}">
-                <p>
-                    <strong th:text="${message.mine
-                        ? 'Tú' : message.senderUsername}"></strong>
-                </p>
-                <p th:text="${message.content}"></p>
+                <a class="ek-icon-btn"
+                   th:href="@{/mensajes}"
+                   aria-label="Volver a conversaciones">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
 
-                <small class="message-status"
-                       th:if="${message.mine}"
-                       th:text="${message.readAt != null
-                           ? 'Leído'
-                           : (message.deliveredAt != null
-                               ? 'Entregado' : 'Enviado')}"></small>
+                <img class="ek-initial"
+                     th:src="${otherAvatarUrl != null and !#strings.isEmpty(otherAvatarUrl) ? otherAvatarUrl : '/images/avatar-default.svg'}"
+                     alt="Foto de perfil del contacto"
+                     width="48"
+                     height="48"
+                     style="object-fit: cover; flex-shrink: 0;">
 
-                <small th:if="${message.sentAt != null}"
-                       th:text="${#temporals.format(
-                           message.sentAt, 'dd/MM/yyyy HH:mm')}"></small>
-            </article>
+                <div class="min-w-0 flex-grow-1">
+
+                    <h1 class="ek-chat-name">
+                        <span class="visually-hidden">Conversación con </span>
+                        <span th:text="${nombreOtro}">Nombre del contacto</span>
+                    </h1>
+
+                    <p th:text="${otherBio != null and !#strings.isEmpty(otherBio) ? otherBio : 'Este usuario todavía no tiene biografía.'}">
+                        Biografía del contacto
+                    </p>
+
+                    <p id="connectionStatus"
+                       class="ek-status-pill"
+                       role="status"
+                       aria-live="polite"
+                       data-state="connecting">
+                        Conectando al chat...
+                    </p>
+
+                </div>
+
+                <a class="ek-icon-btn"
+                   th:href="@{/contactos}"
+                   aria-label="Contactos"
+                   data-bs-toggle="tooltip"
+                   title="Contactos">
+                    <i class="bi bi-people-fill"></i>
+                </a>
+
+            </header>
+
+            <p class="alert alert-ek-error ek-chat-alert"
+               th:if="${error}"
+               th:text="${error}"
+               role="alert"></p>
+
+            <!-- HISTORIAL DE MENSAJES -->
+            <div class="ek-chat-body">
+
+                <div id="messageList"
+                     aria-live="polite"
+                     aria-label="Historial de mensajes">
+
+                    <span class="ek-chat-note">
+                        Se muestran como máximo los 50 mensajes más recientes.
+                    </span>
+
+                    <p th:if="${#lists.isEmpty(messages)}"
+                       id="emptyMessages">
+                        <i class="bi bi-water"></i>
+                        Todavía no hay mensajes. ¡Envía el primero!
+                    </p>
+
+                    <article th:each="message : ${messages}"
+                             class="message"
+                             th:classappend="${message.mine ? ' message-mine' : ' message-other'}"
+                             th:attr="data-message-id=${message.id},
+                                      data-mine=${message.mine}">
+
+                        <p class="sender visually-hidden">
+                            <strong th:text="${message.mine ? 'Tú' : message.senderUsername}"></strong>
+                        </p>
+
+                        <p class="text" th:text="${message.content}"></p>
+
+                        <div class="message-meta">
+
+                            <small class="message-time"
+                                   th:if="${message.sentAt != null}"
+                                   th:text="${#temporals.format(message.sentAt, 'dd/MM HH:mm')}">
+                            </small>
+
+                            <small class="message-status"
+                                   th:if="${message.mine}"
+                                   th:attr="data-state=${message.readAt != null ? 'read' : (message.deliveredAt != null ? 'delivered' : 'sent')}"
+                                   th:text="${message.readAt != null
+                                       ? '✓✓ Leído'
+                                       : (message.deliveredAt != null ? '✓✓ Entregado' : '✓ Enviado')}">
+                            </small>
+
+                        </div>
+                    </article>
+
+                </div>
+
+                <button type="button"
+                        id="scrollDown"
+                        class="ek-scroll-down"
+                        hidden
+                        aria-label="Ir a los mensajes más recientes">
+                    <i class="bi bi-chevron-double-down"></i>
+                    <span id="scrollDownCount" class="ek-dot" hidden>0</span>
+                </button>
+
+            </div>
+
+            <p id="sendError" role="alert" hidden></p>
+
+            <!-- FORMULARIO DE ENVÍO: SE CONSERVAN LOS IDs PARA chat.js -->
+            <form id="messageForm"
+                  class="ek-composer"
+                  th:action="@{/mensajes/{id}/enviar(id=${conversationId})}"
+                  method="post">
+
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+
+                <div id="emojiPanel" class="ek-emoji-panel" hidden></div>
+
+                <span id="charCounter" class="ek-counter" hidden></span>
+
+                <button type="button"
+                        id="emojiToggle"
+                        class="ek-icon-btn"
+                        aria-label="Insertar emoji">
+                    <i class="bi bi-emoji-smile"></i>
+                </button>
+
+                <label for="content" class="visually-hidden">
+                    Escribe tu mensaje
+                </label>
+
+                <textarea id="content"
+                          name="content"
+                          rows="1"
+                          maxlength="5000"
+                          required
+                          placeholder="Escribe aquí..."></textarea>
+
+                <button id="sendButton" type="submit" class="ek-send">
+                    <i class="bi bi-send-fill"></i>
+                    <span class="visually-hidden">Enviar mensaje</span>
+                </button>
+
+            </form>
+
         </div>
-        <p>Se muestran como máximo los 50 mensajes más recientes.</p>
-    </section>
+    </main>
+</div>
 
-    <section>
-        <h2>Enviar mensaje</h2>
-        <form id="messageForm"
-              th:action="@{/mensajes/{id}/enviar(id=${conversationId})}"
-              method="post">
-            <input type="hidden"
-                   th:name="${_csrf.parameterName}"
-                   th:value="${_csrf.token}">
-
-            <label for="content">Escribe tu mensaje</label>
-            <textarea id="content" name="content" rows="4"
-                      maxlength="5000" required
-                      placeholder="Escribe aquí..."></textarea>
-            <button id="sendButton" type="submit">Enviar mensaje</button>
-        </form>
-    </section>
-</main>
-
-<script th:inline="javascript">
-(() => {
-    "use strict";
-
-    const conversationId = Number(/*[[${conversationId}]]*/ 0);
-    const currentUserId = Number(
-        document.body.dataset.currentUserId
-    );
-
-    const list = document.getElementById("messageList");
-    const form = document.getElementById("messageForm");
-    const input = document.getElementById("content");
-    const status = document.getElementById("connectionStatus");
-    const errorBox = document.getElementById("sendError");
-
-    if (!conversationId || !currentUserId || !list || !form || !input) {
-        status.textContent = "Faltan datos para iniciar el chat.";
-        console.error("conversationId o currentUserId inválido.");
-        return;
-    }
-
-    const topic = "/topic/conversations/" + conversationId;
-    const statusTopic = topic + "/status";
-
-    let socket = null;
-    let connected = false;
-    let retryTimer = null;
-    let retryDelay = 1000;
-    let buffer = "";
-    let manuallyClosed = false;
-    let submittingHttp = false;
-
-    const deliveredSent = new Set();
-    const readSent = new Set();
-
-    function showError(message) {
-        errorBox.textContent = message;
-        errorBox.hidden = false;
-    }
-
-    function clearError() {
-        errorBox.textContent = "";
-        errorBox.hidden = true;
-    }
-
-    function sendFrame(command, headers = {}, body = "") {
-        if (!socket || socket.readyState !== WebSocket.OPEN) {
-            throw new Error("WebSocket no conectado.");
-        }
-
-        const headerText = Object.entries(headers)
-            .map(([key, value]) => key + ":" + value)
-            .join("\n");
-
-        socket.send(command + "\n" + headerText + "\n\n" + body + "\0");
-    }
-
-    function updateStatus(receipt) {
-        if (!receipt || receipt.messageId == null) return;
-
-        const element = list.querySelector(
-            '[data-message-id="' + String(receipt.messageId) + '"]'
-        );
-
-        if (!element || element.dataset.mine !== "true") return;
-
-        let label = element.querySelector(".message-status");
-        if (!label) {
-            label = document.createElement("small");
-            label.className = "message-status";
-            element.appendChild(label);
-        }
-
-        if (receipt.readAt) {
-            label.textContent = "Leído";
-        } else if (receipt.deliveredAt) {
-            label.textContent = "Entregado";
-        } else {
-            label.textContent = "Enviado";
-        }
-    }
-
-    function addMessage(message) {
-        if (!message || message.id == null) return;
-
-        const id = String(message.id);
-        const existing = list.querySelector(
-            '[data-message-id="' + id + '"]'
-        );
-
-        if (existing) {
-            updateStatus({
-                messageId: message.id,
-                deliveredAt: message.deliveredAt,
-                readAt: message.readAt
-            });
-            return;
-        }
-
-        document.getElementById("emptyMessages")?.remove();
-
-        const mine = Number(message.senderId) === currentUserId;
-        const article = document.createElement("article");
-        article.className = "message " +
-            (mine ? "message-mine" : "message-other");
-        article.dataset.messageId = id;
-        article.dataset.mine = String(mine);
-
-        const senderLine = document.createElement("p");
-        const sender = document.createElement("strong");
-        sender.textContent = mine ? "Tú" : (message.senderUsername || "Usuario");
-        senderLine.appendChild(sender);
-
-        const content = document.createElement("p");
-        content.textContent = message.content || "";
-
-        article.appendChild(senderLine);
-        article.appendChild(content);
-
-        if (mine) {
-            const label = document.createElement("small");
-            label.className = "message-status";
-            label.textContent = message.readAt
-                ? "Leído" : (message.deliveredAt ? "Entregado" : "Enviado");
-            article.appendChild(label);
-        }
-
-        if (message.sentAt) {
-            const date = new Date(message.sentAt);
-            const time = document.createElement("small");
-            time.textContent = Number.isNaN(date.getTime())
-                ? "" : date.toLocaleString();
-            article.appendChild(time);
-        }
-
-        list.appendChild(article);
-        list.scrollTop = list.scrollHeight;
-    }
-
-    function sendReceipt(destination, id, set) {
-        const key = String(id);
-        if (!connected || set.has(key)) return;
-
-        set.add(key);
-        try {
-            sendFrame("SEND", {
-                destination,
-                "content-type": "application/json"
-            }, JSON.stringify({
-                conversationId,
-                messageId: Number(id)
-            }));
-        } catch (error) {
-            set.delete(key);
-            console.error("No se pudo confirmar el mensaje.", error);
-        }
-    }
-
-    function confirmIncomingMessages() {
-        if (!connected || document.visibilityState !== "visible") return;
-
-        list.querySelectorAll(
-            'article[data-message-id][data-mine="false"]'
-        ).forEach(element => {
-            const id = element.dataset.messageId;
-            sendReceipt("/app/chat.delivered", id, deliveredSent);
-            sendReceipt("/app/chat.read", id, readSent);
-        });
-    }
-
-    function processFrame(frame) {
-        frame = frame.replace(/\r\n/g, "\n");
-        const separator = frame.indexOf("\n\n");
-        if (separator < 0) return;
-
-        const headerText = frame.substring(0, separator);
-        const body = frame.substring(separator + 2);
-        const lines = headerText.split("\n");
-        const command = lines.shift();
-        const headers = {};
-
-        lines.forEach(line => {
-            const index = line.indexOf(":");
-            if (index > 0) {
-                headers[line.substring(0, index).trim()] =
-                    line.substring(index + 1).trim();
-            }
-        });
-
-        if (command === "CONNECTED") {
-            sendFrame("SUBSCRIBE", {
-                id: "conversation-" + conversationId,
-                destination: topic
-            });
-            sendFrame("SUBSCRIBE", {
-                id: "status-" + conversationId,
-                destination: statusTopic
-            });
-
-            connected = true;
-            retryDelay = 1000;
-            status.textContent = "Conectado al chat en tiempo real.";
-            confirmIncomingMessages();
-            return;
-        }
-
-        if (command === "MESSAGE") {
-            try {
-                const payload = JSON.parse(body);
-                const destination = headers.destination || "";
-
-                if (destination === statusTopic) {
-                    updateStatus(payload);
-                    return;
-                }
-
-                if (destination !== topic) return;
-
-                addMessage(payload);
-
-                if (Number(payload.senderId) !== currentUserId
-                        && payload.id != null) {
-                    sendReceipt(
-                        "/app/chat.delivered", payload.id, deliveredSent
-                    );
-
-                    if (document.visibilityState === "visible") {
-                        sendReceipt("/app/chat.read", payload.id, readSent);
-                    }
-                }
-            } catch (error) {
-                console.error("Error procesando evento STOMP.", error);
-            }
-            return;
-        }
-
-        if (command === "ERROR") {
-            console.error("Error STOMP:", body);
-            status.textContent = "El servidor rechazó una operación.";
-        }
-    }
-
-    function connect() {
-        if (manuallyClosed) return;
-
-        connected = false;
-        status.textContent = "Conectando al chat...";
-        const scheme = location.protocol === "https:" ? "wss:" : "ws:";
-        const ws = new WebSocket(scheme + "//" + location.host + "/ws");
-        socket = ws;
-        buffer = "";
-
-        ws.addEventListener("open", () => {
-            if (socket !== ws) return;
-
-            const csrf = form.querySelector('input[name="_csrf"]');
-            const headers = {
-                "accept-version": "1.2",
-                host: location.host,
-                "heart-beat": "0,0"
-            };
-
-            if (csrf?.value) headers["X-CSRF-TOKEN"] = csrf.value;
-
-            sendFrame("CONNECT", headers);
-        });
-
-        ws.addEventListener("message", event => {
-            if (socket !== ws) return;
-            buffer += event.data;
-            const frames = buffer.split("\0");
-            buffer = frames.pop() || "";
-
-            frames.forEach(frame => {
-                if (frame.trim()) processFrame(frame);
-            });
-        });
-
-        ws.addEventListener("close", () => {
-            if (socket !== ws) return;
-            connected = false;
-            status.textContent = "Desconectado. Intentando reconectar...";
-
-            if (!manuallyClosed) {
-                clearTimeout(retryTimer);
-                retryTimer = setTimeout(() => {
-                    retryDelay = Math.min(retryDelay * 2, 15000);
-                    connect();
-                }, retryDelay);
-            }
-        });
-
-        ws.addEventListener("error", error => {
-            console.error("Error WebSocket.", error);
-        });
-    }
-
-    form.addEventListener("submit", event => {
-        if (submittingHttp) {
-            submittingHttp = false;
-            return;
-        }
-
-        const content = input.value.trim();
-
-        if (!content || content.length > 5000) {
-            event.preventDefault();
-            showError(!content
-                ? "Escribe un mensaje antes de enviarlo."
-                : "El mensaje no puede superar los 5000 caracteres.");
-            return;
-        }
-
-        clearError();
-
-        // Respaldo HTTP si no hay conexión STOMP.
-        if (!connected || !socket || socket.readyState !== WebSocket.OPEN) {
-            return;
-        }
-
-        event.preventDefault();
-
-        try {
-            sendFrame("SEND", {
-                destination: "/app/chat.send",
-                "content-type": "application/json"
-            }, JSON.stringify({ conversationId, content }));
-
-            input.value = "";
-        } catch (error) {
-            console.error(error);
-            showError("No se pudo enviar por WebSocket. Usa el formulario de respaldo.");
-            submittingHttp = true;
-            form.requestSubmit();
-        }
-    });
-
-    document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "visible") {
-            confirmIncomingMessages();
-        }
-    });
-
-    window.addEventListener("beforeunload", () => {
-        manuallyClosed = true;
-        clearTimeout(retryTimer);
-        if (socket && socket.readyState === WebSocket.OPEN) socket.close();
-    });
-
-    list.scrollTop = list.scrollHeight;
-    connect();
-})();
-</script>
+<script th:src="@{/js/chat.js}" defer></script>
 </body>
 </html>

@@ -1,235 +1,396 @@
-
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Usuarios y contactos</title>
-</head>
+<head th:replace="~{fragments/head :: head('Usuarios y contactos')}"></head>
 <body>
 
-<main>
-    <h1>Usuarios y contactos</h1>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <p>
-        Sesión iniciada como:
-        <strong th:text="${username}"></strong>
-    </p>
+<div class="ek-shell">
+    <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 
-    <p th:if="${success}"
-       th:text="${success}"
-       role="status"></p>
+    <main class="ek-main">
+        <div class="ek-container"
+             th:with="tab=${!#strings.isEmpty(query) ? 'buscar' : 'contactos'}">
 
-    <p th:if="${error}"
-       th:text="${error}"
-       role="alert"></p>
+            <header class="ek-page-head">
+                <div>
+                    <h1 class="ek-display">Usuarios y contactos</h1>
+                    <p>Sesión iniciada como <strong th:text="${username}"></strong></p>
+                </div>
+            </header>
 
-    <hr>
+            <p class="alert alert-ek-ok"
+               th:if="${success}"
+               th:text="${success}"
+               role="status"
+               data-ekko-sound-on-load="success"></p>
 
-    <section>
-        <h2>Buscar usuarios</h2>
+            <p class="alert alert-ek-error"
+               th:if="${error}"
+               th:text="${error}"
+               role="alert"
+               data-ekko-sound-on-load="error"></p>
 
-        <form th:action="@{/contactos}" method="get">
-            <label for="q">Nombre de usuario</label>
-            <input id="q"
-                   type="search"
-                   name="q"
-                   maxlength="30"
-                   th:value="${query}"
-                   placeholder="Buscar usuarios...">
-
-            <button type="submit">Buscar</button>
-        </form>
-
-        <p th:if="${!#strings.isEmpty(query)
-                    and #lists.isEmpty(results)}">
-            No se encontraron usuarios disponibles.
-        </p>
-
-        <ul>
-            <li th:each="user : ${results}">
-                <strong
-                    th:text="${user.displayName != null
-                        ? user.displayName
-                        : user.username}">
-                </strong>
-
-                <span>
-                    (@<span th:text="${user.username}"></span>)
-                </span>
-
-                <p th:if="${user.bio != null}"
-                   th:text="${user.bio}"></p>
-
-                <form th:action="@{/contactos/solicitar/{id}(id=${user.id})}"
-                      method="post">
-
-                    <input type="hidden"
-                           th:name="${_csrf.parameterName}"
-                           th:value="${_csrf.token}">
-
-                    <button type="submit">
-                        Enviar solicitud
+            <ul class="nav ek-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link"
+                            th:classappend="${tab == 'contactos'} ? 'active'"
+                            type="button"
+                            role="tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#tab-contactos"
+                            data-ekko-sound="click">
+                        <i class="bi bi-people-fill"></i>
+                        Mis contactos
+                        <span class="ek-count"
+                              th:text="${#lists.size(contacts)}">0</span>
                     </button>
-                </form>
-            </li>
-        </ul>
-    </section>
+                </li>
 
-    <hr>
-
-    <section>
-        <h2>Solicitudes recibidas</h2>
-
-        <p th:if="${#lists.isEmpty(requests)}">
-            No tienes solicitudes pendientes.
-        </p>
-
-        <ul>
-            <li th:each="request : ${requests}">
-                <strong
-                    th:text="${request.displayName != null
-                        ? request.displayName
-                        : request.username}">
-                </strong>
-
-                <span>
-                    (@<span th:text="${request.username}"></span>)
-                </span>
-
-                <form th:action="@{/contactos/aceptar/{id}(id=${request.id})}"
-                      method="post"
-                      style="display:inline">
-
-                    <input type="hidden"
-                           th:name="${_csrf.parameterName}"
-                           th:value="${_csrf.token}">
-
-                    <button type="submit">Aceptar</button>
-                </form>
-
-                <form th:action="@{/contactos/rechazar/{id}(id=${request.id})}"
-                      method="post"
-                      style="display:inline">
-
-                    <input type="hidden"
-                           th:name="${_csrf.parameterName}"
-                           th:value="${_csrf.token}">
-
-                    <button type="submit">Rechazar</button>
-                </form>
-            </li>
-        </ul>
-    </section>
-
-    <hr>
-
-    <section>
-        <h2>Mis contactos</h2>
-
-        <p th:if="${#lists.isEmpty(contacts)}">
-            Todavía no tienes contactos.
-        </p>
-
-        <ul>
-            <li th:each="contact : ${contacts}">
-                <strong
-                    th:text="${contact.displayName != null
-                        ? contact.displayName
-                        : contact.username}">
-                </strong>
-
-                <span>
-                    (@<span th:text="${contact.username}"></span>)
-                </span>
-
-                <form
-                    th:action="@{/mensajes/abrir/{userId}(userId=${contact.id})}"
-                    method="post">
-
-                    <input type="hidden"
-                        th:name="${_csrf.parameterName}"
-                        th:value="${_csrf.token}">
-
-                    <button type="submit">Enviar mensaje</button>
-                </form>
-
-                <form th:action="@{/contactos/bloquear/{id}(id=${contact.id})}"
-                      method="post"
-                      style="display:inline">
-
-                    <input type="hidden"
-                           th:name="${_csrf.parameterName}"
-                           th:value="${_csrf.token}">
-
-                    <button type="submit">
-                        Bloquear
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link"
+                            type="button"
+                            role="tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#tab-solicitudes"
+                            data-ekko-sound="click">
+                        <i class="bi bi-person-plus-fill"></i>
+                        Solicitudes
+                        <span class="ek-count"
+                              th:classappend="${!#lists.isEmpty(requests)} ? 'is-alert'"
+                              th:text="${#lists.size(requests)}">0</span>
                     </button>
-                </form>
+                </li>
 
-                <form th:action="@{/contactos/eliminar/{id}(id=${contact.id})}"
-                      method="post"
-                      style="display:inline">
-
-                    <input type="hidden"
-                           th:name="${_csrf.parameterName}"
-                           th:value="${_csrf.token}">
-
-                    <button type="submit">
-                        Eliminar contacto
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link"
+                            th:classappend="${tab == 'buscar'} ? 'active'"
+                            type="button"
+                            role="tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#tab-buscar"
+                            data-ekko-sound="click">
+                        <i class="bi bi-search"></i>
+                        Buscar usuarios
                     </button>
-                </form>
-            </li>
-        </ul>
-    </section>
+                </li>
 
-    <hr>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link"
+                            type="button"
+                            role="tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#tab-bloqueados"
+                            data-ekko-sound="click">
+                        <i class="bi bi-slash-circle"></i>
+                        Bloqueados
+                        <span class="ek-count"
+                              th:text="${#lists.size(blockedUsers)}">0</span>
+                    </button>
+                </li>
+            </ul>
 
-    <section>
-        <h2>Usuarios bloqueados</h2>
+            <div class="tab-content">
 
-        <p th:if="${#lists.isEmpty(blockedUsers)}">
-            No tienes usuarios bloqueados.
-        </p>
+                <!-- MIS CONTACTOS -->
+                <section id="tab-contactos"
+                         class="tab-pane fade"
+                         th:classappend="${tab == 'contactos'} ? 'show active'"
+                         role="tabpanel">
 
-        <ul>
-            <li th:each="blocked : ${blockedUsers}">
-                <strong
-                    th:text="${blocked.displayName != null
-                        ? blocked.displayName
-                        : blocked.username}">
-                </strong>
+                    <h2 class="visually-hidden">Mis contactos</h2>
 
-                <span>
-                    (@<span th:text="${blocked.username}"></span>)
-                </span>
+                    <div class="ek-empty-state"
+                         th:if="${#lists.isEmpty(contacts)}">
+                        <i class="bi bi-people"></i>
+                        Todavía no tienes contactos. Busca a alguien para enviarle una solicitud.
+                    </div>
 
-                <form th:action="@{/contactos/desbloquear/{id}(id=${blocked.id})}"
-                    method="post"
-                    style="display:inline">
+                    <div class="ek-people">
+                        <article class="ek-person"
+                                 th:each="contact : ${contacts}"
+                                 th:with="nombre=${!#strings.isEmpty(contact.displayName) ? contact.displayName : contact.username}">
 
-                    <input type="hidden"
-                        th:name="${_csrf.parameterName}"
-                        th:value="${_csrf.token}">
+                            <img class="ek-initial"
+                                 th:src="${contact.avatarUrl != null and !#strings.isEmpty(contact.avatarUrl) ? contact.avatarUrl : '/images/avatar-default.svg'}"
+                                 alt="Foto de perfil del contacto"
+                                 width="48"
+                                 height="48"
+                                 style="object-fit: cover;"
+                                 loading="lazy">
 
-                    <button type="submit">Desbloquear</button>
-                </form>
-            </li>
-        </ul>
-    </section>
+                            <div class="ek-person-info">
+                                <strong th:text="${nombre}">Nombre</strong>
+                                <small>(@<span th:text="${contact.username}"></span>)</small>
 
-    <hr>
+                                <p th:text="${contact.bio != null and !#strings.isEmpty(contact.bio) ? contact.bio : 'Este usuario todavía no tiene biografía.'}">
+                                    Biografía del contacto
+                                </p>
+                            </div>
 
-    <form th:action="@{/logout}" method="post">
-        <input type="hidden"
-               th:name="${_csrf.parameterName}"
-               th:value="${_csrf.token}">
+                            <div class="ek-person-actions">
+                                <form th:action="@{/mensajes/abrir/{userId}(userId=${contact.id})}"
+                                      method="post">
+                                    <input type="hidden"
+                                           th:name="${_csrf.parameterName}"
+                                           th:value="${_csrf.token}">
+                                    <button type="submit"
+                                            class="btn btn-ekko btn-sm"
+                                            data-ekko-sound="pop">
+                                        <i class="bi bi-chat-dots-fill me-1"></i>
+                                        Enviar mensaje
+                                    </button>
+                                </form>
 
-        <button type="submit">Cerrar sesión</button>
-    </form>
+                                <form th:action="@{/contactos/bloquear/{id}(id=${contact.id})}"
+                                      method="post"
+                                      data-ekko-confirm="No podrán enviarte mensajes ni solicitudes mientras esté bloqueado."
+                                      data-confirm-title="¿Bloquear a este usuario?"
+                                      data-confirm-ok="Bloquear"
+                                      data-confirm-danger>
+                                    <input type="hidden"
+                                           th:name="${_csrf.parameterName}"
+                                           th:value="${_csrf.token}">
+                                    <button type="submit"
+                                            class="btn btn-ekko-soft btn-sm">
+                                        <i class="bi bi-slash-circle me-1"></i>
+                                        Bloquear
+                                    </button>
+                                </form>
 
-    <p><a th:href="@{/inicio}">Volver al inicio</a></p>
-</main>
+                                <form th:action="@{/contactos/eliminar/{id}(id=${contact.id})}"
+                                      method="post"
+                                      data-ekko-confirm="Dejará de aparecer en tu lista de contactos."
+                                      data-confirm-title="¿Eliminar contacto?"
+                                      data-confirm-ok="Eliminar"
+                                      data-confirm-danger>
+                                    <input type="hidden"
+                                           th:name="${_csrf.parameterName}"
+                                           th:value="${_csrf.token}">
+                                    <button type="submit"
+                                            class="btn btn-ekko-danger btn-sm">
+                                        <i class="bi bi-person-dash-fill me-1"></i>
+                                        Eliminar contacto
+                                    </button>
+                                </form>
+                            </div>
+                        </article>
+                    </div>
+                </section>
 
+                <!-- SOLICITUDES RECIBIDAS -->
+                <section id="tab-solicitudes"
+                         class="tab-pane fade"
+                         role="tabpanel">
+
+                    <h2 class="visually-hidden">Solicitudes recibidas</h2>
+
+                    <div class="ek-empty-state"
+                         th:if="${#lists.isEmpty(requests)}">
+                        <i class="bi bi-inbox"></i>
+                        No tienes solicitudes pendientes.
+                    </div>
+
+                    <div class="ek-people">
+                        <article class="ek-person"
+                                 th:each="request : ${requests}"
+                                 th:with="nombre=${!#strings.isEmpty(request.displayName) ? request.displayName : request.username}">
+
+                            <img class="ek-initial"
+                                 th:src="${request.avatarUrl != null and !#strings.isEmpty(request.avatarUrl) ? request.avatarUrl : '/images/avatar-default.svg'}"
+                                 alt="Foto de perfil del solicitante"
+                                 width="48"
+                                 height="48"
+                                 style="object-fit: cover;"
+                                 loading="lazy">
+
+                            <div class="ek-person-info">
+                                <strong th:text="${nombre}">Nombre</strong>
+                                <small>(@<span th:text="${request.username}"></span>)</small>
+                            </div>
+
+                            <div class="ek-person-actions">
+                                <form th:action="@{/contactos/aceptar/{id}(id=${request.id})}"
+                                      method="post">
+                                    <input type="hidden"
+                                           th:name="${_csrf.parameterName}"
+                                           th:value="${_csrf.token}">
+                                    <button type="submit"
+                                            class="btn btn-ekko btn-sm"
+                                            data-ekko-sound="success">
+                                        <i class="bi bi-check-lg me-1"></i>
+                                        Aceptar
+                                    </button>
+                                </form>
+
+                                <form th:action="@{/contactos/rechazar/{id}(id=${request.id})}"
+                                      method="post">
+                                    <input type="hidden"
+                                           th:name="${_csrf.parameterName}"
+                                           th:value="${_csrf.token}">
+                                    <button type="submit"
+                                            class="btn btn-ekko-soft btn-sm"
+                                            data-ekko-sound="click">
+                                        <i class="bi bi-x-lg me-1"></i>
+                                        Rechazar
+                                    </button>
+                                </form>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <!-- BUSCAR USUARIOS -->
+                <section id="tab-buscar"
+                         class="tab-pane fade"
+                         th:classappend="${tab == 'buscar'} ? 'show active'"
+                         role="tabpanel">
+
+                    <h2 class="visually-hidden">Buscar usuarios</h2>
+
+                    <form th:action="@{/contactos}"
+                          method="get"
+                          class="ek-search"
+                          role="search">
+                        <i class="bi bi-search"></i>
+
+                        <label for="q" class="visually-hidden">
+                            Nombre de usuario
+                        </label>
+
+                        <input id="q"
+                               type="search"
+                               name="q"
+                               class="form-control"
+                               maxlength="30"
+                               th:value="${query}"
+                               placeholder="Buscar usuarios..."
+                               autocomplete="off">
+
+                        <button type="submit" class="visually-hidden">
+                            Buscar
+                        </button>
+                    </form>
+
+                    <div class="ek-empty-state"
+                         th:if="${!#strings.isEmpty(query) and #lists.isEmpty(results)}">
+                        <i class="bi bi-emoji-neutral"></i>
+                        No se encontraron usuarios disponibles.
+                    </div>
+
+                    <div class="ek-empty-state"
+                         th:if="${#strings.isEmpty(query)}">
+                        <i class="bi bi-compass"></i>
+                        Escribe un nombre de usuario y pulsa Enter.
+                    </div>
+
+                    <div class="ek-people">
+                        <article class="ek-person"
+                                 th:each="user : ${results}"
+                                 th:with="nombre=${!#strings.isEmpty(user.displayName) ? user.displayName : user.username}">
+
+                            <img class="ek-initial"
+                                 th:src="${user.avatarUrl != null and !#strings.isEmpty(user.avatarUrl) ? user.avatarUrl : '/images/avatar-default.svg'}"
+                                 alt="Foto de perfil del usuario"
+                                 width="48"
+                                 height="48"
+                                 style="object-fit: cover;"
+                                 loading="lazy">
+
+                            <div class="ek-person-info">
+                                <strong th:text="${nombre}">Nombre</strong>
+                                <small>(@<span th:text="${user.username}"></span>)</small>
+
+                                <p th:text="${user.bio != null and !#strings.isEmpty(user.bio) ? user.bio : 'Este usuario todavía no tiene biografía.'}">
+                                    Biografía del usuario
+                                </p>
+                            </div>
+
+                            <div class="ek-person-actions">
+                                <form th:action="@{/contactos/solicitar/{id}(id=${user.id})}"
+                                      method="post">
+                                    <input type="hidden"
+                                           th:name="${_csrf.parameterName}"
+                                           th:value="${_csrf.token}">
+                                    <button type="submit"
+                                            class="btn btn-ekko btn-sm"
+                                            data-ekko-sound="pop">
+                                        <i class="bi bi-person-plus-fill me-1"></i>
+                                        Enviar solicitud
+                                    </button>
+                                </form>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <!-- USUARIOS BLOQUEADOS -->
+                <section id="tab-bloqueados"
+                         class="tab-pane fade"
+                         role="tabpanel">
+
+                    <h2 class="visually-hidden">Usuarios bloqueados</h2>
+
+                    <div class="ek-empty-state"
+                         th:if="${#lists.isEmpty(blockedUsers)}">
+                        <i class="bi bi-shield-check"></i>
+                        No tienes usuarios bloqueados.
+                    </div>
+
+                    <div class="ek-people">
+                        <article class="ek-person"
+                                 th:each="blocked : ${blockedUsers}"
+                                 th:with="nombre=${!#strings.isEmpty(blocked.displayName) ? blocked.displayName : blocked.username}">
+
+                            <img class="ek-initial"
+                                 th:src="${blocked.avatarUrl != null and !#strings.isEmpty(blocked.avatarUrl) ? blocked.avatarUrl : '/images/avatar-default.svg'}"
+                                 alt="Foto de perfil del usuario bloqueado"
+                                 width="48"
+                                 height="48"
+                                 style="object-fit: cover;"
+                                 loading="lazy">
+
+                            <div class="ek-person-info">
+                                <strong th:text="${nombre}">Nombre</strong>
+                                <small>(@<span th:text="${blocked.username}"></span>)</small>
+                            </div>
+
+                            <div class="ek-person-actions">
+                                <form th:action="@{/contactos/desbloquear/{id}(id=${blocked.id})}"
+                                      method="post">
+                                    <input type="hidden"
+                                           th:name="${_csrf.parameterName}"
+                                           th:value="${_csrf.token}">
+                                    <button type="submit"
+                                            class="btn btn-ekko-soft btn-sm"
+                                            data-ekko-sound="click">
+                                        <i class="bi bi-unlock-fill me-1"></i>
+                                        Desbloquear
+                                    </button>
+                                </form>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+            </div>
+
+            <form class="mt-4 text-center"
+                  th:action="@{/logout}"
+                  method="post">
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
+                <button type="submit" class="btn btn-ekko-soft">
+                    <i class="bi bi-box-arrow-right me-1"></i>
+                    Cerrar sesión
+                </button>
+            </form>
+
+        </div>
+    </main>
+</div>
+
+<script th:src="@{/js/contactos.js}" defer></script>
 </body>
 </html>

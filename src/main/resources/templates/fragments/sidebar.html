@@ -2,31 +2,47 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <body>
 
-<aside th:fragment="sidebar">
+<aside th:fragment="sidebar" class="ek-sidebar">
     <nav aria-label="Navegación secundaria">
-        <h2>Menú</h2>
+        <h2 class="ek-side-title">Menú</h2>
 
-        <ul>
+        <ul class="ek-side-list">
             <li>
-                <a th:href="@{/inicio}">Inicio</a>
+                <a class="ek-side-link" th:href="@{/inicio}">
+                    <i class="bi bi-house-heart-fill"></i><span>Inicio</span>
+                </a>
             </li>
             <li>
-                <a th:href="@{/conversaciones}">Mis conversaciones</a>
+                <a class="ek-side-link" th:href="@{/mensajes}">
+                    <i class="bi bi-chat-dots-fill"></i><span>Chats</span>
+                    <span class="ek-badge" data-ekko-unread hidden>0</span>
+                </a>
             </li>
             <li>
-                <a th:href="@{/contactos}">Mis contactos</a>
+                <a class="ek-side-link" th:href="@{/contactos}">
+                    <i class="bi bi-people-fill"></i><span>Contactos</span>
+                </a>
             </li>
             <li>
-                <a th:href="@{/grupos}">Grupos</a>
+                <a class="ek-side-link" th:href="@{/perfil}">
+                    <i class="bi bi-person-circle"></i><span>Perfil</span>
+                </a>
             </li>
             <li>
-                <a th:href="@{/perfil}">Mi perfil</a>
-            </li>
-            <li>
-                <a th:href="@{/configuracion}">Configuración</a>
+                <a class="ek-side-link" th:href="@{/configuracion}" data-active-also="/politica-privacidad,/cuenta">
+                    <i class="bi bi-gear-fill"></i><span>Ajustes</span>
+                </a>
             </li>
         </ul>
     </nav>
+
+    <div class="ek-side-footer">
+        <strong>Ekko</strong>
+        <small>Conversa sin fronteras.</small>
+        <div class="ek-waves" aria-hidden="true">
+            <div class="ek-wave"></div><div class="ek-wave"></div><div class="ek-wave"></div>
+        </div>
+    </div>
 </aside>
 
 </body>
