@@ -12,10 +12,15 @@
 
         <nav class="ek-nav-actions" aria-label="Navegación principal">
 
-            <button type="button" class="ek-icon-btn" data-ekko-install hidden
-                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Instalar Ekko"
+            <!-- Instalación de Ekko: pwa.js controla su visibilidad -->
+            <button type="button"
+                    class="ek-icon-btn"
+                    data-ekko-install
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title="Instalar Ekko"
                     aria-label="Instalar Ekko como aplicación">
-                <i class="bi bi-download"></i>
+                <i class="bi bi-download"></i>Instalar Aplicación
             </button>
 
             <button type="button" class="ek-icon-btn" data-ekko-sound-toggle
@@ -50,9 +55,9 @@
             <div class="dropdown ms-1">
                 <button type="button" class="ek-user-btn" data-bs-toggle="dropdown" aria-expanded="false">
                     <img class="ek-avatar-sm"
-                        th:src="${currentUser != null and currentUser.avatarUrl != null and !#strings.isEmpty(currentUser.avatarUrl)} ? ${currentUser.avatarUrl} : @{/images/avatar-default.svg}"
-                        th:attr="data-fallback=@{/images/avatar-default.svg}"
-                        alt="Mi foto de perfil">
+                         th:src="${currentUser != null and currentUser.avatarUrl != null and !#strings.isEmpty(currentUser.avatarUrl)} ? ${currentUser.avatarUrl} : @{/images/avatar-default.svg}"
+                         th:attr="data-fallback=@{/images/avatar-default.svg}"
+                         alt="Mi foto de perfil">
                     <span class="ek-user-name"
                           th:text="${currentUser != null ? (!#strings.isEmpty(currentUser.displayName) ? currentUser.displayName : currentUser.username) : 'Mi cuenta'}">
                         Mi cuenta
