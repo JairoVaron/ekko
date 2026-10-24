@@ -16,26 +16,18 @@ public class SecurityConfig {
 
         http
             .authorizeHttpRequests(auth -> auth
-                /*
                 .requestMatchers(
                     "/",
                     "/login",
                     "/registro",
+                    "/cuenta/verificar",
+                    "/cuenta/recuperar",
+                    "/cuenta/restablecer",
                     "/css/**",
                     "/js/**",
                     "/images/**",
                     "/favicon.ico",
                     "/error"
-                ).permitAll()
-                .anyRequest().authenticated()
-                */
-                .requestMatchers(
-                    "/login",
-                    "/registro",
-                    "/cuenta/verificar",
-                    "/css/**",
-                    "/js/**",
-                    "/images/**"
                 ).permitAll()
                 .anyRequest().authenticated()
             )
@@ -59,6 +51,10 @@ public class SecurityConfig {
                 .permitAll()
             );
 
+        /*
+         * Conservamos la protección CSRF de Spring Security.
+         * Los formularios deben incluir el token CSRF.
+         */
         return http.build();
     }
 
@@ -67,4 +63,3 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
-
