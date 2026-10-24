@@ -1,13 +1,12 @@
 /* =========================================================
    EKKO · PWA
-   Registro del service worker e instalación de la aplicación.
+   Instalación de la aplicación y service worker.
    Botones: [data-ekko-install]
-   Estado:   [data-ekko-install-state]
+   Estado:  [data-ekko-install-state]
    ========================================================= */
 (function () {
     'use strict';
 
-    // Evita inicializar el módulo más de una vez.
     if (window.__ekkoPwaInitialized) {
         return;
     }
@@ -23,7 +22,8 @@
         );
     };
 
-    var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent || '') ||
+    var isIOS =
+        /iphone|ipad|ipod/i.test(navigator.userAgent || '') ||
         (/macintosh/i.test(navigator.userAgent || '') &&
             navigator.maxTouchPoints > 1);
 
@@ -41,23 +41,22 @@
         }
 
         if (deferredPrompt) {
-            return 'Instala Ekko para abrirla como una aplicación.';
+            return 'Ekko está lista para instalarse. Pulsa el botón.';
         }
 
         if (isIOS) {
-            return 'En iPhone o iPad: pulsa Compartir y selecciona "Añadir a pantalla de inicio".';
+            return 'En iPhone o iPad, pulsa Compartir y selecciona "Añadir a pantalla de inicio".';
         }
 
-        return 'Si tu navegador lo permite, abre su menú y busca "Instalar Ekko" o "Instalar aplicación".';
+        return 'Si no aparece la instalación automática, abre el menú de Chrome y busca "Instalar Ekko" o "Instalar aplicación".';
     }
 
     function refresh() {
-        var standalone = isStandalone();
-        var canShowButton = !standalone && !installed &&
-            (Boolean(deferredPrompt) || isIOS);
+        var hideButton = installed || isStandalone();
 
         selectAll('[data-ekko-install]').forEach(function (button) {
-            button.hidden = !canShowButton;
+            button.hidden = hideButton;
+            button.setAttribute('aria-hidden', String(hideButton));
         });
 
         selectAll('[data-ekko-install-state]').forEach(function (element) {
@@ -78,7 +77,21 @@
         }
     }
 
-    // El navegador ofrece la instalación cuando se cumplen sus requisitos.
+    function showInstallInstructions() {
+        if (isIOS) {
+            showMessage(
+                'Instalar Ekko en iPhone o iPad',
+                'Pulsa Compartir en el navegador y selecciona "Añadir a pantalla de inicio".'
+            );
+            return;
+        }
+
+        showMessage(
+            'Instalar Ekko',
+            'Si la instalación automática no está disponible, abre el menú de Chrome (⋮) y busca "Instalar Ekko" o "Instalar aplicación". Si esa opción tampoco aparece, comprueba que la aplicación cumple los requisitos de instalación del navegador.'
+        );
+    }
+
     window.addEventListener('beforeinstallprompt', function (event) {
         event.preventDefault();
         deferredPrompt = event;
@@ -99,9 +112,9 @@
         }
     });
 
-    // Botones de instalación, incluso si hay más de uno en la página.
     document.addEventListener('click', function (event) {
         var target = event.target;
+
         var button = target && typeof target.closest === 'function'
             ? target.closest('[data-ekko-install]')
             : null;
@@ -109,6 +122,8 @@
         if (!button) {
             return;
         }
+
+        event.preventDefault();
 
         if (isStandalone() || installed) {
             showMessage(
@@ -119,11 +134,10 @@
         }
 
         if (!deferredPrompt) {
-            showMessage('Instalar Ekko', stateText());
+            showInstallInstructions();
             return;
         }
 
-        // Consumir la referencia evita intentar usar el mismo evento dos veces.
         var promptEvent = deferredPrompt;
         deferredPrompt = null;
         refresh();
@@ -138,31 +152,39 @@
             .then(function (choice) {
                 if (choice && choice.outcome === 'accepted') {
                     showMessage(
-                        'Instalación solicitada',
-                        'Sigue las indicaciones del navegador para terminar.'
+                        'Instalación aceptada',
+                        'El navegador ha aceptado la instalación de Ekko.'
+                    );
+                } else {
+                    showMessage(
+                        'Instalación cancelada',
+                        'Puedes volver a intentarlo cuando quieras.'
                     );
                 }
             })
             .catch(function (error) {
-                console.warn('No se pudo abrir la instalación de Ekko.', error);
-                showMessage(
-                    'No se pudo abrir la instalación',
-                    'Prueba desde el menú de tu navegador.'
+                console.error(
+                    'No se pudo abrir la instalación de Ekko:',
+                    error
                 );
+
+                showInstallInstructions();
             })
             .finally(function () {
                 refresh();
             });
     });
 
-    // Registro del service worker.
+    // Registrar el service worker únicamente en contextos seguros.
     var secure = window.isSecureContext ||
         location.hostname === 'localhost' ||
         location.hostname === '127.0.0.1';
 
     if ('serviceWorker' in navigator && secure) {
         var meta = document.querySelector('meta[name="ekko-sw"]');
-        var swUrl = meta ? meta.getAttribute('content') : '/sw.js';
+        var swUrl = meta
+            ? meta.getAttribute('content')
+            : '/sw.js';
 
         window.addEventListener('load', function () {
             navigator.serviceWorker.register(swUrl)
@@ -194,11 +216,13 @@
                                         window.location.reload();
                                     }
                                 }).catch(function () {
-                                    // No interrumpir la aplicación si se cancela.
+                                    // No interrumpir la aplicación.
                                 });
                             }
                         });
                     });
+
+                    refresh();
                 })
                 .catch(function (error) {
                     console.error(
@@ -211,6 +235,15 @@
         console.warn(
             'La PWA necesita HTTPS o localhost para registrar el service worker.'
         );
+    }
+
+    // Actualizar también cuando cambie el modo de visualización.
+    if (window.matchMedia) {
+        var displayMode = window.matchMedia('(display-mode: standalone)');
+
+        if (typeof displayMode.addEventListener === 'function') {
+            displayMode.addEventListener('change', refresh);
+        }
     }
 
     refresh();
