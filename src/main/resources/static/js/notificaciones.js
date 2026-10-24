@@ -19,8 +19,9 @@
     var subscriptionId = 'ekko-global-notifications';
     var buffer = '';
     var heartbeatTimer = null;
-    var lastServerActivity = Date.now();
+    var processedNotificationIds = new Set();
     var heartbeatWatchdog = null;
+    var lastServerActivity = Date.now();
 
     function log(message, error) {
         if (window.console && typeof window.console.warn === 'function') {
@@ -143,18 +144,52 @@
             return;
         }
 
-        var processedNotificationIds = new Set();
-        var conversationId = Number(notification.conversationId);
-        var activeConversation = currentConversationId();
+        var type = notification.type || 'CHAT_MESSAGE';
 
-        // chat.js gestiona los mensajes de la conversación que está abierta.
-        if (activeConversation &&
-            conversationId === activeConversation) {
-            return;
+        // Evitar procesar dos veces la misma notificación.
+        var uniqueId = notification.notificationId != null
+            ? notification.notificationId
+            : notification.messageId;
+
+        if (uniqueId != null) {
+            var notificationKey = type + ':' + String(uniqueId);
+
+            if (processedNotificationIds.has(notificationKey)) {
+                return;
+            }
+
+            processedNotificationIds.add(notificationKey);
+
+            if (processedNotificationIds.size > 500) {
+                var oldestKey =
+                    processedNotificationIds.values().next().value;
+
+                processedNotificationIds.delete(oldestKey);
+            }
         }
 
-        var sender = notification.senderName || 'Nuevo mensaje';
-        var content = notification.content || 'Te ha llegado un mensaje.';
+        // Solo ocultar los avisos de mensajes cuando el usuario
+        // ya está viendo esa conversación.
+        if (type === 'CHAT_MESSAGE') {
+            var conversationId = Number(notification.conversationId);
+            var activeConversation = currentConversationId();
+
+            if (
+                activeConversation &&
+                Number.isFinite(conversationId) &&
+                conversationId === activeConversation
+            ) {
+                return;
+            }
+        }
+
+        var sender = notification.senderName || 'Ekko';
+        var content = notification.content || 'Tienes una notificación nueva.';
+
+        if (type === 'CONTACT_REQUEST') {
+            content = notification.content ||
+                'Te ha enviado una solicitud de contacto.';
+        }
 
         if (content.length > 180) {
             content = content.substring(0, 177) + '...';
@@ -166,24 +201,6 @@
             sound: 'notify',
             desktop: true
         });
-
-        var messageId = notification.messageId;
-
-        if (messageId != null) {
-            var notificationKey = String(messageId);
-
-            if (processedNotificationIds.has(notificationKey)) {
-                return;
-            }
-
-            processedNotificationIds.add(notificationKey);
-
-            // Evita que el conjunto crezca indefinidamente.
-            if (processedNotificationIds.size > 500) {
-                var oldestKey = processedNotificationIds.values().next().value;
-                processedNotificationIds.delete(oldestKey);
-            }
-        }
     }
 
     function processFrame(frame) {

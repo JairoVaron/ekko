@@ -8,10 +8,16 @@ import com.plataforma.comunicacion.entity.UserBlock;
 import com.plataforma.comunicacion.repository.AppUserRepository;
 import com.plataforma.comunicacion.repository.ContactRequestRepository;
 import com.plataforma.comunicacion.repository.UserBlockRepository;
+import com.plataforma.comunicacion.dto.GlobalNotification;
+
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,14 +29,18 @@ public class ContactService {
     private final AppUserRepository users;
     private final ContactRequestRepository requests;
     private final UserBlockRepository blocks;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public ContactService(
             AppUserRepository users,
             ContactRequestRepository requests,
-            UserBlockRepository blocks) {
+            UserBlockRepository blocks,
+            SimpMessagingTemplate messagingTemplate) {
+
         this.users = users;
         this.requests = requests;
         this.blocks = blocks;
+        this.messagingTemplate = messagingTemplate;
     }
 
     private AppUser requireActiveUser(Long id) {
@@ -114,8 +124,8 @@ public class ContactService {
                 .toList();
     }
 
-    @Transactional
-    public void sendRequest(Long requesterId, Long addresseeId) {
+        @Transactional
+        public void sendRequest(Long requesterId, Long addresseeId) {
         requireDifferentUsers(requesterId, addresseeId);
 
         AppUser requester = requireActiveUser(requesterId);
@@ -136,30 +146,71 @@ public class ContactService {
         if (existing != null
                 && ("PENDING".equals(existing.getStatus())
                 || "ACCEPTED".equals(existing.getStatus()))) {
-            throw new IllegalArgumentException(
-                    "Ya existe una solicitud o relación con este usuario");
+                throw new IllegalArgumentException(
+                        "Ya existe una solicitud o relación con este usuario");
         }
 
         if (reverse != null
                 && ("PENDING".equals(reverse.getStatus())
                 || "ACCEPTED".equals(reverse.getStatus()))) {
-            throw new IllegalArgumentException(
-                    "Ya existe una solicitud o relación con este usuario");
+                throw new IllegalArgumentException(
+                        "Ya existe una solicitud o relación con este usuario");
         }
+
+        ContactRequest request;
 
         if (existing != null) {
-            existing.setStatus("PENDING");
-            requests.save(existing);
-            return;
+                // Volver a activar una solicitud que fue rechazada anteriormente.
+                existing.setStatus("PENDING");
+                request = requests.save(existing);
+        } else {
+                request = new ContactRequest();
+                request.setRequester(requester);
+                request.setAddressee(addressee);
+                request.setStatus("PENDING");
+
+                request = requests.save(request);
         }
 
-        ContactRequest request = new ContactRequest();
-        request.setRequester(requester);
-        request.setAddressee(addressee);
-        request.setStatus("PENDING");
+        // Guardar primero y enviar el aviso solamente si la transacción
+        // termina correctamente.
+        final Long requestId = request.getId();
+        final String recipientUsername = addressee.getUsername();
+        final Long senderId = requester.getId();
 
-        requests.save(request);
-    }
+        String senderName = requester.getDisplayName();
+
+        if (senderName == null || senderName.isBlank()) {
+                senderName = requester.getUsername();
+        }
+
+        final String finalSenderName = senderName;
+
+        GlobalNotification notification = new GlobalNotification(
+                "CONTACT_REQUEST",
+                requestId,
+                null,
+                null,
+                senderId,
+                finalSenderName,
+                "Te ha enviado una solicitud de contacto.",
+                Instant.now().toString(),
+                "/contactos"
+        );
+
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                        @Override
+                        public void afterCommit() {
+                        messagingTemplate.convertAndSendToUser(
+                                recipientUsername,
+                                "/queue/notifications",
+                                notification
+                        );
+                        }
+                }
+        );
+        }
 
     @Transactional(readOnly = true)
     public List<ContactRequestView> receivedRequests(Long userId) {
