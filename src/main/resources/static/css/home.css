@@ -1,0 +1,64 @@
+/* =========================================================
+   EKKO · HOME — saludo, perfil destacado, accesos, progreso
+   ========================================================= */
+
+.ek-greeting { margin: 0 0 1.25rem; font-size: clamp(1.5rem, 3.4vw, 2.2rem); }
+.ek-greeting small { display: block; font-family: var(--ek-font); font-weight: 500; font-size: 1rem; color: var(--ek-muted); margin-top: .25rem; letter-spacing: 0; }
+
+.ek-hero { background: var(--ek-surface); border: 3px solid var(--ek-line); border-radius: var(--ek-radius); box-shadow: var(--ek-shadow-lg); overflow: hidden; }
+.ek-cover {
+    position: relative; height: 170px; overflow: hidden; border-bottom: 3px solid var(--ek-line);
+    background: linear-gradient(180deg, #0b1f3a 0%, #135b8c 65%, #1a73b3 100%);
+}
+.ek-cover .ek-waves { height: 90px; }
+.ek-hero-body { padding: 0 1.75rem 1.75rem; display: flex; gap: 1.5rem; align-items: flex-end; flex-wrap: wrap; margin-top: -58px; position: relative; z-index: 2; }
+.ek-avatar-xl {
+    width: 120px; height: 120px; border-radius: 50%; object-fit: cover; background: var(--ek-surface-2);
+    border: 4px solid var(--ek-line); box-shadow: var(--ek-shadow);
+}
+.ek-hero-info { flex: 1 1 260px; min-width: 0; padding-top: 60px; overflow-wrap: anywhere; }
+.ek-hero-info h2 { font-size: 1.8rem; margin: 0; }
+.ek-handle { color: var(--ek-azul); font-weight: 700; cursor: pointer; border: 0; background: transparent; padding: 0; }
+[data-bs-theme="dark"] .ek-handle { color: var(--ek-agua); }
+.ek-handle .bi { opacity: 0; margin-left: .3rem; transition: opacity .15s; }
+.ek-handle:hover .bi { opacity: 1; }
+.ek-bio { white-space: pre-wrap; color: var(--ek-muted); margin: .6rem 0 0; max-width: 60ch; }
+.ek-hero-actions { padding-top: 60px; display: flex; gap: .6rem; flex-wrap: wrap; }
+@media (max-width: 575.98px) {
+    .ek-hero-body { padding: 0 1.1rem 1.25rem; justify-content: center; text-align: center; }
+    .ek-hero-info, .ek-hero-actions { padding-top: 0; flex-basis: 100%; justify-content: center; }
+    .ek-bio { margin-left: auto; margin-right: auto; }
+}
+
+/* Accesos rápidos */
+.ek-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin-top: 1.5rem; }
+.ek-action {
+    display: flex; flex-direction: column; gap: .35rem; padding: 1.2rem; text-decoration: none; color: var(--ek-text);
+    background: var(--ek-surface); border: 2px solid var(--ek-line); border-radius: var(--ek-radius); box-shadow: var(--ek-shadow);
+    transition: transform .08s, box-shadow .08s;
+}
+.ek-action:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ek-hard); color: var(--ek-text); }
+.ek-action:active { transform: translate(3px, 3px); box-shadow: none; }
+.ek-action-icon {
+    width: 46px; height: 46px; border: 2px solid var(--ek-line); border-radius: 10px; display: grid; place-items: center;
+    color: #fff; font-size: 1.3rem; background: var(--ek-gradient); margin-bottom: .4rem;
+}
+.ek-action:nth-child(2) .ek-action-icon { background: var(--ek-sol); color: var(--ek-abismo); }
+.ek-action:nth-child(3) .ek-action-icon { background: var(--ek-coral); color: var(--ek-abismo); }
+.ek-action:nth-child(4) .ek-action-icon { background: var(--ek-turquesa); color: var(--ek-abismo); }
+.ek-action strong { font-size: 1.1rem; }
+.ek-action span { color: var(--ek-muted); font-size: .9rem; }
+
+/* Completa tu perfil */
+.ek-card { background: var(--ek-surface); border: 2px solid var(--ek-line); border-radius: var(--ek-radius); box-shadow: var(--ek-shadow); padding: 1.4rem; }
+.ek-progress { height: 18px; border: 2px solid var(--ek-line); border-radius: 4px; background: var(--ek-surface-2); overflow: hidden; }
+.ek-progress-bar {
+    height: 100%; width: 0; transition: width .6s steps(10);
+    background: repeating-linear-gradient(45deg, var(--ek-turquesa) 0 8px, #12a597 8px 16px);
+    border-right: 2px solid var(--ek-line);
+}
+.ek-checklist { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: .5rem; }
+.ek-checklist li { display: flex; align-items: center; gap: .6rem; font-weight: 600; }
+.ek-checklist .bi-check-circle-fill { color: #12a597; }
+.ek-checklist .bi-circle { color: var(--ek-muted); }
+.ek-checklist .done { color: var(--ek-muted); text-decoration: line-through; }

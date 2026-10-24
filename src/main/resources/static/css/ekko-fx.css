@@ -1,0 +1,56 @@
+/* =========================================================
+   EKKO · FX — olas de escamas, burbujas, sol y modo ligero
+   Solo transform: barato para la GPU.
+   ========================================================= */
+
+.ek-waves { position: absolute; left: 0; right: 0; bottom: 0; height: 150px; pointer-events: none; overflow: hidden; contain: layout paint; }
+.ek-wave {
+    position: absolute; left: 0; bottom: 0; width: calc(100% + 60px); height: 100%; will-change: transform;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30'%3E%3Cpath d='M0 30V15a15 15 0 0 1 30 0a15 15 0 0 1 30 0v15z' fill='%238cf0e6'/%3E%3C/svg%3E"),
+        linear-gradient(var(--ek-agua), var(--ek-agua));
+    background-repeat: repeat-x, no-repeat;
+    background-size: 60px 30px, 100% calc(100% - 29px);
+    background-position: 0 0, 0 29px;
+}
+/* 1ª capa quieta, 2ª y 3ª se mueven "a pasos" (efecto pixel) */
+.ek-wave:nth-child(1) { opacity: .14; height: 100%; }
+.ek-wave:nth-child(2) { opacity: .22; height: 70%; animation: ek-wave 10s steps(20) infinite reverse; }
+.ek-wave:nth-child(3) { opacity: .34; height: 42%; animation: ek-wave 7s steps(20) infinite; }
+@keyframes ek-wave { to { transform: translate3d(-60px, 0, 0); } }
+
+.ek-bubbles { position: absolute; inset: 0; overflow: hidden; pointer-events: none; contain: layout paint; }
+.ek-bubble {
+    position: absolute; bottom: -40px; border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, .6); background: rgba(255, 255, 255, .08);
+    animation: ek-rise linear infinite;
+}
+@keyframes ek-rise {
+    0% { transform: translateY(0) translateX(0); opacity: 0; }
+    10% { opacity: 1; }
+    50% { transform: translateY(-50vh) translateX(14px); }
+    100% { transform: translateY(-105vh) translateX(-8px); opacity: 0; }
+}
+
+/* ---------- Sol retro (rayado) ---------- */
+.ek-auth-brand::before, .ek-center::before, .ek-cover::before {
+    content: ""; position: absolute; z-index: 0; pointer-events: none; border-radius: 50%;
+    width: var(--sun, 200px); height: var(--sun, 200px);
+    background: linear-gradient(180deg, var(--ek-sol) 15%, var(--ek-coral) 100%);
+    -webkit-mask: linear-gradient(#000 0 52%, transparent 52% 58%, #000 58% 66%, transparent 66% 73%, #000 73% 82%, transparent 82% 90%, #000 90%);
+            mask: linear-gradient(#000 0 52%, transparent 52% 58%, #000 58% 66%, transparent 66% 73%, #000 73% 82%, transparent 82% 90%, #000 90%);
+}
+.ek-auth-brand::before { --sun: 240px; right: 9%; bottom: 120px; }
+.ek-center::before { --sun: 260px; left: 50%; margin-left: -130px; bottom: 70px; }
+.ek-cover::before { --sun: 110px; right: 10%; bottom: 28px; }
+.ek-preview .ek-cover::before { --sun: 60px; right: 12%; bottom: 14px; }
+@media (max-width: 991.98px) { .ek-auth-brand::before { --sun: 130px; right: 6%; bottom: 55px; } }
+
+/* ---------- Pausa si la pestaña no está visible ---------- */
+html.ek-paused *, html.ek-paused *::before, html.ek-paused *::after { animation-play-state: paused !important; }
+
+/* ---------- Modo ligero (mismo diseño, sin movimiento) ---------- */
+html.ek-lite .ek-wave, html.ek-lite .ek-bubble, html.ek-lite .ek-logo-big, html.ek-lite .ek-logo-mid { animation: none !important; }
+html.ek-lite .ek-bubbles, html.ek-lite .ek-ripple { display: none !important; }
+html.ek-lite .ek-toast, html.ek-lite .message.is-new, html.ek-lite .ek-unread-pill.has-unread { animation: none !important; }
+html.ek-lite *, html.ek-lite *::before, html.ek-lite *::after { transition-duration: .01ms !important; scroll-behavior: auto !important; }

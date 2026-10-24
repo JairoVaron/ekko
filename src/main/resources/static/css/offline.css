@@ -1,9 +1,11 @@
 /* EKKO · Página sin conexión (funciona sin Bootstrap ni CDN) */
-body { margin: 0; font-family: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif; background: var(--ek-bg); color: var(--ek-text); }
+body { margin: 0; font-family: var(--ek-font); background: var(--ek-bg); color: var(--ek-text); }
 h1 { margin: 0 0 1rem; }
 .offline-hint { display: block; margin: 1rem 0 1.5rem; }
 .offline-btn {
-    font: inherit; font-weight: 700; color: #fff; border: 0; border-radius: 999px; padding: .7rem 1.6rem; cursor: pointer;
-    background: var(--ek-gradient); box-shadow: 0 10px 22px -10px rgba(26, 143, 209, .8);
+    font: inherit; font-weight: 700; color: #fff; cursor: pointer; padding: .65rem 1.5rem;
+    background: var(--ek-gradient); border: 2px solid var(--ek-line); border-radius: var(--ek-radius-sm);
+    box-shadow: var(--ek-shadow-sm); transition: transform .08s, box-shadow .08s;
 }
-.offline-btn:active { transform: scale(.97); }
+.offline-btn:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ek-hard); }
+.offline-btn:active { transform: translate(2px, 2px); box-shadow: none; }

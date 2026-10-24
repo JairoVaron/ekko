@@ -1,0 +1,29 @@
+/* =========================================================
+   EKKO · CONTACTOS — pestañas y tarjetas de personas
+   ========================================================= */
+
+.ek-tabs { display: flex; gap: .5rem; flex-wrap: wrap; border: 0; margin-bottom: 1.25rem; }
+.ek-tabs .nav-link {
+    --bs-nav-link-color: var(--ek-text);
+    --bs-nav-link-hover-color: var(--ek-text);
+    display: flex; align-items: center; gap: .45rem; font-weight: 700; color: var(--ek-text);
+    background: var(--ek-surface); border: 2px solid var(--ek-line); border-radius: var(--ek-radius-sm);
+    box-shadow: var(--ek-shadow-sm); transition: transform .08s, box-shadow .08s;
+}
+.ek-tabs .nav-link:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ek-hard); }
+.ek-tabs .nav-link.active { background: var(--ek-gradient); color: #fff; transform: translate(2px, 2px); box-shadow: none; }
+.ek-count { background: var(--ek-surface-2); color: var(--ek-text); border: 2px solid var(--ek-line); border-radius: 99px; font-size: .72rem; padding: 0 .5rem; min-width: 22px; text-align: center; }
+.ek-tabs .nav-link.active .ek-count { background: var(--ek-sol); color: var(--ek-abismo); }
+.ek-count.is-alert { background: var(--ek-coral); color: var(--ek-abismo); }
+
+.ek-people { display: grid; gap: .8rem; }
+.ek-person {
+    display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: 1rem;
+    background: var(--ek-surface); border: 2px solid var(--ek-line); border-radius: var(--ek-radius); box-shadow: var(--ek-shadow-sm);
+}
+.ek-person-info { flex: 1; min-width: 190px; overflow-wrap: anywhere; }
+.ek-person-info strong { font-size: 1.05rem; display: block; }
+.ek-person-info small { color: var(--ek-muted); font-weight: 700; }
+.ek-person-info p { margin: .3rem 0 0; color: var(--ek-muted); font-size: .9rem; white-space: pre-wrap; }
+.ek-person-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.ek-person-actions form { margin: 0; }

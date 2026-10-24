@@ -1,0 +1,49 @@
+/* =========================================================
+   EKKO · AUTH — login y registro
+   ========================================================= */
+
+.ek-auth { min-height: 100vh; display: grid; grid-template-columns: 1.05fr 1fr; background: var(--ek-bg); }
+
+.ek-auth-brand {
+    position: relative; overflow: hidden; color: #fff;
+    background: linear-gradient(180deg, #0b1f3a 0%, #135b8c 72%, #1a73b3 100%);
+    border-right: 3px solid var(--ek-line);
+    padding: 3rem 3.5rem 12rem; display: flex; flex-direction: column; justify-content: center; gap: 1.5rem;
+}
+.ek-auth-brand .ek-logo-big {
+    width: 132px; height: 132px; border-radius: 50%; cursor: pointer; position: relative; z-index: 2;
+    border: 3px solid #fff; background: var(--ek-abismo); box-shadow: 6px 6px 0 rgba(0, 0, 0, .4);
+    animation: ek-float 4s steps(8) infinite;
+}
+.ek-auth-brand h1 {
+    font-family: var(--ek-font-pixel); font-weight: 400; line-height: 1.4; letter-spacing: 0;
+    font-size: clamp(1.3rem, 2.6vw, 2.1rem); margin: 0; position: relative; z-index: 2;
+    text-shadow: 4px 4px 0 var(--ek-coral);
+}
+.ek-auth-brand p { font-size: 1.1rem; max-width: 30ch; color: rgba(255, 255, 255, .88); margin: 0; position: relative; z-index: 2; }
+.ek-pills { display: flex; flex-wrap: wrap; gap: .6rem; position: relative; z-index: 2; }
+.ek-pill {
+    background: var(--ek-abismo); border: 2px solid #fff; border-radius: 6px; padding: .4rem .75rem;
+    font-family: var(--ek-font-pixel); font-size: .55rem; line-height: 1.4; box-shadow: 3px 3px 0 rgba(0, 0, 0, .35);
+}
+.ek-pill .bi { margin-right: .4rem; color: var(--ek-agua); font-size: .8rem; }
+
+.ek-auth-form { display: flex; align-items: center; justify-content: center; padding: 2rem 1.5rem; }
+.ek-auth-card { width: 100%; max-width: 420px; }
+.ek-auth-card h2 { font-size: 2rem; margin-bottom: .25rem; }
+.ek-auth-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.ek-auth-mobile-logo { display: none; }
+
+@media (max-width: 991.98px) {
+    .ek-auth { grid-template-columns: 1fr; }
+    .ek-auth-brand { padding: 2rem 1.5rem 7rem; border-right: 0; border-bottom: 3px solid var(--ek-line); flex-direction: row; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .ek-auth-brand .ek-logo-big { width: 72px; height: 72px; }
+    .ek-auth-brand h1 { font-size: 1.4rem; }
+    .ek-auth-brand p, .ek-pills { display: none; }
+    .ek-waves { height: 90px; }
+    .ek-auth-form { margin-top: -4.5rem; align-items: flex-start; position: relative; z-index: 3; }
+    .ek-auth-card {
+        background: var(--ek-surface); border: 3px solid var(--ek-line); border-radius: var(--ek-radius);
+        padding: 1.6rem 1.4rem; box-shadow: var(--ek-shadow-lg);
+    }
+}
