@@ -1,116 +1,1047 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('Política y privacidad')}"></head>
+
+<head th:replace="~{fragments/head :: head('Política de tratamiento de datos y privacidad')}"></head>
+
 <body>
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="ek-shell">
+
     <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 
     <main class="ek-main">
         <div class="ek-container">
 
-            <a class="btn btn-ekko-soft btn-sm mb-3" th:href="@{/configuracion}"><i class="bi bi-arrow-left me-1"></i>Configuración</a>
+            <a class="btn btn-ekko-soft btn-sm mb-3"
+               th:href="@{/configuracion}">
+                <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>
+                Volver a ajustes
+            </a>
 
             <article class="ek-doc">
-                <h1 class="ek-display">Política de privacidad</h1>
-                <p class="text-muted-ek">Plataforma de Comunicación Social</p>
 
-                <div class="ek-draft">
-                    <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
-                    <div>
-                        <strong>Documento inicial:</strong>
-                        este texto es un borrador informativo para el desarrollo del proyecto.
-                        Debe adaptarse a las funciones reales de la plataforma y revisarse
-                        antes de publicarlo como política legal definitiva.
-                    </div>
-                </div>
+                <header>
+                    <h1 class="ek-display">
+                        Política de tratamiento de datos personales y privacidad
+                    </h1>
 
-                <h2>1. Objetivo</h2>
-                <p>
-                    Esta política busca explicar de manera general cómo la Plataforma
-                    de Comunicación Social pretende tratar la información de sus usuarios
-                    y qué aspectos de privacidad deben tenerse en cuenta al utilizarla.
-                </p>
+                    <p class="text-muted-ek">
+                        Ekko · Plataforma de Comunicación Social en Tiempo Real
+                    </p>
 
-                <h2>2. Información de la cuenta</h2>
-                <p>
-                    La plataforma puede tratar información necesaria para crear y mantener
-                    una cuenta, como el nombre de usuario, los datos del perfil y los
-                    datos técnicos requeridos para el funcionamiento del servicio.
-                    La información concreta dependerá de los campos que se soliciten
-                    y de las funciones que estén habilitadas.
-                </p>
+                    <p class="text-muted-ek">
+                        Versión 1.0 · Fecha de entrada en vigor:
+                        [DD/MM/AAAA]
+                    </p>
+                </header>
 
-                <h2>3. Mensajes y comunicaciones</h2>
-                <p>
-                    La plataforma permite intercambiar mensajes entre usuarios.
-                    Los mensajes y sus datos asociados pueden procesarse y almacenarse
-                    para ofrecer el servicio, mostrar el historial de conversaciones
-                    y gestionar funciones como la entrega y la lectura de mensajes.
-                </p>
-                <p>
-                    No debe asumirse que los mensajes cuentan con cifrado de extremo
-                    a extremo, salvo que esa función haya sido implementada y verificada.
-                </p>
+                <hr>
 
-                <h2>4. Uso de la información</h2>
-                <p>
-                    La información se utilizará únicamente conforme a las finalidades
-                    que se definan para el funcionamiento, mantenimiento, seguridad
-                    y mejora del servicio. Las finalidades definitivas deberán
-                    documentarse antes de la puesta en producción.
-                </p>
+                <section>
+                    <h2>1. Identificación del responsable del tratamiento</h2>
 
-                <h2>5. Seguridad</h2>
-                <p>
-                    Se deben aplicar medidas técnicas y organizativas razonables para
-                    proteger las cuentas y la información almacenada. Ningún sistema
-                    informático puede garantizar una seguridad absoluta.
-                </p>
+                    <p>
+                        La presente política regula el tratamiento de datos
+                        personales realizado en el marco de Ekko, una plataforma
+                        de comunicación digital que permite crear cuentas,
+                        administrar perfiles, establecer contactos e intercambiar
+                        mensajes entre usuarios.
+                    </p>
 
-                <h2>6. Conservación y eliminación de datos</h2>
-                <p>
-                    Los periodos de conservación y las consecuencias de eliminar una
-                    cuenta deberán definirse de acuerdo con el funcionamiento real
-                    de la plataforma y las obligaciones legales aplicables.
-                    La eliminación de una cuenta no implica necesariamente que todas
-                    las copias de seguridad o registros técnicos desaparezcan de inmediato.
-                </p>
+                    <p>
+                        Para efectos de la legislación colombiana sobre protección
+                        de datos personales, el responsable del tratamiento es
+                        la persona natural o jurídica que determina las finalidades
+                        y los medios del tratamiento de la información.
+                    </p>
 
-                <h2>7. Derechos de los usuarios</h2>
-                <p>
-                    Los procedimientos para consultar, actualizar, corregir o solicitar
-                    la eliminación de información personal deben establecerse de acuerdo
-                    con la normativa aplicable y las capacidades reales del servicio.
-                </p>
+                    <ul>
+                        <li>
+                            <strong>Nombre o razón social del responsable:</strong>
+                            [NOMBRE COMPLETO O RAZÓN SOCIAL].
+                        </li>
+                        <li>
+                            <strong>NIT, cuando corresponda:</strong>
+                            [NÚMERO DE IDENTIFICACIÓN].
+                        </li>
+                        <li>
+                            <strong>Domicilio:</strong>
+                            [MUNICIPIO, DEPARTAMENTO, COLOMBIA].
+                        </li>
+                        <li>
+                            <strong>Correo de privacidad:</strong>
+                            [CORREO ELECTRÓNICO OFICIAL].
+                        </li>
+                        <li>
+                            <strong>Canal para consultas y reclamos:</strong>
+                            [CORREO O FORMULARIO DE CONTACTO].
+                        </li>
+                    </ul>
 
-                <h2>8. Servicios de terceros</h2>
-                <p>
-                    Si la plataforma utiliza proveedores de alojamiento, bases de datos
-                    u otros servicios externos, se deberán identificar y explicar sus
-                    funciones y el tratamiento de información que corresponda.
-                </p>
+                    <p>
+                        Estos datos deben completarse con información real
+                        antes de publicar la plataforma. La denominación
+                        comercial Ekko no sustituye la identificación del
+                        responsable del tratamiento.
+                    </p>
+                </section>
 
-                <h2>9. Cambios en esta política</h2>
-                <p>
-                    Este documento podrá actualizarse a medida que se incorporen nuevas
-                    funciones. Cuando se publique una versión definitiva, deberán
-                    indicarse la fecha de actualización y, cuando corresponda,
-                    los mecanismos para informar a los usuarios.
-                </p>
+                <section>
+                    <h2>2. Marco normativo</h2>
 
-                <h2>10. Contacto</h2>
-                <p>
-                    Antes de publicar la versión definitiva, agrega un canal de contacto
-                    válido para las consultas sobre privacidad y protección de datos.
-                </p>
+                    <p>
+                        El tratamiento de datos personales se realizará conforme
+                        a la Constitución Política de Colombia, especialmente
+                        sus disposiciones sobre intimidad y hábeas data, la Ley
+                        Estatutaria 1581 de 2012, el Decreto 1074 de 2015,
+                        las normas que los modifiquen o complementen y las
+                        instrucciones aplicables de la Superintendencia de
+                        Industria y Comercio (SIC).
+                    </p>
 
-                <p class="text-muted-ek mt-4 mb-0">
-                    Versión de desarrollo. Fecha de revisión: pendiente.
-                </p>
+                    <p>
+                        Cuando corresponda, también se observarán las normas
+                        sobre derechos de los consumidores, comercio electrónico,
+                        comunicaciones digitales, seguridad de la información
+                        y protección de niños, niñas y adolescentes.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>3. Alcance de esta política</h2>
+
+                    <p>
+                        Esta política se aplica a los datos personales tratados
+                        a través de Ekko, sus páginas, funcionalidades,
+                        formularios, mecanismos de autenticación y servicios
+                        técnicos relacionados.
+                    </p>
+
+                    <p>
+                        Comprende las operaciones de recolección, almacenamiento,
+                        organización, consulta, utilización, transmisión,
+                        actualización, circulación y supresión de información
+                        personal, según corresponda a cada finalidad.
+                    </p>
+
+                    <p>
+                        La política se dirige a los usuarios registrados y,
+                        cuando corresponda, a las personas que se comuniquen
+                        con el responsable para formular consultas o ejercer
+                        sus derechos.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>4. Datos personales que podemos tratar</h2>
+
+                    <p>
+                        Según las funcionalidades utilizadas, Ekko podrá tratar
+                        las siguientes categorías de información:
+                    </p>
+
+                    <h3>4.1. Datos de identificación y cuenta</h3>
+
+                    <ul>
+                        <li>Nombre de usuario.</li>
+                        <li>Nombre visible o nombre para mostrar.</li>
+                        <li>Dirección de correo electrónico.</li>
+                        <li>Identificador interno de la cuenta.</li>
+                        <li>Información necesaria para verificar la cuenta.</li>
+                    </ul>
+
+                    <h3>4.2. Datos de autenticación y seguridad</h3>
+
+                    <ul>
+                        <li>
+                            Credenciales de acceso protegidas mediante mecanismos
+                            de almacenamiento de contraseñas, como funciones
+                            de hash criptográfico.
+                        </li>
+                        <li>
+                            Tokens temporales para verificar el correo electrónico
+                            o restablecer una contraseña, cuando se utilicen.
+                        </li>
+                        <li>
+                            Información técnica necesaria para proteger la cuenta,
+                            detectar accesos indebidos y gestionar sesiones.
+                        </li>
+                    </ul>
+
+                    <p>
+                        Ekko no debe solicitar ni almacenar contraseñas en texto
+                        plano. Los tokens de verificación y recuperación deberán
+                        gestionarse con medidas de seguridad adecuadas.
+                    </p>
+
+                    <h3>4.3. Datos del perfil</h3>
+
+                    <ul>
+                        <li>Nombre para mostrar.</li>
+                        <li>Biografía o descripción personal.</li>
+                        <li>Dirección o referencia de una imagen de perfil.</li>
+                    </ul>
+
+                    <p>
+                        El contenido del perfil podrá ser visible para otros
+                        usuarios según las funcionalidades y los controles
+                        de acceso implementados en la plataforma.
+                    </p>
+
+                    <h3>4.4. Mensajes y datos de comunicación</h3>
+
+                    <ul>
+                        <li>Contenido de los mensajes enviados.</li>
+                        <li>Identificador del remitente y de la conversación.</li>
+                        <li>Fecha y hora de envío.</li>
+                        <li>
+                            Información de entrega y lectura, cuando estas
+                            funciones estén habilitadas.
+                        </li>
+                        <li>
+                            Información necesaria para mostrar el historial
+                            de conversaciones.
+                        </li>
+                    </ul>
+
+                    <p>
+                        Los mensajes pueden contener datos personales de quien
+                        los escribe o de otras personas. Por ello, se recomienda
+                        no incluir información financiera, contraseñas, datos
+                        médicos, documentos de identidad ni otros datos
+                        confidenciales que no sean necesarios para conversar.
+                    </p>
+
+                    <h3>4.5. Contactos y relaciones entre usuarios</h3>
+
+                    <ul>
+                        <li>Solicitudes de contacto enviadas o recibidas.</li>
+                        <li>Relaciones de contacto aceptadas.</li>
+                        <li>Información necesaria para gestionar bloqueos.</li>
+                        <li>Notificaciones relacionadas con estas actividades.</li>
+                    </ul>
+
+                    <h3>4.6. Datos técnicos</h3>
+
+                    <p>
+                        Dependiendo de la infraestructura y de los registros
+                        efectivamente habilitados, podrán tratarse datos como
+                        la dirección IP, fechas de acceso, información del
+                        navegador, registros de errores, identificadores
+                        de sesión y eventos técnicos relacionados con
+                        la seguridad y el funcionamiento.
+                    </p>
+
+                    <p>
+                        No se afirma que todos estos datos se recolecten
+                        actualmente. El responsable deberá verificar los
+                        registros de la aplicación, el alojamiento y los
+                        proveedores antes de publicar la versión definitiva.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>5. Finalidades del tratamiento</h2>
+
+                    <p>
+                        Los datos personales podrán tratarse, según corresponda,
+                        para las siguientes finalidades:
+                    </p>
+
+                    <ol>
+                        <li>
+                            Crear, identificar y administrar las cuentas de usuario.
+                        </li>
+                        <li>
+                            Permitir el inicio y cierre de sesión y proteger
+                            el acceso a las cuentas.
+                        </li>
+                        <li>
+                            Verificar las direcciones de correo electrónico.
+                        </li>
+                        <li>
+                            Gestionar la recuperación de contraseñas.
+                        </li>
+                        <li>
+                            Mostrar y actualizar los perfiles.
+                        </li>
+                        <li>
+                            Permitir la búsqueda y gestión de contactos,
+                            solicitudes y bloqueos.
+                        </li>
+                        <li>
+                            Enviar, almacenar y mostrar mensajes e historiales
+                            de conversación.
+                        </li>
+                        <li>
+                            Gestionar estados de entrega y lectura de mensajes,
+                            cuando estén habilitados.
+                        </li>
+                        <li>
+                            Generar notificaciones relacionadas con mensajes,
+                            contactos, seguridad y funcionamiento de la cuenta.
+                        </li>
+                        <li>
+                            Mantener, diagnosticar y mejorar el funcionamiento
+                            técnico de la plataforma.
+                        </li>
+                        <li>
+                            Prevenir, detectar e investigar accesos no autorizados,
+                            fraude, abuso y vulneraciones de seguridad.
+                        </li>
+                        <li>
+                            Atender solicitudes, consultas, reclamos y derechos
+                            de los titulares.
+                        </li>
+                        <li>
+                            Cumplir obligaciones legales y atender requerimientos
+                            válidos de autoridades competentes.
+                        </li>
+                    </ol>
+
+                    <p>
+                        Los datos no se utilizarán para finalidades incompatibles
+                        con las aquí informadas sin contar con la base jurídica
+                        y, cuando sea exigible, la autorización correspondiente.
+                    </p>
+
+                    <p>
+                        No se establece mediante esta política una finalidad
+                        publicitaria, de perfilamiento comercial ni de venta
+                        de bases de datos. Cualquier finalidad adicional deberá
+                        informarse previamente y cumplir la normativa aplicable.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>6. Autorización para el tratamiento</h2>
+
+                    <p>
+                        Cuando la legislación exija autorización, el responsable
+                        solicitará al titular su consentimiento previo, expreso
+                        e informado antes de recolectar o tratar los datos para
+                        la finalidad correspondiente, o a más tardar en el
+                        momento legalmente permitido.
+                    </p>
+
+                    <p>
+                        La autorización podrá obtenerse mediante mecanismos
+                        físicos o electrónicos que permitan informar las
+                        finalidades, identificar la aceptación y conservar
+                        evidencia de ella.
+                    </p>
+
+                    <p>
+                        La creación de una cuenta no sustituye automáticamente
+                        todas las autorizaciones que puedan ser necesarias.
+                        El responsable deberá conservar prueba de las
+                        autorizaciones obtenidas y poner a disposición
+                        del titular esta política.
+                    </p>
+
+                    <p>
+                        Cuando el tratamiento se encuentre amparado por una
+                        excepción legal a la autorización, se respetarán
+                        las demás obligaciones aplicables.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>7. Mensajes, conversaciones y privacidad</h2>
+
+                    <p>
+                        Ekko utiliza información de los mensajes para prestar
+                        las funciones de comunicación y mantener el historial
+                        disponible para los participantes autorizados.
+                    </p>
+
+                    <p>
+                        El acceso a conversaciones deberá limitarse mediante
+                        controles de autenticación y autorización. Los usuarios
+                        no deben poder consultar conversaciones ajenas a las
+                        que estén autorizados a acceder.
+                    </p>
+
+                    <p>
+                        La plataforma no debe considerarse un canal con
+                        cifrado de extremo a extremo salvo que esta característica
+                        se implemente, se pruebe y se comunique expresamente.
+                        El uso de conexiones cifradas o de contraseñas protegidas
+                        no equivale, por sí solo, a cifrar los mensajes de
+                        extremo a extremo.
+                    </p>
+
+                    <p>
+                        Los mensajes pueden ser vistos por sus destinatarios
+                        y pueden ser copiados, capturados o compartidos por
+                        ellos. Ekko no puede garantizar que otro usuario
+                        mantenga en reserva la información que recibe.
+                    </p>
+
+                    <p>
+                        El responsable no utilizará el contenido de los mensajes
+                        para finalidades ajenas a la prestación del servicio
+                        sin una base jurídica válida y, cuando sea exigible,
+                        la autorización correspondiente.
+                    </p>
+
+                    <p>
+                        El acceso administrativo a mensajes deberá limitarse
+                        a los casos necesarios y autorizados, con controles
+                        adecuados y respetando las obligaciones legales.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>8. Visibilidad del perfil, contactos y bloqueos</h2>
+
+                    <p>
+                        La información del perfil se utilizará para identificar
+                        a los usuarios y facilitar las funciones de comunicación.
+                        Los nombres visibles, las imágenes y las biografías
+                        podrán mostrarse a otros usuarios conforme a las
+                        funcionalidades y restricciones de acceso disponibles.
+                    </p>
+
+                    <p>
+                        Las solicitudes de contacto, las relaciones aceptadas
+                        y los bloqueos se tratarán para gestionar las
+                        interacciones entre cuentas.
+                    </p>
+
+                    <p>
+                        Bloquear a un usuario no garantiza por sí solo que
+                        desaparezcan todos los mensajes previos, las copias
+                        conservadas por el destinatario o los registros
+                        técnicos relacionados con la interacción.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>9. Datos sensibles y datos de menores de edad</h2>
+
+                    <p>
+                        Ekko no solicita de manera ordinaria datos sensibles
+                        para crear una cuenta o intercambiar mensajes.
+                        Los usuarios deben abstenerse de compartir datos
+                        sensibles propios o de terceros cuando no sea necesario.
+                    </p>
+
+                    <p>
+                        Si una funcionalidad llegara a requerir datos sensibles,
+                        su tratamiento deberá cumplir las condiciones especiales
+                        previstas en la legislación colombiana, incluida la
+                        información sobre el carácter facultativo de responder
+                        preguntas sobre este tipo de datos y la obtención
+                        de autorización explícita cuando corresponda.
+                    </p>
+
+                    <p>
+                        El tratamiento de datos personales de niños, niñas
+                        y adolescentes estará sujeto a las garantías reforzadas
+                        previstas en la ley, el respeto de sus derechos y
+                        las reglas aplicables a su interés superior.
+                    </p>
+
+                    <p>
+                        Antes de admitir de forma general a menores de edad,
+                        el responsable deberá definir las condiciones de uso,
+                        los mecanismos de información y las salvaguardas
+                        apropiadas para el público al que se dirija el servicio.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>10. Proveedores y terceros</h2>
+
+                    <p>
+                        Para operar, Ekko puede utilizar proveedores tecnológicos
+                        que presten servicios de alojamiento, infraestructura,
+                        almacenamiento de bases de datos, envío de correos
+                        electrónicos, seguridad y mantenimiento.
+                    </p>
+
+                    <p>
+                        Según la configuración real de la plataforma, estos
+                        proveedores podrían incluir servicios como Render,
+                        Supabase y proveedores de correo electrónico.
+                        Su mención es ilustrativa y no constituye una
+                        declaración de que todos intervengan actualmente
+                        en cada operación de tratamiento.
+                    </p>
+
+                    <p>
+                        Los proveedores solo deberán acceder a los datos
+                        en la medida necesaria para prestar los servicios
+                        contratados y de acuerdo con las condiciones legales
+                        y contractuales aplicables.
+                    </p>
+
+                    <p>
+                        El responsable deberá revisar las condiciones de
+                        privacidad, seguridad, subcontratación, conservación
+                        y eliminación de cada proveedor, así como sus
+                        ubicaciones de tratamiento y sus mecanismos
+                        de transferencia o transmisión internacional.
+                    </p>
+
+                    <p>
+                        Esta política no autoriza la venta de datos personales
+                        ni su entrega indiscriminada a terceros.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>11. Transmisiones y transferencias internacionales</h2>
+
+                    <p>
+                        Algunos proveedores tecnológicos pueden almacenar
+                        o procesar información fuera de Colombia. Antes
+                        de habilitar estas operaciones, el responsable
+                        deberá identificar los países, destinatarios,
+                        finalidades y funciones involucrados.
+                    </p>
+
+                    <p>
+                        Cuando exista una transmisión internacional a un
+                        encargado, se adoptarán los acuerdos y garantías
+                        contractuales exigibles para regular el tratamiento.
+                        Cuando exista una transferencia internacional a otro
+                        responsable, se verificará el cumplimiento de las
+                        condiciones y excepciones previstas en el artículo 26
+                        de la Ley 1581 de 2012 y las instrucciones aplicables
+                        de la SIC.
+                    </p>
+
+                    <p>
+                        La naturaleza de cada operación deberá evaluarse
+                        según quién determina las finalidades y los medios
+                        del tratamiento, sin asumir que toda operación
+                        internacional tiene el mismo régimen jurídico.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>12. Conservación de la información</h2>
+
+                    <p>
+                        Los datos se conservarán durante el tiempo necesario
+                        para cumplir las finalidades informadas y atender
+                        las obligaciones legales, contractuales o de seguridad
+                        que resulten aplicables.
+                    </p>
+
+                    <p>
+                        Los periodos concretos dependerán de la categoría
+                        de datos y de las necesidades justificadas de cada
+                        tratamiento. El responsable deberá establecer y
+                        documentar sus criterios de conservación.
+                    </p>
+
+                    <ul>
+                        <li>
+                            Los datos de cuenta se conservarán mientras
+                            la cuenta esté activa y durante el periodo
+                            adicional que resulte legalmente justificado.
+                        </li>
+                        <li>
+                            Los mensajes se conservarán conforme al
+                            funcionamiento del historial y a las reglas
+                            de eliminación efectivamente implementadas.
+                        </li>
+                        <li>
+                            Los registros técnicos se conservarán durante
+                            el periodo necesario para seguridad, diagnóstico
+                            y cumplimiento de obligaciones aplicables.
+                        </li>
+                        <li>
+                            Los registros de autorizaciones y de atención
+                            de solicitudes podrán conservarse como evidencia
+                            de cumplimiento durante el periodo pertinente.
+                        </li>
+                    </ul>
+
+                    <p>
+                        Cuando la información deje de ser necesaria y no
+                        exista un deber legal o una razón válida para
+                        conservarla, se eliminará, anonimizará o bloqueará
+                        según corresponda.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>13. Eliminación de cuentas y supresión de datos</h2>
+
+                    <p>
+                        Los usuarios podrán utilizar el procedimiento
+                        disponible en Ekko para solicitar la eliminación
+                        de su cuenta, sujeto a la autenticación y a las
+                        verificaciones de seguridad necesarias.
+                    </p>
+
+                    <p>
+                        La solicitud de eliminación será atendida conforme
+                        a la legislación aplicable. El responsable deberá
+                        informar qué datos se eliminan, cuáles pueden
+                        conservarse por una obligación legal u otra
+                        excepción válida y, cuando corresponda, el
+                        tratamiento de las copias de respaldo.
+                    </p>
+
+                    <p>
+                        La eliminación de una cuenta no implica necesariamente
+                        la desaparición instantánea de todas las copias
+                        de seguridad o registros técnicos. Las copias
+                        residuales deberán mantenerse protegidas, sujetas
+                        a plazos definidos y eliminarse o sobrescribirse
+                        de acuerdo con los procedimientos de conservación.
+                    </p>
+
+                    <p>
+                        La supresión o revocación podrá no proceder cuando
+                        exista un deber legal o contractual de conservar
+                        la información, o cuando se configure otra
+                        excepción prevista en la ley. En estos casos,
+                        se informarán las razones aplicables.
+                    </p>
+
+                    <p>
+                        Los mensajes que hayan sido entregados a otros
+                        usuarios pueden permanecer en sus dispositivos,
+                        capturas de pantalla o copias realizadas fuera
+                        del control de Ekko. No se garantiza su eliminación
+                        de esos medios externos.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>14. Seguridad de la información</h2>
+
+                    <p>
+                        El responsable adoptará medidas técnicas,
+                        humanas y administrativas razonables y adecuadas
+                        al riesgo para proteger los datos personales
+                        contra pérdida, alteración, consulta, uso o
+                        acceso no autorizado.
+                    </p>
+
+                    <p>
+                        Estas medidas deberán incluir, según corresponda:
+                    </p>
+
+                    <ul>
+                        <li>
+                            Controles de acceso y autenticación.
+                        </li>
+                        <li>
+                            Protección de las credenciales de acceso.
+                        </li>
+                        <li>
+                            Conexiones seguras y configuración adecuada
+                            de la infraestructura.
+                        </li>
+                        <li>
+                            Restricción de permisos sobre bases de datos
+                            y servicios de alojamiento.
+                        </li>
+                        <li>
+                            Gestión segura de secretos y credenciales
+                            de proveedores.
+                        </li>
+                        <li>
+                            Actualización de componentes y corrección
+                            de vulnerabilidades.
+                        </li>
+                        <li>
+                            Copias de seguridad y procedimientos
+                            de recuperación, cuando estén habilitados.
+                        </li>
+                        <li>
+                            Gestión de incidentes y revisión de registros
+                            de seguridad.
+                        </li>
+                    </ul>
+
+                    <p>
+                        Ninguna medida puede garantizar un riesgo cero.
+                        El responsable deberá evaluar los incidentes,
+                        aplicar medidas de contención y cumplir los
+                        deberes de reporte o comunicación que sean
+                        exigibles en cada caso.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>15. Derechos de los titulares</h2>
+
+                    <p>
+                        De acuerdo con la Ley 1581 de 2012, los titulares
+                        podrán ejercer, según corresponda, los siguientes
+                        derechos:
+                    </p>
+
+                    <ul>
+                        <li>
+                            Conocer los datos personales que se están
+                            tratando y acceder a ellos.
+                        </li>
+                        <li>
+                            Solicitar la actualización y rectificación
+                            de información incompleta, inexacta o
+                            desactualizada.
+                        </li>
+                        <li>
+                            Solicitar prueba de la autorización otorgada,
+                            cuando esta sea exigible.
+                        </li>
+                        <li>
+                            Conocer las finalidades y el uso dado
+                            a sus datos personales.
+                        </li>
+                        <li>
+                            Presentar consultas y reclamos relacionados
+                            con el tratamiento de su información.
+                        </li>
+                        <li>
+                            Solicitar la revocación de la autorización
+                            o la supresión de datos cuando legalmente
+                            proceda.
+                        </li>
+                        <li>
+                            Acceder gratuitamente a sus datos personales
+                            en los términos establecidos por la ley.
+                        </li>
+                        <li>
+                            Presentar quejas ante la Superintendencia
+                            de Industria y Comercio, una vez cumplido
+                            el trámite de consulta o reclamo ante
+                            el responsable cuando sea exigible.
+                        </li>
+                    </ul>
+
+                    <p>
+                        Estos derechos no son absolutos y se ejercerán
+                        dentro de las condiciones, excepciones y
+                        procedimientos previstos en la legislación.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>16. Procedimiento para consultas y reclamos</h2>
+
+                    <p>
+                        Para ejercer sus derechos, el titular o su
+                        representante debidamente acreditado podrá
+                        presentar una solicitud mediante los siguientes
+                        canales:
+                    </p>
+
+                    <ul>
+                        <li>
+                            <strong>Correo electrónico:</strong>
+                            [CORREO OFICIAL DE PRIVACIDAD].
+                        </li>
+                        <li>
+                            <strong>Formulario o canal alternativo:</strong>
+                            [CANAL DISPONIBLE, SI EXISTE].
+                        </li>
+                    </ul>
+
+                    <p>
+                        La solicitud deberá indicar, según corresponda,
+                        el nombre del titular, un medio de contacto,
+                        la descripción de los hechos, el derecho que
+                        desea ejercer y los documentos que permitan
+                        acreditar su identidad o representación cuando
+                        sean necesarios.
+                    </p>
+
+                    <p>
+                        No se solicitarán documentos o datos excesivos
+                        que no sean necesarios para verificar la
+                        identidad y atender la petición.
+                    </p>
+
+                    <h3>16.1. Consultas</h3>
+
+                    <p>
+                        Las consultas sobre los datos personales serán
+                        atendidas dentro del término legal de diez (10)
+                        días hábiles contados desde su recepción.
+                        Cuando no sea posible atenderlas dentro de ese
+                        plazo, se informarán los motivos y la nueva
+                        fecha de respuesta, que no podrá superar
+                        cinco (5) días hábiles adicionales al vencimiento
+                        del término inicial.
+                    </p>
+
+                    <h3>16.2. Reclamos</h3>
+
+                    <p>
+                        Los reclamos por corrección, actualización,
+                        supresión o presunto incumplimiento de las
+                        obligaciones de protección de datos serán
+                        atendidos dentro del término legal de quince
+                        (15) días hábiles contados desde el día siguiente
+                        a su recibo.
+                    </p>
+
+                    <p>
+                        Si no es posible resolver el reclamo dentro
+                        de ese término, se informarán los motivos
+                        y la fecha de respuesta, sin superar ocho
+                        (8) días hábiles adicionales al vencimiento
+                        del plazo inicial.
+                    </p>
+
+                    <p>
+                        Si el reclamo está incompleto, se solicitará
+                        la información necesaria dentro de los términos
+                        previstos en la ley. Si el titular no subsana
+                        las deficiencias dentro del plazo legal,
+                        podrá aplicarse el desistimiento conforme
+                        al procedimiento aplicable.
+                    </p>
+
+                    <p>
+                        Cuando un reclamo cumpla las condiciones legales,
+                        se incorporará en la base de datos la leyenda
+                        correspondiente de “reclamo en trámite”,
+                        en los términos aplicables.
+                    </p>
+
+                    <h3>16.3. Autoridad de protección de datos</h3>
+
+                    <p>
+                        Si el titular considera que sus derechos han
+                        sido vulnerados, podrá acudir a la
+                        <a href="https://www.sic.gov.co/"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            Superintendencia de Industria y Comercio
+                        </a>,
+                        autoridad colombiana competente en materia
+                        de protección de datos personales, conforme
+                        a los requisitos legales aplicables.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>17. Cookies, sesiones y almacenamiento local</h2>
+
+                    <p>
+                        Ekko podrá utilizar cookies técnicas,
+                        identificadores de sesión o mecanismos
+                        de almacenamiento local necesarios para
+                        autenticar al usuario, mantener su sesión,
+                        aplicar preferencias de interfaz y proteger
+                        el funcionamiento del servicio.
+                    </p>
+
+                    <p>
+                        La utilización efectiva de estos mecanismos
+                        dependerá de la configuración de la aplicación
+                        y de las tecnologías incorporadas.
+                    </p>
+
+                    <p>
+                        Antes de utilizar cookies de análisis,
+                        publicidad o seguimiento no esenciales,
+                        el responsable deberá identificarlas,
+                        informar sus finalidades y habilitar
+                        los mecanismos de información y elección
+                        que resulten exigibles.
+                    </p>
+
+                    <p>
+                        La eliminación o el bloqueo de cookies
+                        esenciales puede afectar el inicio de sesión
+                        y otras funcionalidades de la plataforma.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>18. Comunicaciones por correo electrónico</h2>
+
+                    <p>
+                        Ekko podrá enviar comunicaciones necesarias
+                        para verificar una cuenta, restablecer
+                        una contraseña, informar sobre la seguridad
+                        de la cuenta o completar una operación
+                        solicitada por el usuario.
+                    </p>
+
+                    <p>
+                        Estas comunicaciones operativas se diferencian
+                        de los mensajes publicitarios. Si en el futuro
+                        se incorporan comunicaciones comerciales,
+                        se informará su finalidad y se solicitará
+                        la autorización que corresponda.
+                    </p>
+
+                    <p>
+                        El usuario debe mantener actualizado
+                        su correo electrónico y evitar compartir
+                        los enlaces o códigos de recuperación
+                        con otras personas.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>19. Obligaciones y conductas de los usuarios</h2>
+
+                    <p>
+                        Los usuarios deberán proporcionar información
+                        que puedan suministrar legítimamente y
+                        abstenerse de utilizar la plataforma para
+                        vulnerar los derechos de otras personas.
+                    </p>
+
+                    <p>
+                        En particular, deberán evitar:
+                    </p>
+
+                    <ul>
+                        <li>
+                            Acceder a cuentas o conversaciones
+                            sin autorización.
+                        </li>
+                        <li>
+                            Suplantar a otras personas.
+                        </li>
+                        <li>
+                            Compartir información personal de terceros
+                            sin fundamento legítimo.
+                        </li>
+                        <li>
+                            Enviar mensajes fraudulentos, amenazantes
+                            o destinados a vulnerar la seguridad
+                            de otros usuarios.
+                        </li>
+                        <li>
+                            Utilizar la plataforma para actividades
+                            ilícitas.
+                        </li>
+                    </ul>
+
+                    <p>
+                        Estas reglas no eliminan las obligaciones
+                        legales del responsable ni sustituyen
+                        los mecanismos de seguridad, atención
+                        y gestión de incidentes que deba mantener.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>20. Requerimientos de autoridades</h2>
+
+                    <p>
+                        Los datos personales podrán ser suministrados
+                        a autoridades públicas o judiciales cuando
+                        exista una obligación legal o un requerimiento
+                        válido emitido dentro de sus competencias.
+                    </p>
+
+                    <p>
+                        El responsable verificará la legitimidad
+                        del requerimiento y limitará la información
+                        entregada a lo legalmente exigido, dentro
+                        de lo posible y conforme a la normativa
+                        aplicable.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>21. Cambios en la política</h2>
+
+                    <p>
+                        Esta política podrá actualizarse para reflejar
+                        cambios normativos, nuevas funcionalidades,
+                        modificaciones de proveedores o cambios
+                        en las prácticas de tratamiento de datos.
+                    </p>
+
+                    <p>
+                        La versión vigente estará disponible en
+                        la plataforma. Cuando los cambios afecten
+                        las finalidades del tratamiento o requieran
+                        una nueva autorización, se informarán
+                        y gestionarán conforme a la legislación.
+                    </p>
+
+                    <p>
+                        La fecha de actualización deberá indicarse
+                        de forma visible y el responsable conservará
+                        un registro de las versiones publicadas.
+                    </p>
+                </section>
+
+                <section>
+                    <h2>22. Contacto y vigencia</h2>
+
+                    <p>
+                        Para cualquier inquietud relacionada con
+                        la privacidad o el tratamiento de datos
+                        personales, el titular podrá utilizar
+                        los canales de contacto identificados
+                        en la sección 1 de esta política.
+                    </p>
+
+                    <p>
+                        La política entrará en vigor en la fecha
+                        indicada en su encabezado, una vez haya
+                        sido aprobada por el responsable y se
+                        hayan completado los datos de identificación
+                        y contacto.
+                    </p>
+                </section>
+
+                <hr>
+
+                <footer class="mt-4">
+
+                    <p class="text-muted-ek">
+                        <strong>Normativa y orientación oficial</strong>
+                    </p>
+
+                    <ul>
+                        <li>
+                            <a href="https://www1.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=49981"
+                               target="_blank"
+                               rel="noopener noreferrer">
+                                Ley 1581 de 2012 — Gestor Normativo
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="https://www.sic.gov.co/"
+                               target="_blank"
+                               rel="noopener noreferrer">
+                                Superintendencia de Industria y Comercio
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="https://sedeelectronica.sic.gov.co/"
+                               target="_blank"
+                               rel="noopener noreferrer">
+                                Sede electrónica de la SIC
+                            </a>
+                        </li>
+                    </ul>
+
+                    <p class="text-muted-ek mb-0">
+                        Ekko · Política de tratamiento de datos personales.
+                        Versión 1.0 · Fecha:
+                        [DD/MM/AAAA].
+                    </p>
+
+                </footer>
+
             </article>
+
         </div>
     </main>
 </div>
