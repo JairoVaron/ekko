@@ -1,9 +1,4 @@
 'use strict';
-
-/*
- * EKKO - Service Worker
- */
-
 const VERSION = 'ekko-v3';
 
 const STATIC_CACHE = VERSION + '-static';
@@ -15,14 +10,12 @@ const OFFLINE_URL = new URL(
 ).href;
 
 /*
- * Recursos locales de Ekko.
+ * Recursos locales
  */
-
 const PRECACHE = [
     'offline.html',
     'manifest.json',
 
-    // Hojas de estilo.
     'css/core.css',
     'css/ekko-fx.css',
     'css/layout.css',
@@ -33,14 +26,12 @@ const PRECACHE = [
     'css/account.css',
     'css/offline.css',
 
-    // JavaScript.
     'js/ekko-theme.js',
     'js/ekko.js',
     'js/notificaciones.js',
     'js/pwa.js',
     'js/offline.js',
 
-    // Imágenes e iconos.
     'images/ekko-logo.svg',
     'icons/icon-192.png',
     'icons/icon-512.png',
@@ -49,13 +40,6 @@ const PRECACHE = [
     return new URL(path, self.registration.scope).href;
 });
 
-/*
- * Dominios externos cuyos recursos estáticos pueden
- * utilizar el caché cuando el navegador los solicite.
- *
- * No se almacenan aquí páginas HTML externas.
- */
-
 const ALLOWED_EXTERNAL_HOSTS = [
     'cdn.jsdelivr.net',
     'cdnjs.cloudflare.com'
@@ -63,12 +47,7 @@ const ALLOWED_EXTERNAL_HOSTS = [
 
 /*
  * INSTALACIÓN
- *
- * Precarga de recursos.
- * Un recurso individual que falle no impide que el resto
- * se almacene ni que el Service Worker se instale.
  */
-
 self.addEventListener('install', function (event) {
     event.waitUntil(
         caches.open(STATIC_CACHE)
@@ -98,11 +77,6 @@ self.addEventListener('install', function (event) {
                     '[Ekko SW] Error durante la instalación:',
                     error
                 );
-
-                /*
-                 * Intentar activar el Service Worker incluso
-                 * si hubo un problema al preparar la caché.
-                 */
                 return self.skipWaiting();
             })
     );
@@ -110,12 +84,7 @@ self.addEventListener('install', function (event) {
 
 /*
  * ACTIVACIÓN
- *
- * Eliminar únicamente las cachés antiguas que pertenecen
- * a Ekko. No borrar cachés de otras aplicaciones del mismo
- * origen.
  */
-
 self.addEventListener('activate', function (event) {
     event.waitUntil(
         caches.keys()
@@ -153,7 +122,6 @@ self.addEventListener('activate', function (event) {
 /*
  * UTILIDADES
  */
-
 function isSameOrigin(url) {
     return url.origin === self.location.origin;
 }
@@ -189,15 +157,7 @@ function isCacheableResponse(response) {
 
 /*
  * NAVEGACIÓN: NETWORK-FIRST
- *
- * Intentar cargar la página desde el servidor.
- * Si no hay conexión o la solicitud falla, mostrar
- * offline.html como respaldo.
- *
- * No se guardan páginas de inicio de sesión, perfiles,
- * contactos ni conversaciones en la caché.
  */
-
 function networkFirst(request) {
     return fetch(request)
         .catch(function (error) {
@@ -239,12 +199,7 @@ function networkFirst(request) {
 
 /*
  * RECURSOS ESTÁTICOS: CACHE-FIRST
- *
- * Utilizar primero una copia almacenada.
- * Si no existe, solicitar el recurso a la red y guardar
- * únicamente respuestas válidas.
  */
-
 function cacheFirst(request) {
     return caches.match(request)
         .then(function (cachedResponse) {
@@ -275,14 +230,7 @@ function cacheFirst(request) {
 
 /*
  * RECURSOS ESTÁTICOS: STALE-WHILE-REVALIDATE
- *
- * Devolver inmediatamente la copia disponible mientras
- * se intenta actualizar desde la red.
- *
- * Se usa para los recursos estáticos solicitados que no
- * estén incluidos en la precarga inicial.
  */
-
 function staleWhileRevalidate(request) {
     return caches.match(request)
         .then(function (cachedResponse) {
@@ -327,12 +275,7 @@ function staleWhileRevalidate(request) {
 
 /*
  * INTERCEPTAR SOLICITUDES
- *
- * Solo solicitudes GET.
- * Las solicitudes de API, autenticación y WebSocket
- * conservan su comportamiento normal de red.
  */
-
 self.addEventListener('fetch', function (event) {
     const request = event.request;
 
@@ -345,7 +288,6 @@ self.addEventListener('fetch', function (event) {
     /*
      * No interceptar protocolos que no sean HTTP/HTTPS.
      */
-
     if (
         url.protocol !== 'http:' &&
         url.protocol !== 'https:'
