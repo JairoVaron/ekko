@@ -66,15 +66,24 @@
                 </button>
 
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" th:href="@{/perfil}"><i class="bi bi-person-circle"></i>Mi perfil</a></li>
+                    <li><a class="dropdown-item" th:href="@{/inicio}"><i class="bi bi-person-circle"></i>Mi perfil</a></li>
                     <li><a class="dropdown-item" th:href="@{/configuracion}"><i class="bi bi-gear-fill"></i>Configuración</a></li>
                     <li><a class="dropdown-item" th:href="@{/politica-privacidad}"><i class="bi bi-shield-check"></i>Política y privacidad</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                        <form th:action="@{/logout}" method="post" class="m-0">
-                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                            <button type="submit" class="dropdown-item text-danger w-100">
-                                <i class="bi bi-box-arrow-right"></i>Cerrar sesión
+                        <form class="m-0"
+                            th:action="@{/logout}"
+                            method="post"
+                            data-ekko-confirm="Saldrás de tu cuenta en este dispositivo."
+                            data-confirm-title="¿Cerrar tu sesión?"
+                            data-confirm-ok="Cerrar sesión">
+                            <input type="hidden"
+                                th:name="${_csrf.parameterName}"
+                                th:value="${_csrf.token}">
+                            <button type="submit"
+                                    class="dropdown-item text-danger w-100">
+                                <i class="bi bi-box-arrow-right"></i>
+                                Cerrar sesión
                             </button>
                         </form>
                     </li>
