@@ -375,18 +375,6 @@
 
             </div>
 
-            <form class="mt-4 text-center"
-                  th:action="@{/logout}"
-                  method="post">
-                <input type="hidden"
-                       th:name="${_csrf.parameterName}"
-                       th:value="${_csrf.token}">
-                <button type="submit" class="btn btn-ekko-soft">
-                    <i class="bi bi-box-arrow-right me-1"></i>
-                    Cerrar sesión
-                </button>
-            </form>
-
         </div>
     </main>
 </div>
