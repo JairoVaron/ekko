@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .loginProcessingUrl("/login")
                 .usernameParameter("username")
                 .passwordParameter("password")
-                .defaultSuccessUrl("/inicio", true)
+                .defaultSuccessUrl("/mensajes", true)
                 .failureUrl("/login?error")
                 .permitAll()
             )
@@ -51,10 +51,7 @@ public class SecurityConfig {
                 .permitAll()
             );
 
-        /*
-         * Conservamos la protección CSRF de Spring Security.
-         * Los formularios deben incluir el token CSRF.
-         */
+        // Conservamos la protección CSRF de Spring Security.
         return http.build();
     }
 
