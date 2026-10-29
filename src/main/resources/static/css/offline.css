@@ -1,11 +1,36 @@
 /* EKKO · Página sin conexión (funciona sin Bootstrap ni CDN) */
-body { margin: 0; font-family: var(--ek-font); background: var(--ek-bg); color: var(--ek-text); }
-h1 { margin: 0 0 1rem; }
-.offline-hint { display: block; margin: 1rem 0 1.5rem; }
-.offline-btn {
-    font: inherit; font-weight: 700; color: #fff; cursor: pointer; padding: .65rem 1.5rem;
-    background: var(--ek-gradient); border: 2px solid var(--ek-line); border-radius: var(--ek-radius-sm);
-    box-shadow: var(--ek-shadow-sm); transition: transform .08s, box-shadow .08s;
+body { margin: 0; 
+    font-family: var(--ek-font); 
+    background: var(--ek-bg); 
+    color: var(--ek-text); 
 }
-.offline-btn:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ek-hard); }
-.offline-btn:active { transform: translate(2px, 2px); box-shadow: none; }
+
+h1 { 
+    margin: 0 0 1rem; 
+}
+
+.offline-hint { 
+    display: block; 
+    margin: 1rem 0 1.5rem; 
+}
+
+.offline-btn {
+    font: inherit; font-weight: 700; 
+    color: #fff; 
+    cursor: pointer; 
+    padding: .65rem 1.5rem;
+    background: var(--ek-gradient); 
+    border: 2px solid var(--ek-line); 
+    border-radius: var(--ek-radius-sm);
+    box-shadow: var(--ek-shadow-sm); 
+    transition: transform .08s, box-shadow .08s;
+}
+
+.offline-btn:hover { 
+    transform: translate(-1px, -1px); 
+    box-shadow: 3px 3px 0 var(--ek-hard); 
+}
+.offline-btn:active { 
+    transform: translate(2px, 2px); 
+    box-shadow: none; 
+}

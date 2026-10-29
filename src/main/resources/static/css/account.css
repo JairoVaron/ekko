@@ -1,7 +1,3 @@
-/* =========================================================
-   EKKO · CUENTA — perfil, configuración, política, eliminar
-   ========================================================= */
-
 /* ---------- Editar perfil ---------- */
 .ek-edit-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; align-items: start; }
 .ek-preview { position: sticky; top: calc(var(--ek-nav-h) + 1.2rem); text-align: center; overflow: hidden; padding: 0; }

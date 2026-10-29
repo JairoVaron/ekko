@@ -1,73 +1,64 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
-    <!-- Configuración básica -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#06284a">
-
     <title>Sin conexión · Ekko</title>
-
-    <!-- Icono de Ekko -->
-    <link
-        rel="icon"
-        type="image/svg+xml"
-        href="images/ekko-logo.svg"
-    >
-
-    <!-- Estilos -->
-    <link rel="stylesheet" href="css/ekko.css">
-    <link rel="stylesheet" href="css/offline.css">
-
-    <!-- Tema de la aplicación -->
-    <script src="js/ekko-theme.js"></script>
+    <link rel="icon"
+          type="image/svg+xml"
+          href="/images/ekko-logo.svg">
+    <link rel="stylesheet" href="/css/offline.css">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="/js/ekko-theme.js"></script>
 </head>
 
 <body>
     <main class="ek-center">
-
-        <!-- Animación decorativa de olas -->
+        <!-- Decoración de olas de Ekko -->
         <div class="ek-waves" aria-hidden="true">
             <div class="ek-wave"></div>
             <div class="ek-wave"></div>
             <div class="ek-wave"></div>
         </div>
 
-        <!-- Mensaje de desconexión -->
         <section class="ek-center-card"
                  aria-labelledby="offlineTitle">
-
-            <img
-                class="ek-logo-mid"
-                src="images/ekko-logo.svg"
-                alt="Logo de Ekko"
-                width="80"
-                height="80"
-            >
-
+            <img class="ek-logo-mid"
+                 src="/images/ekko-logo.svg"
+                 alt="Logo de Ekko"
+                 width="80"
+                 height="80">
             <h1 class="ek-display" id="offlineTitle">
                 Estás sin conexión
             </h1>
-
-            <p
-                class="ek-verify-msg"
-                id="offlineMsg"
-                role="status"
-                aria-live="polite"
-            >
+            <p class="ek-verify-msg"
+               id="offlineMsg"
+               role="status"
+               aria-live="polite">
                 Ekko no puede conectarse en este momento.
             </p>
-
             <p class="ek-hint offline-hint">
                 Revisa tu conexión Wi-Fi o tus datos móviles.
                 Cuando vuelvas a conectarte, podrás regresar a Ekko
                 y retomar tus conversaciones.
             </p>
-
+            <button class="ek-offline-button"
+                    type="button"
+                    onclick="window.location.reload()">
+                <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+                Intentar de nuevo
+            </button>
         </section>
+
+        <footer class="ek-offline-footer">
+            <strong>Ekko</strong>
+            <span>Conversa sin fronteras.</span>
+        </footer>
     </main>
 
-    <!-- Comprobaciones de conexión -->
-    <script src="js/offline.js"></script>
+    <script src="/js/offline.js"></script>
 </body>
 </html>
