@@ -1,5 +1,5 @@
 'use strict';
-const VERSION = 'ekko-v3';
+const VERSION = 'ekko-v4';
 
 const STATIC_CACHE = VERSION + '-static';
 const RUNTIME_CACHE = VERSION + '-runtime';
