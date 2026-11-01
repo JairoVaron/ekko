@@ -1,71 +1,82 @@
 <!DOCTYPE html>
-<html lang="es"
-      xmlns:th="http://www.thymeleaf.org">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color"
-          content="#06284a">
-    <meta name="description"
-          content="Ekko no tiene conexión a Internet en este momento.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+    <meta name="theme-color" content="#06284a">
+    <meta name="description" content="Ekko no tiene conexión a Internet en este momento.">
+
     <title>Sin conexión · Ekko</title>
-    <link rel="icon"
-          type="image/svg+xml"
-          href="/images/ekko-logo.svg">
-    <link rel="stylesheet"
-          href="/css/offline.css">
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <link rel="icon" type="image/svg+xml" href="/images/ekko-logo.svg">
+
+    <!-- Estilos generales de Ekko -->
+    <link rel="stylesheet" href="/css/core.css">
+    <link rel="stylesheet" href="/css/ekko-fx.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="/css/home.css">
+
+    <!-- Tema de Ekko -->
     <script src="/js/ekko-theme.js" defer></script>
 </head>
 
 <body>
-    <main class="ek-center">
+
+    <main class="ek-container">
+
+        <!-- Decoración de ondas -->
         <div class="ek-waves" aria-hidden="true">
             <div class="ek-wave"></div>
             <div class="ek-wave"></div>
             <div class="ek-wave"></div>
         </div>
 
-        <!-- Tarjeta principal -->
-        <section class="ek-center-card"
+        <!-- Contenido principal -->
+        <section class="ek-card text-center"
                  aria-labelledby="offlineTitle">
-            <img class="ek-logo-mid"
-                 src="/images/ekko-logo.svg"
-                 alt="Logo de Ekko"
-                 width="80"
-                 height="80">
-            <h1 class="ek-display"
-                id="offlineTitle">
-                Estás sin conexión
+
+            <img
+                src="/images/ekko-logo.svg"
+                alt="Logo de Ekko"
+                width="90"
+                height="90"
+                style="object-fit: contain;"
+            >
+
+            <h1 class="ek-display mt-4" id="offlineTitle">
+                Parece que perdimos la señal
             </h1>
-            <p class="ek-verify-msg"
-               id="offlineMsg"
-               role="status"
-               aria-live="polite">
-                Ekko no puede conectarse en este momento.
+
+            <p id="offlineMsg" role="status" aria-live="polite">
+                En este momento no podemos conectarnos a Ekko.
             </p>
-            <p class="ek-hint offline-hint">
-                Revisa tu conexión Wi-Fi o tus datos móviles.
-                Cuando vuelvas a conectarte, podrás regresar a Ekko
-                y retomar tus conversaciones.
+
+            <p>
+                Comprueba tu conexión Wi-Fi o tus datos móviles.
+                Cuando vuelva Internet, podrás regresar y continuar
+                tus conversaciones.
             </p>
+
             <button
-                class="ek-offline-button"
                 type="button"
+                class="btn btn-ekko"
                 id="retryConnection">
-                <i class="bi bi-arrow-clockwise"></i>
+                <span aria-hidden="true">↻</span>
                 Intentar de nuevo
             </button>
+
+            <p class="mt-4 mb-0">
+                <strong>Ekko</strong>
+                <span> · Cada mensaje es una onda. Que llegue lejos.</span>
+            </p>
+
         </section>
 
-        <footer class="ek-offline-footer">
-            <strong>Ekko</strong>
-            <span>Conversa sin fronteras.</span>
-        </footer>
     </main>
 
     <script src="/js/offline.js" defer></script>
+
 </body>
 </html>
