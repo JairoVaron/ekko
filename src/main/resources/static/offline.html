@@ -3,27 +3,32 @@
       xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#06284a">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color"
+          content="#06284a">
+    <meta name="description"
+          content="Ekko no tiene conexión a Internet en este momento.">
     <title>Sin conexión · Ekko</title>
     <link rel="icon"
           type="image/svg+xml"
           href="/images/ekko-logo.svg">
-    <link rel="stylesheet" href="/css/offline.css">
+    <link rel="stylesheet"
+          href="/css/offline.css">
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <script src="/js/ekko-theme.js"></script>
+    <script src="/js/ekko-theme.js" defer></script>
 </head>
 
 <body>
     <main class="ek-center">
-        <!-- Decoración de olas de Ekko -->
         <div class="ek-waves" aria-hidden="true">
             <div class="ek-wave"></div>
             <div class="ek-wave"></div>
             <div class="ek-wave"></div>
         </div>
 
+        <!-- Tarjeta principal -->
         <section class="ek-center-card"
                  aria-labelledby="offlineTitle">
             <img class="ek-logo-mid"
@@ -31,7 +36,8 @@
                  alt="Logo de Ekko"
                  width="80"
                  height="80">
-            <h1 class="ek-display" id="offlineTitle">
+            <h1 class="ek-display"
+                id="offlineTitle">
                 Estás sin conexión
             </h1>
             <p class="ek-verify-msg"
@@ -45,10 +51,11 @@
                 Cuando vuelvas a conectarte, podrás regresar a Ekko
                 y retomar tus conversaciones.
             </p>
-            <button class="ek-offline-button"
-                    type="button"
-                    onclick="window.location.reload()">
-                <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+            <button
+                class="ek-offline-button"
+                type="button"
+                id="retryConnection">
+                <i class="bi bi-arrow-clockwise"></i>
                 Intentar de nuevo
             </button>
         </section>
@@ -59,6 +66,6 @@
         </footer>
     </main>
 
-    <script src="/js/offline.js"></script>
+    <script src="/js/offline.js" defer></script>
 </body>
 </html>

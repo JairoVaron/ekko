@@ -1,9 +1,54 @@
-/* EKKO · Página sin conexión: reintenta sola al volver la red */
+
 (function () {
     'use strict';
-    var btn = document.getElementById('retry');
-    var msg = document.getElementById('offlineMsg');
-    function retry() { location.href = new URL('inicio', document.baseURI).href; }
-    if (btn) { btn.addEventListener('click', retry); }
-    window.addEventListener('online', function () { if (msg) { msg.textContent = 'Conexión restablecida. Volviendo…'; } setTimeout(retry, 600); });
+
+    const retryButton =
+        document.getElementById('retryConnection') ||
+        document.getElementById('retry');
+
+    const message = document.getElementById('offlineMsg');
+
+    let redirecting = false;
+
+    function retryConnection() {
+        if (!navigator.onLine || redirecting) {
+            return;
+        }
+
+        redirecting = true;
+
+        if (message) {
+            message.textContent =
+                'Conexión restablecida. Volviendo a Ekko…';
+        }
+
+        window.location.assign(
+            new URL('inicio', document.baseURI).href
+        );
+    }
+
+    if (retryButton) {
+        retryButton.addEventListener('click', function () {
+            if (!navigator.onLine) {
+                if (message) {
+                    message.textContent =
+                        'Todavía no tienes conexión. Comprueba tu red e inténtalo nuevamente.';
+                }
+
+                return;
+            }
+
+            retryConnection();
+        });
+    }
+
+    window.addEventListener('online', function () {
+        if (message) {
+            message.textContent =
+                'Conexión restablecida. Volviendo a Ekko…';
+        }
+
+        retryConnection();
+    });
+
 })();
