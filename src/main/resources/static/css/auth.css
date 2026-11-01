@@ -1,49 +1,40 @@
 /* =========================================================
-   EKKO · AUTH — login y registro
+   EKKO · auth.css  (login, registro, recuperación, verificación)
    ========================================================= */
+.ek-auth{min-height:100vh;min-height:100dvh;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 
-.ek-auth { min-height: 100vh; display: grid; grid-template-columns: 1.05fr 1fr; background: var(--ek-bg); }
+/* Panel de marca: degradado estático, sin animaciones */
+.ek-auth-brand{position:relative;overflow:hidden;color:#fff;padding:3rem clamp(1.5rem,5vw,4rem);display:flex;flex-direction:column;justify-content:center;gap:1rem;
+  background:radial-gradient(circle at 15% 20%,rgba(255,255,255,.12),transparent 40%),linear-gradient(160deg,#06284a 0%,#0a5fc2 62%,#0a84aa 100%)}
+.ek-auth-brand::after{content:"";position:absolute;left:0;right:0;bottom:0;height:120px;pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120' preserveAspectRatio='none'%3E%3Cpath d='M0 60 C200 100 400 0 600 40 S1000 90 1200 40 V120 H0Z' fill='%23ffffff' fill-opacity='.08'/%3E%3C/svg%3E") bottom/100% 100% no-repeat}
+.ek-auth-brand>*{position:relative;z-index:1}
+.ek-auth-brand h1{font-size:clamp(1.8rem,3.4vw,2.8rem);margin:0}
+.ek-auth-brand p{font-size:1.05rem;max-width:34ch;margin:0;color:rgba(255,255,255,.88)}
+.ek-pills{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem}
+.ek-pill{display:inline-flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.14);padding:.4rem .85rem;border-radius:99px;font-size:.85rem;font-weight:600}
 
-.ek-auth-brand {
-    position: relative; overflow: hidden; color: #fff;
-    background: linear-gradient(180deg, #0b1f3a 0%, #135b8c 72%, #1a73b3 100%);
-    border-right: 3px solid var(--ek-line);
-    padding: 3rem 3.5rem 12rem; display: flex; flex-direction: column; justify-content: center; gap: 1.5rem;
-}
-.ek-auth-brand .ek-logo-big {
-    width: 132px; height: 132px; border-radius: 50%; cursor: pointer; position: relative; z-index: 2;
-    border: 3px solid #fff; background: var(--ek-abismo); box-shadow: 6px 6px 0 rgba(0, 0, 0, .4);
-    animation: ek-float 4s steps(8) infinite;
-}
-.ek-auth-brand h1 {
-    font-family: var(--ek-font-pixel); font-weight: 400; line-height: 1.4; letter-spacing: 0;
-    font-size: clamp(1.3rem, 2.6vw, 2.1rem); margin: 0; position: relative; z-index: 2;
-    text-shadow: 4px 4px 0 var(--ek-coral);
-}
-.ek-auth-brand p { font-size: 1.1rem; max-width: 30ch; color: rgba(255, 255, 255, .88); margin: 0; position: relative; z-index: 2; }
-.ek-pills { display: flex; flex-wrap: wrap; gap: .6rem; position: relative; z-index: 2; }
-.ek-pill {
-    background: var(--ek-abismo); border: 2px solid #fff; border-radius: 6px; padding: .4rem .75rem;
-    font-family: var(--ek-font-pixel); font-size: .55rem; line-height: 1.4; box-shadow: 3px 3px 0 rgba(0, 0, 0, .35);
-}
-.ek-pill .bi { margin-right: .4rem; color: var(--ek-agua); font-size: .8rem; }
+.ek-auth-form{display:flex;align-items:center;justify-content:center;padding:2rem 1.25rem;background:var(--ek-bg)}
+.ek-auth-card{width:min(440px,100%);background:var(--ek-surface);border:1px solid var(--ek-border);border-radius:24px;padding:2rem;box-shadow:var(--ek-shadow)}
+.ek-auth-card h2{font-size:1.65rem;margin-bottom:.35rem}
+.ek-auth-top{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:1rem;min-height:40px}
+.ek-auth-top .ek-icon-btn{color:var(--ek-primary);background:var(--ek-primary-soft);font-size:.82rem}
+.ek-auth-top .ek-icon-btn:hover{background:var(--ek-hover);color:var(--ek-primary)}
 
-.ek-auth-form { display: flex; align-items: center; justify-content: center; padding: 2rem 1.5rem; }
-.ek-auth-card { width: 100%; max-width: 420px; }
-.ek-auth-card h2 { font-size: 2rem; margin-bottom: .25rem; }
-.ek-auth-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-.ek-auth-mobile-logo { display: none; }
+/* Página centrada (verificación de correo) */
+.ek-center{min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:1.5rem;
+  background:radial-gradient(circle at 50% 0,var(--ek-primary-soft),transparent 55%),var(--ek-bg)}
+.ek-center-card{width:min(480px,100%);text-align:center;background:var(--ek-surface);border:1px solid var(--ek-border);border-radius:24px;padding:2.25rem 1.75rem;box-shadow:var(--ek-shadow)}
+.ek-logo-mid{width:88px;height:88px;margin-bottom:1rem}
+.ek-center-card h1{font-size:1.5rem}
+.ek-verify-msg{color:var(--ek-muted);margin:1rem 0 1.5rem}
 
-@media (max-width: 991.98px) {
-    .ek-auth { grid-template-columns: 1fr; }
-    .ek-auth-brand { padding: 2rem 1.5rem 7rem; border-right: 0; border-bottom: 3px solid var(--ek-line); flex-direction: row; align-items: center; flex-wrap: wrap; gap: 1rem; }
-    .ek-auth-brand .ek-logo-big { width: 72px; height: 72px; }
-    .ek-auth-brand h1 { font-size: 1.4rem; }
-    .ek-auth-brand p, .ek-pills { display: none; }
-    .ek-waves { height: 90px; }
-    .ek-auth-form { margin-top: -4.5rem; align-items: flex-start; position: relative; z-index: 3; }
-    .ek-auth-card {
-        background: var(--ek-surface); border: 3px solid var(--ek-line); border-radius: var(--ek-radius);
-        padding: 1.6rem 1.4rem; box-shadow: var(--ek-shadow-lg);
-    }
+@media (max-width:899.98px){
+  .ek-auth{grid-template-columns:1fr}
+  .ek-auth-brand{padding:1.5rem 1.25rem 3rem;flex-direction:row;flex-wrap:wrap;align-items:center;gap:.75rem 1rem}
+  .ek-logo-big{width:64px;height:64px}
+  .ek-auth-brand h1{font-size:1.5rem}
+  .ek-auth-brand p,.ek-pills{display:none}
+  .ek-auth-form{padding:0 1rem 2rem;margin-top:-1.75rem;align-items:flex-start;background:transparent}
+  .ek-auth-card{padding:1.5rem 1.25rem}
 }
