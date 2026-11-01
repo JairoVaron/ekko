@@ -13,47 +13,29 @@
 
             <header class="ek-page-head">
                 <div>
-                    <h1 class="ek-display">Mis conversaciones</h1>
+                    <h1 class="ek-display">Chats</h1>
                     <p>Sesión iniciada como <strong th:text="${username}"></strong></p>
                 </div>
 
-                <p id="connectionStatus"
-                   class="ek-status-pill"
-                   role="status"
-                   aria-live="polite"
-                   data-state="connecting">
-                    Conectando a las conversaciones en tiempo real...
+                <p id="connectionStatus" class="ek-status-pill" role="status" aria-live="polite" data-state="connecting">
+                    Conectando...
                 </p>
             </header>
 
-            <p class="alert alert-ek-error"
-               th:if="${error}"
-               th:text="${error}"
-               role="alert"
-               data-ekko-sound-on-load="error"></p>
+            <p class="alert alert-ek-error" th:if="${error}" th:text="${error}" role="alert" data-ekko-sound-on-load="error"></p>
 
             <h2 class="visually-hidden">Conversaciones privadas</h2>
 
             <div class="ek-search" th:unless="${#lists.isEmpty(conversations)}">
-                <i class="bi bi-search"></i>
-                <input id="conversationFilter"
-                       type="search"
-                       class="form-control"
-                       placeholder="Buscar en tus conversaciones"
-                       aria-label="Buscar en tus conversaciones"
-                       autocomplete="off">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <input id="conversationFilter" type="search" class="form-control"
+                       placeholder="Buscar en tus chats" aria-label="Buscar en tus chats" autocomplete="off">
             </div>
 
-            <div th:if="${#lists.isEmpty(conversations)}"
-                 id="emptyConversations"
-                 class="ek-empty-state">
+            <div th:if="${#lists.isEmpty(conversations)}" id="emptyConversations" class="ek-empty-state">
                 <i class="bi bi-chat-heart"></i>
-                <p class="mb-3">
-                    Todavía no tienes conversaciones. Ve a Contactos para iniciar una.
-                </p>
-                <a class="btn btn-ekko" th:href="@{/contactos}">
-                    <i class="bi bi-people-fill me-1"></i>Ir a Contactos
-                </a>
+                <p class="mb-3">Todavía no tienes conversaciones. Ve a Contactos para iniciar una.</p>
+                <a class="btn btn-ekko" th:href="@{/contactos}"><i class="bi bi-people-fill"></i>Ir a Contactos</a>
             </div>
 
             <div class="ek-conv-list">
@@ -66,27 +48,16 @@
                                   data-other-name=${nombre},
                                   data-search=${#strings.toLowerCase(nombre + ' ' + conversation.otherUsername)}">
 
-                    <!-- Avatar del otro participante -->
-                    <div class="ek-conv-avatar"
-                         style="position:relative;width:48px;height:48px;flex-shrink:0;">
-
-                        <!-- La inicial queda visible si no hay foto -->
+                    <!-- Se muestra la inicial; si hay foto, se superpone -->
+                    <div class="ek-conv-avatar">
                         <span class="ek-initial"
                               th:attr="data-name=${nombre}"
-                              th:text="${!#strings.isEmpty(nombre) ? #strings.toUpperCase(#strings.substring(nombre, 0, 1)) : '?'}"
-                              style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;">
-                            A
-                        </span>
-
-                        <!-- La URL debe venir en conversation.otherAvatarUrl -->
+                              th:text="${!#strings.isEmpty(nombre) ? #strings.toUpperCase(#strings.substring(nombre, 0, 1)) : '?'}">A</span>
                         <img th:if="${conversation.otherAvatarUrl != null and !#strings.isEmpty(conversation.otherAvatarUrl)}"
                              th:src="${conversation.otherAvatarUrl}"
                              th:alt="${'Foto de perfil de ' + nombre}"
-                             loading="lazy"
-                             decoding="async"
-                             referrerpolicy="no-referrer"
-                             style="position:absolute;inset:0;width:48px;height:48px;object-fit:cover;border-radius:50%;"
-                             onerror="this.onerror=null;this.style.display='none';">
+                             loading="lazy" decoding="async" referrerpolicy="no-referrer"
+                             data-hide-on-error>
                     </div>
 
                     <div class="ek-conv-body">
@@ -94,24 +65,18 @@
                             <h3>
                                 <a class="stretched-link"
                                    th:href="@{/mensajes/{id}(id=${conversation.conversationId})}"
-                                   th:text="${nombre}">
-                                </a>
+                                   th:text="${nombre}"></a>
                             </h3>
 
                             <small class="ek-conv-time last-message-at"
                                    th:if="${conversation.lastMessageAt != null}"
-                                   th:text="${#temporals.format(conversation.lastMessageAt, 'dd/MM HH:mm')}">
-                            </small>
-
+                                   th:text="${#temporals.format(conversation.lastMessageAt, 'dd/MM HH:mm')}"></small>
                             <small class="ek-conv-time last-message-at"
-                                   th:unless="${conversation.lastMessageAt != null}">
-                            </small>
+                                   th:unless="${conversation.lastMessageAt != null}"></small>
                         </div>
 
                         <p class="ek-conv-last">
-                            <span class="last-message"
-                                  th:text="${conversation.lastMessage}">
-                            </span>
+                            <span class="last-message" th:text="${conversation.lastMessage}"></span>
                         </p>
                     </div>
 
@@ -119,8 +84,7 @@
                        th:classappend="${conversation.unreadCount > 0 ? ' has-unread' : ''}"
                        title="Mensajes sin leer">
                         <span class="visually-hidden">Mensajes sin leer: </span>
-                        <strong class="unread-count"
-                                th:text="${conversation.unreadCount}">0</strong>
+                        <strong class="unread-count" th:text="${conversation.unreadCount}">0</strong>
                     </p>
 
                 </article>
@@ -128,7 +92,7 @@
 
             <p id="noMatches" class="ek-empty-state mt-3" hidden>
                 <i class="bi bi-search-heart"></i>
-                No encontramos conversaciones con ese nombre.
+                No encontramos chats con ese nombre.
             </p>
 
         </div>

@@ -22,17 +22,13 @@
             </h1>
 
             <section class="ek-hero" aria-label="Mi perfil">
-                <div class="ek-cover" aria-hidden="true">
-                    <div class="ek-bubbles" data-ekko-bubbles="8"></div>
-                    <div class="ek-waves">
-                        <div class="ek-wave"></div><div class="ek-wave"></div><div class="ek-wave"></div>
-                    </div>
-                </div>
+                <div class="ek-cover" aria-hidden="true"></div>
 
                 <div class="ek-hero-body">
                     <img class="ek-avatar-xl"
                          th:src="${tieneFoto} ? ${currentUser.avatarUrl} : @{/images/avatar-default.svg}"
                          th:attr="data-fallback=@{/images/avatar-default.svg}"
+                         referrerpolicy="no-referrer"
                          alt="Foto de perfil">
 
                     <div class="ek-hero-info">
@@ -46,12 +42,12 @@
                         </button>
 
                         <p class="ek-bio" th:if="${tieneBio}" th:text="${currentUser.bio}">Biografía del usuario</p>
-                        <p class="ek-bio" th:unless="${tieneBio}">Todavía no has añadido una biografía.</p>
+                        <p class="ek-bio" th:unless="${tieneBio}">Todavía no añadiste una biografía.</p>
                     </div>
 
                     <div class="ek-hero-actions">
                         <a class="btn btn-ekko" th:href="@{/perfil}" data-ekko-sound="pop">
-                            <i class="bi bi-pencil-fill me-1"></i>Editar perfil
+                            <i class="bi bi-pencil-fill"></i>Editar perfil
                         </a>
                     </div>
                 </div>
@@ -60,8 +56,8 @@
             <nav class="ek-grid" aria-label="Accesos rápidos">
                 <a class="ek-action" th:href="@{/mensajes}" data-ekko-sound="pop">
                     <span class="ek-action-icon"><i class="bi bi-chat-dots-fill"></i></span>
-                    <strong>Conversaciones</strong>
-                    <span>Retoma tus chats en tiempo real.</span>
+                    <strong>Chats</strong>
+                    <span>Retoma tus conversaciones en tiempo real.</span>
                 </a>
                 <a class="ek-action" th:href="@{/contactos}" data-ekko-sound="pop">
                     <span class="ek-action-icon"><i class="bi bi-people-fill"></i></span>
@@ -70,8 +66,8 @@
                 </a>
                 <a class="ek-action" th:href="@{/configuracion}" data-ekko-sound="pop">
                     <span class="ek-action-icon"><i class="bi bi-gear-fill"></i></span>
-                    <strong>Configuración</strong>
-                    <span>Privacidad, cuenta y preferencias.</span>
+                    <strong>Ajustes</strong>
+                    <span>Cuenta, privacidad y preferencias.</span>
                 </a>
             </nav>
 

@@ -6,17 +6,13 @@
 <div class="ek-auth">
 
     <section class="ek-auth-brand" aria-label="Ekko">
-        <div class="ek-bubbles" data-ekko-bubbles="16" aria-hidden="true"></div>
         <img class="ek-logo-big" th:src="@{/images/ekko-logo.svg}" alt="Logo de Ekko, un delfín saltando" data-ekko-splash>
-        <h1 class="ek-display">Únete a la corriente</h1>
-        <p>Crea tu cuenta y encuentra a tu gente en el océano de Ekko.</p>
+        <h1 class="ek-display">Únete a Ekko</h1>
+        <p>Crea tu cuenta y encuentra a tu gente.</p>
         <div class="ek-pills">
             <span class="ek-pill"><i class="bi bi-chat-heart-fill"></i>Chats en vivo</span>
             <span class="ek-pill"><i class="bi bi-person-hearts"></i>Contactos</span>
             <span class="ek-pill"><i class="bi bi-lock-fill"></i>Tú decides</span>
-        </div>
-        <div class="ek-waves" aria-hidden="true">
-            <div class="ek-wave"></div><div class="ek-wave"></div><div class="ek-wave"></div>
         </div>
     </section>
 
@@ -26,13 +22,12 @@
             <h2 class="ek-display">Crear cuenta</h2>
             <p class="text-muted-ek mb-4">Elige cómo quieres que te encuentren.</p>
 
-            <p class="alert alert-ek-error" th:if="${error}" role="alert" data-ekko-sound-on-load="error">
+            <p class="alert-ek-error" th:if="${error}" role="alert" data-ekko-sound-on-load="error">
                 <i class="bi bi-exclamation-octagon-fill"></i>
                 <span th:text="${error}"></span>
             </p>
 
             <form th:action="@{/registro}" th:object="${form}" method="post" data-ekko-loading novalidate>
-
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
                 <div class="ek-field">
@@ -63,7 +58,7 @@
                         <i class="bi bi-emoji-smile-fill"></i>
                         <input id="displayName" type="text" class="form-control" th:field="*{displayName}"
                                th:classappend="${#fields.hasErrors('displayName')} ? 'is-invalid'"
-                               placeholder="Así te verán tus contactos" autocomplete="name" maxlength="80" required>
+                               placeholder="Así te verán tus contactos" autocomplete="name" maxlength="60" required>
                     </div>
                     <small class="ek-error" th:if="${#fields.hasErrors('displayName')}" th:errors="*{displayName}"></small>
                 </div>
@@ -88,16 +83,16 @@
                     <small class="ek-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
                 </div>
 
-                <p class="ek-hint mb-4"><i class="bi bi-envelope-exclamation me-1"></i><span>Revisa tu correo spam</span></p>
+                <p class="ek-hint mb-4">
+                    <i class="bi bi-envelope-exclamation me-1"></i>
+                    Te enviaremos un correo para verificar tu cuenta. Si no lo ves, revisa la carpeta de spam.
+                </p>
 
-                <button type="submit" class="btn btn-ekko w-100 mt-2" data-loading-text="Creando tu cuenta…">
-                    Registrarme
-                </button>
+                <button type="submit" class="btn btn-ekko w-100 mt-2" data-loading-text="Creando tu cuenta…">Crear mi cuenta</button>
             </form>
 
             <p class="text-center mt-4 mb-0">
-                ¿Ya tienes cuenta?
-                <a class="fw-bold" th:href="@{/login}">Iniciar sesión</a>
+                ¿Ya tienes cuenta? <a class="fw-bold" th:href="@{/login}">Iniciar sesión</a>
             </p>
         </div>
     </main>

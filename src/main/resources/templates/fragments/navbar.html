@@ -10,17 +10,13 @@
             <span class="ek-brand-name">Ekko</span>
         </a>
 
-        <nav class="ek-nav-actions" aria-label="Navegación principal">
+        <nav class="ek-nav-actions" aria-label="Acciones de la cuenta">
 
-            <!-- Instalación de Ekko: pwa.js controla su visibilidad -->
-            <button type="button"
-                    class="ek-icon-btn"
-                    data-ekko-install
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="bottom"
-                    title="Instalar Ekko"
+            <!-- pwa.js controla su visibilidad -->
+            <button type="button" class="ek-icon-btn" data-ekko-install hidden
+                    data-bs-toggle="tooltip" data-bs-placement="bottom" title="Instalar Ekko"
                     aria-label="Instalar Ekko como aplicación">
-                <i class="bi bi-download"></i>Instalar Aplicación
+                <i class="bi bi-download"></i><span class="ek-btn-label">Instalar Aplicación</span>
             </button>
 
             <button type="button" class="ek-icon-btn" data-ekko-sound-toggle
@@ -36,17 +32,20 @@
             </button>
 
             <div class="dropdown">
-                <button type="button" class="ek-icon-btn" data-bs-toggle="dropdown"
+                <button type="button" class="ek-icon-btn" data-ekko-bell data-bs-toggle="dropdown"
                         data-bs-auto-close="outside" aria-expanded="false" aria-label="Notificaciones">
                     <i class="bi bi-bell-fill"></i>
                     <span class="ek-dot" data-ekko-unread hidden>0</span>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end ek-bell-menu">
-                    <h6 class="px-2 pt-1 mb-1">Notificaciones</h6>
+                    <div class="ek-bell-head">
+                        <h6 class="m-0">Notificaciones</h6>
+                        <button type="button" class="ek-link-btn" data-ekko-bell-clear>Limpiar</button>
+                    </div>
                     <div data-ekko-bell-list>
                         <div class="ek-empty" data-ekko-bell-empty>
-                            <i class="bi bi-water"></i>
-                            Todo en calma. Aquí verás tus avisos nuevos.
+                            <i class="bi bi-chat-dots"></i>
+                            Sin avisos nuevos.
                         </div>
                     </div>
                 </div>
@@ -57,6 +56,7 @@
                     <img class="ek-avatar-sm"
                          th:src="${currentUser != null and currentUser.avatarUrl != null and !#strings.isEmpty(currentUser.avatarUrl)} ? ${currentUser.avatarUrl} : @{/images/avatar-default.svg}"
                          th:attr="data-fallback=@{/images/avatar-default.svg}"
+                         referrerpolicy="no-referrer"
                          alt="Mi foto de perfil">
                     <span class="ek-user-name"
                           th:text="${currentUser != null ? (!#strings.isEmpty(currentUser.displayName) ? currentUser.displayName : currentUser.username) : 'Mi cuenta'}">
@@ -71,19 +71,13 @@
                     <li><a class="dropdown-item" th:href="@{/politica-privacidad}"><i class="bi bi-shield-check"></i>Política y privacidad</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                        <form class="m-0"
-                            th:action="@{/logout}"
-                            method="post"
-                            data-ekko-confirm="Saldrás de tu cuenta en este dispositivo."
-                            data-confirm-title="¿Cerrar tu sesión?"
-                            data-confirm-ok="Cerrar sesión">
-                            <input type="hidden"
-                                th:name="${_csrf.parameterName}"
-                                th:value="${_csrf.token}">
-                            <button type="submit"
-                                    class="dropdown-item text-danger w-100">
-                                <i class="bi bi-box-arrow-right"></i>
-                                Cerrar sesión
+                        <form class="m-0" th:action="@{/logout}" method="post"
+                              data-ekko-confirm="Saldrás de tu cuenta en este dispositivo."
+                              data-confirm-title="¿Cerrar tu sesión?"
+                              data-confirm-ok="Cerrar sesión">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button type="submit" class="dropdown-item text-danger w-100">
+                                <i class="bi bi-box-arrow-right"></i>Cerrar sesión
                             </button>
                         </form>
                     </li>
