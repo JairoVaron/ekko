@@ -21,21 +21,21 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username)
+    public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
 
         AppUser appUser = appUserRepository
-                .findByUsernameIgnoreCase(username.trim())
+                .findByEmailIgnoreCase(email.trim())
                 .orElseThrow(() ->
                         new UsernameNotFoundException(
-                                "Usuario o contraseña incorrectos."
+                                "Correo o contraseña incorrectos."
                         )
                 );
 
         if (appUser.getPasswordHash() == null
                 || appUser.getPasswordHash().isBlank()) {
             throw new UsernameNotFoundException(
-                    "Usuario o contraseña incorrectos."
+                    "Correo o contraseña incorrectos."
             );
         }
 

@@ -87,7 +87,7 @@
                data-ekko-sound-on-load="error">
                 <i class="bi bi-exclamation-octagon-fill"></i>
                 <span>
-                    Usuario o contraseña incorrectos,
+                    Correo electrónico o contraseña incorrectos,
                     o cuenta deshabilitada.
                 </span>
             </p>
@@ -109,16 +109,16 @@
                        th:value="${_csrf.token}">
 
                 <div class="ek-field">
-                    <label for="username">Nombre de usuario</label>
+                    <label for="email">Correo electrónico</label>
 
                     <div class="ek-input-group">
-                        <i class="bi bi-at"></i>
+                        <i class="bi bi-envelope-fill"></i>
 
-                        <input id="username"
-                               name="username"
-                               type="text"
+                        <input id="email"
+                               name="email"
+                               type="email"
                                class="form-control"
-                               placeholder="tu_usuario"
+                               placeholder="tu_correo@ejemplo.com"
                                autocomplete="username"
                                required
                                autofocus>
