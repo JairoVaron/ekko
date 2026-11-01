@@ -1,4 +1,4 @@
-/* EKKO · Pantallas de acceso (login y registro) */
+/* EKKO · auth.js */
 (function () {
     'use strict';
     var E = window.Ekko || {};
@@ -45,12 +45,31 @@
         });
     }
 
+    // Registro y restablecimiento: límite de 72 bytes UTF-8 y confirmación
+    var pass = document.getElementById('password');
+    var confirmPass = document.getElementById('confirmPassword');
+    var limited = pass && pass.getAttribute('maxlength') === '72';
+    if (limited || confirmPass) {
+        var encoder = window.TextEncoder ? new TextEncoder() : null;
+        var validatePasswords = function () {
+            if (limited) {
+                var tooLong = encoder && pass.value && encoder.encode(pass.value).length > 72;
+                pass.setCustomValidity(tooLong ? 'La contraseña no puede superar los 72 bytes (UTF-8).' : '');
+            }
+            if (confirmPass && pass) {
+                confirmPass.setCustomValidity(confirmPass.value && confirmPass.value !== pass.value ? 'Las contraseñas no coinciden.' : '');
+            }
+        };
+        if (pass) { pass.addEventListener('input', validatePasswords); }
+        if (confirmPass) { confirmPass.addEventListener('input', validatePasswords); }
+    }
+
     // Sugerir el nombre para mostrar a partir del usuario (solo si no lo tocaron)
     var user = $('#username'), display = $('#displayName');
     if (user && display && $('[data-password-strength]')) {
         var touched = display.value !== '';
         display.addEventListener('input', function () { touched = display.value !== ''; });
-        user.addEventListener('input', function () { if (!touched) { display.value = user.value; } });
+        user.addEventListener('input', function () { if (!touched) { display.value = user.value.slice(0, display.maxLength > 0 ? display.maxLength : undefined); } });
     }
 
     // Validación visual antes de enviar

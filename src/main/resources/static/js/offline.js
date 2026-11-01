@@ -1,54 +1,25 @@
-
+/* offline.js · reintenta la navegación original */
 (function () {
     'use strict';
 
-    const retryButton =
-        document.getElementById('retryConnection') ||
-        document.getElementById('retry');
+    var retryButton = document.getElementById('retryConnection') || document.getElementById('retry');
+    var message = document.getElementById('offlineMsg');
+    var reloading = false;
 
-    const message = document.getElementById('offlineMsg');
+    function say(text) { if (message) { message.textContent = text; } }
 
-    let redirecting = false;
-
-    function retryConnection() {
-        if (!navigator.onLine || redirecting) {
+    // Esta página se muestra en lugar de la que falló; recargar vuelve a pedir esa misma dirección.
+    function retry() {
+        if (reloading) { return; }
+        if (!navigator.onLine) {
+            say('Todavía no tienes conexión. Comprueba tu red e inténtalo de nuevo.');
             return;
         }
-
-        redirecting = true;
-
-        if (message) {
-            message.textContent =
-                'Conexión restablecida. Volviendo a Ekko…';
-        }
-
-        window.location.assign(
-            new URL('inicio', document.baseURI).href
-        );
+        reloading = true;
+        say('Conexión restablecida. Volviendo a Ekko…');
+        window.location.reload();
     }
 
-    if (retryButton) {
-        retryButton.addEventListener('click', function () {
-            if (!navigator.onLine) {
-                if (message) {
-                    message.textContent =
-                        'Todavía no tienes conexión. Comprueba tu red e inténtalo nuevamente.';
-                }
-
-                return;
-            }
-
-            retryConnection();
-        });
-    }
-
-    window.addEventListener('online', function () {
-        if (message) {
-            message.textContent =
-                'Conexión restablecida. Volviendo a Ekko…';
-        }
-
-        retryConnection();
-    });
-
+    if (retryButton) { retryButton.addEventListener('click', retry); }
+    window.addEventListener('online', retry);
 })();

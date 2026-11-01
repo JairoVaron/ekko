@@ -1,4 +1,4 @@
-/* EKKO · Preferencias locales: sonido, volumen, tema y avisos del navegador */
+/* EKKO · configuracion.js · preferencias locales: sonido, volumen, tema y avisos del navegador */
 (() => {
     "use strict";
     const E = window.Ekko;
@@ -17,16 +17,6 @@
         vol.addEventListener("change", () => E.sound.play("pop"));
     }
 
-    const fx = $("prefFx");
-    if (fx) {
-        fx.checked = !document.documentElement.classList.contains("ek-lite");
-        fx.addEventListener("change", () => {
-            document.documentElement.classList.toggle("ek-lite", !fx.checked);
-            E.store.set("ekko-fx", fx.checked ? "on" : "off");
-            E.sound.play("click");
-        });
-    }
-
     document.querySelectorAll("[data-test-sound]").forEach(b =>
         b.addEventListener("click", () => E.sound.play(b.dataset.testSound, true)));
 
@@ -39,7 +29,7 @@
     const btn = $("prefDesktop"), label = $("prefDesktopState");
     function refresh() {
         if (!label || !btn) return;
-        if (!("Notification" in window)) { label.textContent = "Tu navegador no admite avisos."; btn.disabled = true; return; }
+        if (!("Notification" in window)) { label.textContent = "Tu navegador no admite avisos."; btn.hidden = true; return; }
         const p = Notification.permission;
         label.textContent = p === "granted" ? "Activados en este navegador." : p === "denied" ? "Bloqueados. Actívalos desde los permisos del sitio." : "Desactivados.";
         btn.hidden = p !== "default";
