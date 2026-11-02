@@ -1,6 +1,6 @@
 /* sw.js · Service Worker de Ekko */
 'use strict';
-const VERSION = 'ekko-v6';
+const VERSION = 'ekko-v8';
 const STATIC_CACHE = VERSION + '-static';
 const RUNTIME_CACHE = VERSION + '-runtime';
 
