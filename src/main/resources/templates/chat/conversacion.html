@@ -21,11 +21,13 @@
                     <i class="bi bi-arrow-left"></i>
                 </a>
 
-                <img class="ek-initial"
-                     th:src="${otherAvatarUrl != null and !#strings.isEmpty(otherAvatarUrl)} ? ${otherAvatarUrl} : @{/images/avatar-default.svg}"
-                     th:attr="data-fallback=@{/images/avatar-default.svg}"
-                     referrerpolicy="no-referrer"
-                     alt="Foto de perfil del contacto" width="46" height="46">
+                <span class="ek-avatar-ring">
+                    <img class="ek-initial"
+                         th:src="${otherAvatarUrl != null and !#strings.isEmpty(otherAvatarUrl)} ? ${otherAvatarUrl} : @{/images/avatar-default.svg}"
+                         th:attr="data-fallback=@{/images/avatar-default.svg}"
+                         referrerpolicy="no-referrer"
+                         alt="Foto de perfil del contacto" width="44" height="44">
+                </span>
 
                 <div class="min-w-0 flex-grow-1">
                     <h1 class="ek-chat-name">
@@ -115,7 +117,7 @@
 
                 <button id="sendButton" type="submit" class="ek-send">
                     <i class="bi bi-send-fill"></i>
-                    <span class="visually-hidden">Enviar mensaje</span>
+                    <span class="ek-send-label">Enviar</span>
                 </button>
 
             </form>

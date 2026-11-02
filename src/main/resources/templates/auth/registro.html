@@ -36,7 +36,7 @@
                         <i class="bi bi-at"></i>
                         <input id="username" type="text" class="form-control" th:field="*{username}"
                                th:classappend="${#fields.hasErrors('username')} ? 'is-invalid'"
-                               placeholder="tu_usuario" autocomplete="username" required>
+                               placeholder="tu_usuario" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="30" required>
                     </div>
                     <small class="ek-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></small>
                 </div>
@@ -47,7 +47,7 @@
                         <i class="bi bi-envelope-fill"></i>
                         <input id="email" type="email" class="form-control" th:field="*{email}"
                                th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
-                               placeholder="tu@correo.com" autocomplete="email" required>
+                               placeholder="tu@correo.com" autocomplete="email" inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="254" required>
                     </div>
                     <small class="ek-error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
                 </div>
@@ -81,6 +81,19 @@
                     <small class="ek-hint" data-strength-label aria-live="polite">Escribe una contraseña</small>
                     <small class="ek-error" data-caps-warning hidden><i class="bi bi-capslock-fill"></i> Tienes las mayúsculas activadas.</small>
                     <small class="ek-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
+                </div>
+
+                <div class="ek-field">
+                    <label for="confirmPassword">Confirmar contraseña</label>
+                    <div class="ek-input-group">
+                        <i class="bi bi-lock-fill"></i>
+                        <input id="confirmPassword" type="password" class="form-control"
+                               placeholder="Repite la contraseña" autocomplete="new-password"
+                               minlength="8" maxlength="72" required>
+                        <button type="button" class="ek-icon-btn ek-toggle-pass" data-toggle-password="confirmPassword" aria-label="Mostrar confirmación">
+                            <i class="bi bi-eye-fill"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <p class="ek-hint mb-4">
