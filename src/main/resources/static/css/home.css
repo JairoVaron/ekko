@@ -28,3 +28,24 @@ small.ek-handle{cursor:default}
 .ek-checklist .bi{color:var(--ek-muted)}
 .ek-checklist .bi-check-circle-fill{color:var(--ek-ok)}
 .ek-checklist .done{color:var(--ek-muted);text-decoration:line-through}
+
+/* ---------- Perfil: cabecera y lista de información ---------- */
+.ek-hero-info h1{font-size:1.5rem;margin:0 0 .15rem;overflow-wrap:anywhere}
+.ek-hero-handle{margin:0;font-family:var(--ek-mono);font-size:.85rem;color:var(--ek-muted)}
+.ek-hero-actions{display:flex;flex-wrap:wrap;gap:.5rem}
+
+.ek-info-list{list-style:none;margin:0;padding:0;background:var(--ek-surface);border:1px solid var(--ek-border-neon);border-radius:20px;overflow:hidden}
+.ek-info-row{display:flex;align-items:center;gap:1rem;padding:.85rem 1.1rem;border-bottom:1px solid var(--ek-border)}
+.ek-info-row:last-child{border-bottom:0}
+.ek-info-icon{flex:none;width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:var(--ek-primary-soft);color:var(--ek-primary);font-size:1.15rem}
+.ek-info-text{flex:1;min-width:0;display:flex;flex-direction:column}
+.ek-info-text strong{font-weight:600;overflow-wrap:anywhere}
+.ek-info-text strong.is-empty{color:var(--ek-muted);font-weight:500}
+.ek-info-text small{color:var(--ek-muted);font-size:.8rem}
+
+@media (max-width:575.98px){
+  .ek-hero-body{flex-direction:column;align-items:center;text-align:center}
+  .ek-hero-info{min-width:0;width:100%}
+  .ek-hero-actions{width:100%}
+  .ek-hero-actions .btn{flex:1}
+}

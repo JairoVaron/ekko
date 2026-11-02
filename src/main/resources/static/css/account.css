@@ -56,3 +56,11 @@ a.ek-setting:hover,button.ek-setting:hover{background:var(--ek-hover);color:var(
   .ek-edit-grid{grid-template-columns:1fr}
   .ek-preview{position:static;order:-1}
 }
+
+/* ---------- Política: índice y anclas ---------- */
+.ek-doc section{scroll-margin-top:calc(var(--ek-nav-h) + 16px)}
+.ek-doc-toc{margin:1.25rem 0 0;padding:.75rem 1rem;background:var(--ek-surface-2);border:1px solid var(--ek-border);border-radius:14px}
+.ek-doc-toc summary{cursor:pointer;font-weight:700}
+.ek-doc-toc ol{margin:.75rem 0 0;columns:2;column-gap:2rem}
+.ek-doc-toc li{margin-bottom:.3rem;break-inside:avoid}
+@media (max-width:575.98px){.ek-doc-toc ol{columns:1}}
