@@ -1,6 +1,6 @@
 /* sw.js · Service Worker de Ekko */
 'use strict';
-const VERSION = 'ekko-v5';
+const VERSION = 'ekko-v6';
 const STATIC_CACHE = VERSION + '-static';
 const RUNTIME_CACHE = VERSION + '-runtime';
 
@@ -114,4 +114,22 @@ self.addEventListener('fetch', event => {
 
 self.addEventListener('message', event => {
     if (event.data && event.data.type === 'SKIP_WAITING') event.waitUntil(self.skipWaiting());
+});
+
+// Clic en una notificación del sistema: enfocar Ekko o abrirlo en la conversación
+self.addEventListener('notificationclick', event => {
+    event.notification.close();
+    const data = event.notification.data || {};
+    const target = new URL(data.url || 'inicio', data.url ? self.location.origin : self.registration.scope).href;
+
+    event.waitUntil(
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windows => {
+            for (const client of windows) {
+                if (new URL(client.url).origin === self.location.origin && 'focus' in client) {
+                    return client.focus().then(c => (c && 'navigate' in c ? c.navigate(target) : c));
+                }
+            }
+            return self.clients.openWindow(target);
+        })
+    );
 });
