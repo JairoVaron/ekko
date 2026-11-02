@@ -25,16 +25,16 @@
 .ek-conv-time{font-family:var(--ek-mono);font-size:.7rem;color:var(--ek-muted);white-space:nowrap}
 .ek-conv-last{margin:.1rem 0 0;font-size:.88rem;color:var(--ek-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ek-conv:has(.has-unread) .ek-conv-last{color:var(--ek-text);font-weight:600}
-.ek-unread-pill{display:none;margin:0;min-width:24px;height:24px;padding:0 7px;border-radius:99px;background:var(--ek-accent);color:#fff;font-family:var(--ek-mono);font-size:.74rem;font-weight:600;place-items:center;flex-shrink:0;box-shadow:0 0 10px rgba(255,0,127,.35)}
+.ek-unread-pill{display:none;margin:0;min-width:24px;height:24px;padding:0 7px;border-radius:99px;background:var(--ek-accent);color:#fff;font-family:var(--ek-mono);font-size:.74rem;font-weight:600;place-items:center;flex-shrink:0;box-shadow:none}
 .ek-unread-pill.has-unread{display:grid}
 
 /* ---------- Pantalla de conversación ---------- */
 .ek-chat-page{height:100vh;height:100dvh;overflow:hidden}
 .ek-chat-page .ek-shell{flex:none;grid-template-rows:minmax(0,1fr);height:calc(100vh - var(--ek-nav-h) - env(safe-area-inset-top));height:calc(100dvh - var(--ek-nav-h) - env(safe-area-inset-top))}
 .ek-chat-page .ek-sidebar{position:static;height:100%}
-.ek-chat-page .ek-main{min-height:0;overflow:hidden;padding-bottom:0}
+.ek-chat-page .ek-main{min-height:0;overflow:hidden;padding-bottom:0;display:flex;flex-direction:column}
 
-.ek-chat{height:100%;display:flex;flex-direction:column;min-height:0}
+.ek-chat{flex:1;display:flex;flex-direction:column;min-height:0}
 .ek-chat-head{display:flex;align-items:center;gap:.75rem;padding:.6rem 1rem;background:var(--ek-surface);border-bottom:1px solid var(--ek-border-neon)}
 .ek-chat-head .ek-initial{width:44px;height:44px}
 .ek-chat-name{font-size:1.02rem;font-weight:800;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -42,9 +42,9 @@
 .ek-chat-head .ek-status-pill{background:none;border:0;padding:0;font-size:.7rem}
 .ek-chat-alert{margin:.5rem 1rem 0}
 
-.ek-chat-body{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;background:linear-gradient(to bottom,rgba(2,6,23,.04),rgba(2,6,23,.14))}
-[data-bs-theme="dark"] .ek-chat-body{background:linear-gradient(to bottom,rgba(2,6,23,.4),rgba(15,23,42,.55))}
-#messageList{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;padding:1rem clamp(.75rem,3vw,2rem) .5rem;overscroll-behavior:contain}
+.ek-chat-body{position:relative;flex:1;min-height:0;display:flex;flex-direction:column;background:linear-gradient(to bottom,rgba(90,50,15,.02),rgba(90,50,15,.07))}
+[data-bs-theme="dark"] .ek-chat-body{background:linear-gradient(to bottom,rgba(10,7,5,.35),rgba(23,17,13,.5))}
+#messageList{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;padding:1rem clamp(.75rem,3vw,2rem) .5rem;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 .ek-chat-note{align-self:center;font-family:var(--ek-mono);font-size:.7rem;color:var(--ek-primary);background:var(--ek-surface);border:1px solid var(--ek-border-neon);padding:.25rem .8rem;border-radius:99px;margin:.1rem 0 .75rem;text-align:center}
 #emptyMessages{align-self:center;margin:auto;text-align:center;color:var(--ek-muted);background:var(--ek-surface);border:1px solid var(--ek-border-neon);padding:1rem 1.4rem;border-radius:18px}
 #emptyMessages i{display:block;font-size:1.8rem;color:var(--ek-primary);margin-bottom:.25rem}
@@ -90,7 +90,8 @@
 @media (max-width:767.98px){
   .ek-chat-page .ek-navbar{display:none}
   .ek-chat-page .ek-sidebar{display:none}
-  .ek-chat-page .ek-shell{display:block;height:100vh;height:100dvh}
+  .ek-chat-page{position:fixed;inset:0;height:auto}
+  .ek-chat-page .ek-shell{display:flex;flex-direction:column;flex:1;height:auto;min-height:0}
   .ek-chat-head{padding-top:calc(.6rem + env(safe-area-inset-top))}
   .ek-chat-head .min-w-0>p:not(.ek-status-pill){display:none}
   .message{max-width:86%}

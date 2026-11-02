@@ -1,7 +1,8 @@
 /* =========================================================
    EKKO · core.css
-   Sistema de diseño: variables (día / neón), base y componentes.
+   Sistema de diseño: variables (día / neón naranja), base y componentes.
    Estilo neón estático: sin blur, partículas ni animaciones continuas.
+   Paleta basada en el logo (delfín sobre naranja).
    ========================================================= */
 
 /* ---------- Variables: modo día ---------- */
@@ -9,63 +10,63 @@
   --ek-font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   --ek-mono:"Fira Code",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
 
-  --ek-primary:#0a62c9; --ek-primary-soft:rgba(10,98,201,.10);
-  --ek-grad:linear-gradient(135deg,#0a5fc2 0%,#0a84aa 100%); --ek-on-grad:#fff;
-  --ek-accent:#d6006b;
-  --ek-ok:#12805c;  --ek-ok-soft:rgba(18,128,92,.12);
-  --ek-err:#c8372d; --ek-err-soft:rgba(200,55,45,.10);
-  --ek-info:#0a62c9;--ek-info-soft:rgba(10,98,201,.10);
+  --ek-primary:#a94a14; --ek-primary-soft:rgba(169,74,20,.09);
+  --ek-grad:linear-gradient(135deg,#e8a257 0%,#d97a35 100%); --ek-on-grad:#2a1206;
+  --ek-accent:#b8344d;
+  --ek-ok:#1b7a5a;  --ek-ok-soft:rgba(27,122,90,.11);
+  --ek-err:#b8402f; --ek-err-soft:rgba(184,64,47,.10);
+  --ek-info:#a94a14;--ek-info-soft:rgba(169,74,20,.09);
 
-  --ek-bg:#e9f1f8; --ek-surface:#fff; --ek-surface-2:#f1f6fb; --ek-input-bg:#f1f6fb;
-  --ek-border:#d5e0eb; --ek-border-neon:rgba(10,98,201,.28);
-  --ek-text:#0f2030; --ek-muted:#52667a;
-  --ek-hover:rgba(15,32,48,.06);
+  --ek-bg:#f6eee5; --ek-surface:#fffdfa; --ek-surface-2:#faf3ea; --ek-input-bg:#faf3ea;
+  --ek-border:#e6d7c6; --ek-border-neon:rgba(169,74,20,.24);
+  --ek-text:#2b1d11; --ek-muted:#75604b;
+  --ek-hover:rgba(169,74,20,.07);
 
-  --ek-focus:0 0 0 3px rgba(10,98,201,.20);
-  --ek-btn-glow:0 4px 14px rgba(10,98,201,.28);
-  --ek-card-glow:0 10px 30px rgba(15,32,48,.10);
-  --ek-bubble-glow:0 1px 2px rgba(15,32,48,.08);
+  --ek-focus:0 0 0 3px rgba(217,122,53,.22);
+  --ek-btn-glow:0 3px 10px rgba(169,74,20,.22);
+  --ek-card-glow:0 6px 20px rgba(90,50,15,.09);
+  --ek-bubble-glow:0 1px 2px rgba(90,50,15,.08);
   --ek-brand-glow:none;
 
-  --ek-grid:rgba(10,98,201,.05);
-  --ek-aura-1:rgba(10,132,170,.10); --ek-aura-2:rgba(214,0,107,.05);
+  --ek-grid:rgba(169,74,20,.035);
+  --ek-aura-1:rgba(232,162,87,.12); --ek-aura-2:rgba(184,52,77,.04);
 
-  --ek-in-bg:#fff; --ek-in-border:#d5e0eb; --ek-in-text:#0f2030;
-  --ek-out-bg:linear-gradient(135deg,#0a5fc2,#0a84aa); --ek-out-text:#fff; --ek-out-border:transparent; --ek-out-meta:rgba(255,255,255,.9); --ek-out-read:#a8f1ff;
+  --ek-in-bg:#fffdfa; --ek-in-border:#e6d7c6; --ek-in-text:#2b1d11;
+  --ek-out-bg:linear-gradient(135deg,#b9581f,#9a3f14); --ek-out-text:#fff; --ek-out-border:transparent; --ek-out-meta:rgba(255,255,255,.88); --ek-out-read:#ffe3a3;
 
-  --ek-nav-bg:#06284a;
+  --ek-nav-bg:#1c1109;
   --ek-nav-h:60px; --ek-side-w:232px;
   color-scheme:light;
 }
 
-/* ---------- Variables: modo neón (oscuro) ---------- */
+/* ---------- Variables: modo oscuro cálido (suave para la vista) ---------- */
 [data-bs-theme="dark"]{
-  --ek-primary:#00f3ff; --ek-primary-soft:rgba(0,243,255,.10);
-  --ek-grad:linear-gradient(135deg,#00f3ff 0%,#2563eb 100%); --ek-on-grad:#021018;
-  --ek-accent:#e6007a;
-  --ek-ok:#34f5b0; --ek-ok-soft:rgba(52,245,176,.12);
-  --ek-err:#ff6b7a;--ek-err-soft:rgba(255,107,122,.13);
-  --ek-info:#00f3ff;--ek-info-soft:rgba(0,243,255,.10);
+  --ek-primary:#e0904a; --ek-primary-soft:rgba(224,144,74,.11);
+  --ek-grad:linear-gradient(135deg,#e5a259 0%,#d27a38 100%); --ek-on-grad:#24110a;
+  --ek-accent:#c0405a;
+  --ek-ok:#5cc79c; --ek-ok-soft:rgba(92,199,156,.12);
+  --ek-err:#e58a84;--ek-err-soft:rgba(229,138,132,.12);
+  --ek-info:#e0904a;--ek-info-soft:rgba(224,144,74,.11);
 
-  --ek-bg:#020617; --ek-surface:#0b1220; --ek-surface-2:#0f1a2e; --ek-input-bg:#050b18;
-  --ek-border:rgba(0,243,255,.16); --ek-border-neon:rgba(0,243,255,.32);
-  --ek-text:#e2e8f0; --ek-muted:#8da2ba;
-  --ek-hover:rgba(0,243,255,.08);
+  --ek-bg:#0e0a08; --ek-surface:#17110d; --ek-surface-2:#1f1812; --ek-input-bg:#120d0a;
+  --ek-border:rgba(224,144,74,.13); --ek-border-neon:rgba(224,144,74,.26);
+  --ek-text:#e9ddd0; --ek-muted:#a8927c;
+  --ek-hover:rgba(224,144,74,.08);
 
-  --ek-focus:0 0 0 1px #00f3ff,0 0 14px rgba(0,243,255,.35);
-  --ek-btn-glow:0 0 16px rgba(0,243,255,.45);
-  --ek-card-glow:0 0 25px rgba(0,0,0,.7),0 0 15px rgba(0,243,255,.12),0 0 30px rgba(255,0,127,.08);
-  --ek-bubble-glow:0 0 12px rgba(0,243,255,.07);
-  --ek-brand-glow:0 0 14px rgba(0,243,255,.55);
+  --ek-focus:0 0 0 2px rgba(224,144,74,.5);
+  --ek-btn-glow:0 2px 10px rgba(210,122,56,.28);
+  --ek-card-glow:0 8px 24px rgba(0,0,0,.45);
+  --ek-bubble-glow:0 1px 2px rgba(0,0,0,.35);
+  --ek-brand-glow:none;
 
-  --ek-grid:rgba(0,243,255,.04);
-  --ek-aura-1:rgba(0,243,255,.09); --ek-aura-2:rgba(255,0,127,.08);
+  --ek-grid:rgba(224,144,74,.03);
+  --ek-aura-1:rgba(224,144,74,.055); --ek-aura-2:rgba(192,64,90,.04);
 
-  --ek-in-bg:#0d1628; --ek-in-border:rgba(0,243,255,.30); --ek-in-text:#e2e8f0;
-  --ek-out-bg:linear-gradient(135deg,rgba(112,20,92,.88),rgba(76,29,149,.82)); --ek-out-text:#f1f5f9; --ek-out-border:rgba(255,0,127,.42);
-  --ek-out-meta:#f9a8d4; --ek-out-read:#00f3ff;
+  --ek-in-bg:#1c1510; --ek-in-border:rgba(224,144,74,.2); --ek-in-text:#e9ddd0;
+  --ek-out-bg:linear-gradient(135deg,rgba(128,62,24,.95),rgba(112,42,56,.92)); --ek-out-text:#f5eadf; --ek-out-border:rgba(224,144,74,.3);
+  --ek-out-meta:#e2bf9f; --ek-out-read:#e8c878;
 
-  --ek-nav-bg:#040b18;
+  --ek-nav-bg:#0a0705;
   color-scheme:dark;
 }
 :root,[data-bs-theme]{
@@ -134,7 +135,7 @@ h1,h2,h3,h4,h5,h6{margin-top:0}
 /* ---------- Formularios ---------- */
 .ek-field{margin-bottom:1rem}
 .ek-field>label{display:block;font-weight:600;font-size:.86rem;margin-bottom:.35rem}
-.form-control,.ek-textarea{font-family:var(--ek-font);background:var(--ek-input-bg);border:1px solid var(--ek-border-neon);color:var(--ek-text);border-radius:12px;padding:.65rem .9rem;font-size:.97rem}
+.form-control,.ek-textarea{font-family:var(--ek-font);background:var(--ek-input-bg);border:1px solid var(--ek-border-neon);color:var(--ek-text);border-radius:12px;padding:.65rem .9rem;font-size:1rem}
 .form-control::placeholder{color:var(--ek-muted);opacity:.85}
 .form-control:focus{background:var(--ek-input-bg);color:var(--ek-text);border-color:var(--ek-primary);box-shadow:var(--ek-focus);outline:0}
 .form-control.is-invalid{border-color:var(--ek-err);background-image:none}
@@ -145,17 +146,17 @@ h1,h2,h3,h4,h5,h6{margin-top:0}
 .ek-input-group .form-control{height:48px;padding-left:2.6rem;width:100%}
 .ek-input-group:focus-within>i{color:var(--ek-primary)}
 .ek-input-group:has(.ek-toggle-pass) .form-control{padding-right:3rem}
-.ek-toggle-pass{position:absolute;right:.35rem;top:50%;transform:translateY(-50%);z-index:3}
+.ek-input-group>.ek-toggle-pass{position:absolute;right:.4rem;top:50%;transform:translateY(-50%);width:40px;height:40px;min-width:0;padding:0;z-index:3}
 .ek-readonly .form-control{opacity:.7;cursor:not-allowed}
 .ek-hint{display:block;font-size:.8rem;color:var(--ek-muted);margin-top:.35rem}
 .ek-error{display:block;font-size:.82rem;color:var(--ek-err);margin-top:.35rem;font-weight:600}
 .ek-char{font-family:var(--ek-mono);font-size:.75rem;color:var(--ek-muted);margin-top:.35rem}
 .ek-strength{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:.5rem}
 .ek-strength span{height:5px;border-radius:99px;background:var(--ek-border-neon);opacity:.5}
-.ek-strength[data-level="1"] span:nth-child(-n+1){background:#ff4d6d;opacity:1}
-.ek-strength[data-level="2"] span:nth-child(-n+2){background:#ffb020;opacity:1}
-.ek-strength[data-level="3"] span:nth-child(-n+3){background:#00c2ff;opacity:1}
-.ek-strength[data-level="4"] span{background:#34f5b0;opacity:1}
+.ek-strength[data-level="1"] span:nth-child(-n+1){background:#e0645a;opacity:1}
+.ek-strength[data-level="2"] span:nth-child(-n+2){background:#dd8a3e;opacity:1}
+.ek-strength[data-level="3"] span:nth-child(-n+3){background:#d8b455;opacity:1}
+.ek-strength[data-level="4"] span{background:#5cc79c;opacity:1}
 .form-check-input{background-color:var(--ek-input-bg);border-color:var(--ek-border-neon)}
 .form-check-input:checked{background-color:var(--ek-primary);border-color:var(--ek-primary)}
 .form-check-input:focus{box-shadow:var(--ek-focus);border-color:var(--ek-primary)}
@@ -169,7 +170,7 @@ img.ek-initial{background:var(--ek-surface-2)}
 .ek-avatar-sm{width:34px;height:34px;border-radius:50%;object-fit:cover;background:var(--ek-surface-2)}
 .ek-avatar-xl{width:96px;height:96px;border-radius:50%;object-fit:cover;border:4px solid var(--ek-surface);background:var(--ek-surface-2);flex-shrink:0}
 /* Anillo degradado (como en la plantilla) */
-.ek-avatar-ring{display:inline-flex;flex-shrink:0;padding:2px;border-radius:50%;background:linear-gradient(45deg,#00f3ff,#a855f7,#ff007f);box-shadow:0 0 12px rgba(0,243,255,.3)}
+.ek-avatar-ring{display:inline-flex;flex-shrink:0;padding:2px;border-radius:50%;background:linear-gradient(45deg,#e8bd6a,#d97a35,#b8344d);box-shadow:none}
 .ek-avatar-ring>img{border-radius:50%;background:var(--ek-bg);border:2px solid var(--ek-bg)}
 .ek-logo-big{width:112px;height:112px}
 
