@@ -1,0 +1,12 @@
+/* =========================================================
+   EKKO · offline.css  (no depende de Bootstrap: se sirve sin red)
+   ========================================================= */
+body{display:grid;place-items:center;min-height:100vh;min-height:100dvh;padding:1.5rem;
+  background:radial-gradient(circle at 50% 0,var(--ek-primary-soft),transparent 55%),var(--ek-bg)}
+.ek-offline{width:min(480px,100%);text-align:center;padding:2.25rem 1.75rem}
+.ek-offline img{width:90px;height:90px;object-fit:contain}
+.ek-offline h1{font-size:1.6rem;margin:1rem 0 .5rem}
+.ek-offline p{color:var(--ek-muted);margin:0 0 1rem}
+.ek-offline #offlineMsg{color:var(--ek-text);font-weight:600}
+.ek-offline .btn-ekko{margin-top:.5rem}
+.ek-offline .ek-offline-brand{margin:1.5rem 0 0;font-size:.85rem}

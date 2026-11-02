@@ -4,13 +4,13 @@
 .ek-greeting{font-size:1.7rem;margin-bottom:1.25rem}
 .ek-greeting small{display:block;font-size:.95rem;font-weight:500;color:var(--ek-muted);margin-top:.25rem;letter-spacing:0}
 
-.ek-hero{background:var(--ek-surface);border:1px solid var(--ek-border);border-radius:24px;overflow:hidden;box-shadow:var(--ek-shadow-sm)}
+.ek-hero{background:var(--ek-surface);border:1px solid var(--ek-border-neon);border-radius:24px;overflow:hidden;box-shadow:var(--ek-card-glow)}
 .ek-hero-body{display:flex;flex-wrap:wrap;align-items:flex-end;gap:1rem;padding:0 1.25rem 1.25rem}
 .ek-hero-body .ek-avatar-xl{margin-top:-48px}
 .ek-hero-info{flex:1;min-width:200px;padding-top:.25rem}
 .ek-hero-info h2{font-size:1.4rem;margin:0 0 .25rem}
 .ek-bio{margin:.5rem 0 0;color:var(--ek-muted);overflow-wrap:anywhere}
-.ek-handle{display:inline-flex;align-items:center;gap:.4rem;background:var(--ek-primary-soft);color:var(--ek-primary);border:0;border-radius:99px;
+.ek-handle{font-family:var(--ek-mono);display:inline-flex;align-items:center;gap:.4rem;background:var(--ek-primary-soft);color:var(--ek-primary);border:0;border-radius:99px;
   padding:.2rem .75rem;font:inherit;font-weight:700;font-size:.85rem;cursor:pointer}
 .ek-handle:hover{background:var(--ek-hover)}
 small.ek-handle{cursor:default}
@@ -18,7 +18,7 @@ small.ek-handle{cursor:default}
 .ek-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:1rem}
 .ek-action{display:flex;flex-direction:column;gap:.2rem;padding:1.1rem;border-radius:18px;background:var(--ek-surface);border:1px solid var(--ek-border);color:var(--ek-text)}
 .ek-action:hover{border-color:var(--ek-primary);text-decoration:none;color:var(--ek-text)}
-.ek-action-icon{width:44px;height:44px;border-radius:14px;background:var(--ek-grad);color:#fff;display:grid;place-items:center;font-size:1.2rem;margin-bottom:.45rem}
+.ek-action-icon{width:44px;height:44px;border-radius:14px;background:var(--ek-grad);color:var(--ek-on-grad);display:grid;place-items:center;font-size:1.2rem;margin-bottom:.45rem}
 .ek-action>span:last-child{color:var(--ek-muted);font-size:.9rem}
 
 .ek-progress{height:8px;background:var(--ek-border);border-radius:99px;overflow:hidden}

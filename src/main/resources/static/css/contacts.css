@@ -12,7 +12,7 @@
 .ek-count.is-alert{background:var(--ek-accent);color:#fff}
 
 .ek-people{display:flex;flex-direction:column;gap:.6rem}
-.ek-person{display:flex;flex-wrap:wrap;align-items:center;gap:.9rem;padding:.9rem 1rem;background:var(--ek-surface);border:1px solid var(--ek-border);border-radius:18px}
+.ek-person{display:flex;flex-wrap:wrap;align-items:center;gap:.9rem;padding:.9rem 1rem;background:var(--ek-surface);border:1px solid var(--ek-border-neon);border-radius:18px}
 .ek-person-info{flex:1;min-width:180px}
 .ek-person-info strong{margin-right:.35rem}
 .ek-person-info small{color:var(--ek-muted)}

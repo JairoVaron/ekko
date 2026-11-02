@@ -12,7 +12,7 @@
 
 /* ---------- Ajustes ---------- */
 .ek-section-title{font-size:.95rem;font-weight:800;color:var(--ek-muted);margin:1.5rem .5rem .5rem}
-.ek-settings{background:var(--ek-surface);border:1px solid var(--ek-border);border-radius:20px;overflow:hidden}
+.ek-settings{background:var(--ek-surface);border:1px solid var(--ek-border-neon);border-radius:20px;overflow:hidden}
 .ek-settings>*{border-bottom:1px solid var(--ek-border)}
 .ek-settings>*:last-child{border-bottom:0}
 .ek-settings form.m-0>.ek-setting{border:0}
@@ -29,7 +29,7 @@ a.ek-setting:hover,button.ek-setting:hover{background:var(--ek-hover);color:var(
 .ek-pref-control input[type="range"]{width:120px;accent-color:var(--ek-primary)}
 .ek-seg{display:inline-flex;background:var(--ek-surface-2);border-radius:99px;padding:3px}
 .ek-seg .btn{border:0;border-radius:99px;padding:.35rem .8rem;font-size:.85rem;font-weight:700;color:var(--ek-muted);background:transparent}
-.ek-seg .btn-check:checked+.btn{background:var(--ek-surface);color:var(--ek-primary);box-shadow:var(--ek-shadow-sm)}
+.ek-seg .btn-check:checked+.btn{background:var(--ek-surface);color:var(--ek-primary);box-shadow:var(--ek-bubble-glow)}
 .ek-seg .btn-check:focus-visible+.btn{outline:2px solid var(--ek-primary)}
 .ek-notice{margin-top:1.5rem;padding:1rem 1.1rem;border-radius:16px;background:var(--ek-info-soft);border:1px solid var(--ek-border);font-size:.9rem}
 
@@ -44,7 +44,7 @@ a.ek-setting:hover,button.ek-setting:hover{background:var(--ek-hover);color:var(
 .ek-consequences .bi{color:var(--ek-err);margin-top:.2rem}
 
 /* ---------- Documento (política de privacidad) ---------- */
-.ek-doc{background:var(--ek-surface);border:1px solid var(--ek-border);border-radius:20px;padding:clamp(1.25rem,4vw,2.5rem);line-height:1.7;max-width:78ch;margin:0 auto}
+.ek-doc{background:var(--ek-surface);border:1px solid var(--ek-border-neon);border-radius:20px;padding:clamp(1.25rem,4vw,2.5rem);line-height:1.7;max-width:78ch;margin:0 auto}
 .ek-doc h1{font-size:clamp(1.5rem,3vw,2rem)}
 .ek-doc h2{font-size:1.25rem;margin:2rem 0 .75rem}
 .ek-doc h3{font-size:1.02rem;margin:1.25rem 0 .5rem}

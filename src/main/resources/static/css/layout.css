@@ -1,44 +1,50 @@
 /* =========================================================
    EKKO · layout.css  (barra superior, menú lateral, estructura)
+   Móvil primero en comportamiento: barra de pestañas inferior en móvil,
+   menú compacto en tablet y menú completo en escritorio.
    ========================================================= */
 body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
 
 /* ---------- Barra superior ---------- */
-.ek-navbar{position:sticky;top:0;z-index:1030;background:var(--ek-nav-bg);color:#fff;padding-top:env(safe-area-inset-top)}
+.ek-navbar{position:sticky;top:0;z-index:1030;background:var(--ek-nav-bg);color:#fff;padding-top:env(safe-area-inset-top);border-bottom:1px solid var(--ek-border-neon)}
 .ek-navbar-inner{height:var(--ek-nav-h);padding:0 16px;display:flex;align-items:center;justify-content:space-between;gap:.75rem}
 .ek-brand{display:flex;align-items:center;gap:.6rem;color:#fff;font-weight:800;font-size:1.25rem;letter-spacing:-.02em}
 .ek-brand:hover{color:#fff;text-decoration:none}
+.ek-brand-name{text-shadow:var(--ek-brand-glow)}
 .ek-brand-logo{width:36px;height:36px}
 .ek-nav-actions{display:flex;align-items:center;gap:.25rem}
 
 .ek-icon-btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-width:40px;height:40px;padding:0 .6rem;
-  border:0;border-radius:999px;background:transparent;color:var(--ek-muted);font:inherit;font-weight:600;font-size:.9rem;position:relative;cursor:pointer;text-decoration:none}
-.ek-icon-btn:hover{background:var(--ek-hover);color:var(--ek-text);text-decoration:none}
-.ek-navbar .ek-icon-btn{color:#dbe9f7}
-.ek-navbar .ek-icon-btn:hover{background:rgba(255,255,255,.14);color:#fff}
-.ek-dot,.ek-badge{min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--ek-accent);color:#fff;font-size:.68rem;font-weight:800;line-height:18px;text-align:center}
+  border:0;border-radius:12px;background:transparent;color:var(--ek-muted);font:inherit;font-weight:600;font-size:.9rem;position:relative;cursor:pointer;text-decoration:none}
+.ek-icon-btn:hover{background:var(--ek-hover);color:var(--ek-primary);text-decoration:none}
+.ek-navbar .ek-icon-btn{color:#cfe6f5}
+.ek-navbar .ek-icon-btn:hover{background:rgba(0,243,255,.12);color:#00f3ff}
+.ek-dot,.ek-badge{min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--ek-accent);color:#fff;font-family:var(--ek-mono);font-size:.66rem;font-weight:600;line-height:18px;text-align:center}
 .ek-dot{position:absolute;top:1px;right:1px;border:2px solid var(--ek-nav-bg);box-sizing:content-box;min-width:14px;height:14px;line-height:14px}
 
-.ek-user-btn{display:flex;align-items:center;gap:.5rem;background:transparent;border:0;color:#fff;padding:.2rem .6rem .2rem .2rem;border-radius:999px;cursor:pointer;font:inherit}
-.ek-user-btn:hover{background:rgba(255,255,255,.14)}
+.ek-user-btn{display:flex;align-items:center;gap:.5rem;background:transparent;border:0;color:#fff;padding:.2rem .6rem .2rem .2rem;border-radius:99px;cursor:pointer;font:inherit}
+.ek-user-btn:hover{background:rgba(0,243,255,.12)}
 .ek-user-name{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;font-size:.9rem}
 
 /* Menús desplegables (Bootstrap) */
-.dropdown-menu{--bs-dropdown-bg:var(--ek-surface);--bs-dropdown-color:var(--ek-text);--bs-dropdown-border-color:var(--ek-border);
-  --bs-dropdown-link-color:var(--ek-text);--bs-dropdown-link-hover-color:var(--ek-text);--bs-dropdown-link-hover-bg:var(--ek-hover);
+.dropdown-menu{--bs-dropdown-bg:var(--ek-surface);--bs-dropdown-color:var(--ek-text);--bs-dropdown-border-color:var(--ek-border-neon);
+  --bs-dropdown-link-color:var(--ek-text);--bs-dropdown-link-hover-color:var(--ek-primary);--bs-dropdown-link-hover-bg:var(--ek-hover);
   --bs-dropdown-link-active-bg:var(--ek-primary-soft);--bs-dropdown-link-active-color:var(--ek-primary);
   --bs-dropdown-divider-bg:var(--ek-border);--bs-dropdown-border-radius:16px;--bs-dropdown-padding-x:.4rem;--bs-dropdown-padding-y:.4rem;
-  box-shadow:var(--ek-shadow)}
+  box-shadow:var(--ek-card-glow)}
 .dropdown-item{border-radius:10px;display:flex;align-items:center;gap:.6rem;font-weight:600;padding:.5rem .7rem}
 .dropdown-item:hover{text-decoration:none}
-.ek-bell-menu{width:min(340px,92vw);max-height:70vh;overflow-y:auto}
-.ek-bell-head{display:flex;align-items:center;justify-content:space-between;padding:.25rem .5rem .4rem}
+
+/* Campana de notificaciones */
+.ek-bell-menu{width:min(360px,94vw);max-height:70vh;overflow-y:auto}
+.ek-bell-head{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.25rem .5rem .4rem}
 .ek-bell-head h6{font-weight:800}
-.ek-notif-item{display:flex;gap:.65rem;padding:.55rem .5rem;border-radius:10px}
-.ek-notif-item:hover{background:var(--ek-hover)}
+.ek-bell-enable{display:block;width:100%;margin:.2rem 0 .4rem;padding:.5rem .7rem;text-align:left;border:1px dashed var(--ek-border-neon);border-radius:10px;background:var(--ek-primary-soft);color:var(--ek-primary);font:inherit;font-weight:600;font-size:.85rem;cursor:pointer}
+.ek-notif-item{display:flex;gap:.65rem;padding:.55rem .5rem;border-radius:10px;color:var(--ek-text)}
+a.ek-notif-item:hover{background:var(--ek-hover);text-decoration:none;color:var(--ek-text)}
 .ek-notif-item>i{color:var(--ek-primary);margin-top:.15rem}
 .ek-notif-item strong{display:block;font-size:.9rem}
-.ek-notif-item small{display:block;color:var(--ek-muted);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ek-notif-item small{color:var(--ek-muted);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
 /* ---------- Estructura ---------- */
 .ek-shell{flex:1;display:grid;grid-template-columns:var(--ek-side-w) minmax(0,1fr);min-height:0}
@@ -51,25 +57,26 @@ body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
 /* ---------- Menú lateral ---------- */
 .ek-sidebar{position:sticky;top:calc(var(--ek-nav-h) + env(safe-area-inset-top));align-self:start;
   height:calc(100vh - var(--ek-nav-h) - env(safe-area-inset-top));height:calc(100dvh - var(--ek-nav-h) - env(safe-area-inset-top));
-  background:var(--ek-surface);border-right:1px solid var(--ek-border);padding:14px 12px;display:flex;flex-direction:column;overflow-y:auto}
+  background:var(--ek-surface);border-right:1px solid var(--ek-border-neon);padding:14px 12px;display:flex;flex-direction:column;overflow-y:auto}
 .ek-sidebar nav{width:100%}
-.ek-side-title{font-size:.85rem;font-weight:700;color:var(--ek-muted);margin:.25rem .6rem .6rem}
+.ek-side-title{font-family:var(--ek-mono);font-size:.75rem;font-weight:500;color:var(--ek-muted);margin:.25rem .6rem .6rem}
 .ek-side-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
-.ek-side-link{display:flex;align-items:center;gap:.85rem;padding:.7rem .85rem;border-radius:14px;color:var(--ek-text);font-weight:600;position:relative}
-.ek-side-link:hover{background:var(--ek-hover);text-decoration:none;color:var(--ek-text)}
+.ek-side-link{display:flex;align-items:center;gap:.85rem;padding:.7rem .85rem;border-radius:12px;color:var(--ek-text);font-weight:600;position:relative}
+.ek-side-link:hover{background:var(--ek-hover);text-decoration:none;color:var(--ek-primary)}
 .ek-side-link>i{font-size:1.25rem;width:1.4rem;text-align:center}
-.ek-side-link.active{background:var(--ek-primary-soft);color:var(--ek-primary)}
+.ek-side-link.active{background:var(--ek-primary-soft);color:var(--ek-primary);box-shadow:inset 3px 0 0 var(--ek-primary)}
 .ek-badge{margin-left:auto}
-.ek-side-footer{margin-top:auto;padding:.9rem;border-radius:14px;background:var(--ek-surface-2);font-size:.82rem;color:var(--ek-muted)}
+.ek-side-footer{margin-top:auto;padding:.9rem;border-radius:14px;background:var(--ek-surface-2);border:1px solid var(--ek-border);font-size:.82rem;color:var(--ek-muted)}
 .ek-side-footer strong{display:block;color:var(--ek-text);font-size:1rem}
 
-/* Estado de conexión (lista y chat) */
-.ek-status-pill{display:inline-flex;align-items:center;gap:.4rem;font-size:.75rem;font-weight:600;padding:.25rem .7rem;border-radius:99px;background:var(--ek-surface);border:1px solid var(--ek-border);color:var(--ek-muted);margin:0}
-.ek-status-pill::before{content:"";width:8px;height:8px;border-radius:50%;background:#d08700}
-.ek-status-pill[data-state="online"]::before{background:var(--ek-ok)}
+/* Estado de conexión */
+.ek-status-pill{display:inline-flex;align-items:center;gap:.45rem;font-family:var(--ek-mono);font-size:.72rem;padding:.25rem .7rem;border-radius:99px;background:var(--ek-surface);border:1px solid var(--ek-border-neon);color:var(--ek-muted);margin:0}
+.ek-status-pill::before{content:"";width:7px;height:7px;border-radius:50%;background:#ffb020}
+.ek-status-pill[data-state="online"]{color:var(--ek-primary)}
+.ek-status-pill[data-state="online"]::before{background:var(--ek-primary);box-shadow:0 0 8px var(--ek-primary)}
 .ek-status-pill[data-state="offline"]::before{background:var(--ek-err)}
 
-/* ---------- Pantallas medianas: menú compacto ---------- */
+/* ---------- Tablet: menú compacto ---------- */
 @media (max-width:1100px){
   :root{--ek-side-w:76px}
   .ek-side-title,.ek-side-footer{display:none}
@@ -83,10 +90,11 @@ body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
   .ek-shell{display:block}
   .ek-main{padding-bottom:calc(66px + env(safe-area-inset-bottom))}
   .ek-sidebar{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:1020;height:auto;flex-direction:row;overflow:visible;
-    padding:6px 8px calc(6px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--ek-border)}
+    padding:6px 8px calc(6px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--ek-border-neon)}
   .ek-side-list{flex-direction:row;justify-content:space-around;gap:0}
   .ek-side-list li{flex:1}
   .ek-side-link{flex-direction:column;gap:2px;padding:.4rem 0;font-size:.7rem;border-radius:12px}
+  .ek-side-link.active{box-shadow:inset 0 2px 0 var(--ek-primary)}
   .ek-side-link>span:not(.ek-badge){display:block}
   .ek-side-link>i{font-size:1.3rem}
   .ek-side-link .ek-badge{top:0;right:calc(50% - 26px)}
