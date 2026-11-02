@@ -1,27 +1,40 @@
-/* EKKO · inicio.js */
+/* EKKO · inicio.js (perfil) */
 (function () {
     'use strict';
     var E = window.Ekko || {};
+    var say = function (type, text) { if (E.toast) { E.toast({ type: type, text: text }); } };
 
-    // Saludo según la hora local
-    var g = document.querySelector('[data-ekko-greeting]');
-    if (g) {
-        var h = new Date().getHours();
-        g.textContent = h < 6 ? 'Buenas noches' : h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
+    function copy(text, okMessage) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(
+                function () { say('success', okMessage); },
+                function () { say('error', 'No se pudo copiar. Selecciónalo y cópialo a mano.'); }
+            );
+        } else {
+            say('error', 'Tu navegador no permite copiar desde aquí.');
+        }
     }
 
-    // Copiar @usuario al portapapeles
-    var handle = document.querySelector('[data-copy-handle]');
-    if (handle) {
-        handle.addEventListener('click', function () {
-            var text = handle.getAttribute('data-copy-handle');
-            var ok = function () { if (E.toast) { E.toast({ type: 'success', text: text + ' copiado. Compártelo para que te encuentren.' }); } };
-            var fail = function () { if (E.toast) { E.toast({ type: 'error', text: 'No se pudo copiar. Selecciónalo y cópialo a mano.' }); } };
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(ok, fail);
-            } else { fail(); }
+    // Copiar @usuario
+    document.querySelectorAll('[data-copy-handle]').forEach(function (el) {
+        el.addEventListener('click', function () {
+            var text = el.getAttribute('data-copy-handle');
+            copy(text, text + ' copiado. Compártelo para que te encuentren.');
         });
-    }
+    });
+
+    // Compartir: menú nativo del móvil; si no existe, copia el mensaje
+    document.querySelectorAll('[data-share-handle]').forEach(function (el) {
+        el.addEventListener('click', function () {
+            var handle = el.getAttribute('data-share-handle');
+            var message = 'Encuéntrame en Ekko: ' + handle;
+            if (navigator.share) {
+                navigator.share({ title: 'Ekko', text: message, url: location.origin }).catch(function () { /* cancelado */ });
+            } else {
+                copy(message + ' · ' + location.origin, 'Mensaje de invitación copiado.');
+            }
+        });
+    });
 
     // Bienvenida (una vez por sesión)
     var welcomed = false;
