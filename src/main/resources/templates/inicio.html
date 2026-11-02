@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('Inicio')}"></head>
+<head th:replace="~{fragments/head :: head('Mi perfil')}"></head>
 <body>
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
@@ -15,12 +15,7 @@
                       tieneNombre=${currentUser.displayName != null and !#strings.isEmpty(currentUser.displayName)},
                       tieneBio=${currentUser.bio != null and !#strings.isEmpty(currentUser.bio)}">
 
-            <h1 class="ek-display ek-greeting">
-                <span data-ekko-greeting>Hola</span>,
-                <span th:text="${tieneNombre ? currentUser.displayName : currentUser.username}">Nombre</span>
-                <small>Bienvenido a Ekko. Aquí empieza tu próxima conversación.</small>
-            </h1>
-
+            <!-- CABECERA DEL PERFIL -->
             <section class="ek-hero" aria-label="Mi perfil">
                 <div class="ek-cover" aria-hidden="true"></div>
 
@@ -29,72 +24,88 @@
                          th:src="${tieneFoto} ? ${currentUser.avatarUrl} : @{/images/avatar-default.svg}"
                          th:attr="data-fallback=@{/images/avatar-default.svg}"
                          referrerpolicy="no-referrer"
-                         alt="Foto de perfil">
+                         alt="Mi foto de perfil">
 
                     <div class="ek-hero-info">
-                        <h2 th:text="${tieneNombre ? currentUser.displayName : currentUser.username}">Nombre visible</h2>
-
-                        <button type="button" class="ek-handle"
-                                th:attr="data-copy-handle=${'@' + currentUser.username}"
-                                aria-label="Copiar mi nombre de usuario">
-                            <span th:text="${'@' + currentUser.username}">@usuario</span>
-                            <i class="bi bi-copy"></i>
-                        </button>
-
-                        <p class="ek-bio" th:if="${tieneBio}" th:text="${currentUser.bio}">Biografía del usuario</p>
-                        <p class="ek-bio" th:unless="${tieneBio}">Todavía no añadiste una biografía.</p>
+                        <h1 class="ek-display" th:text="${tieneNombre ? currentUser.displayName : currentUser.username}">Nombre visible</h1>
+                        <p class="ek-hero-handle" th:text="${'@' + currentUser.username}">@usuario</p>
                     </div>
 
                     <div class="ek-hero-actions">
                         <a class="btn btn-ekko" th:href="@{/perfil}" data-ekko-sound="pop">
                             <i class="bi bi-pencil-fill"></i>Editar perfil
                         </a>
+                        <button type="button" class="btn btn-ekko-soft" th:attr="data-share-handle=${'@' + currentUser.username}">
+                            <i class="bi bi-share-fill"></i>Compartir
+                        </button>
                     </div>
                 </div>
             </section>
 
-            <nav class="ek-grid" aria-label="Accesos rápidos">
-                <a class="ek-action" th:href="@{/mensajes}" data-ekko-sound="pop">
-                    <span class="ek-action-icon"><i class="bi bi-chat-dots-fill"></i></span>
-                    <strong>Chats</strong>
-                    <span>Retoma tus conversaciones en tiempo real.</span>
-                </a>
-                <a class="ek-action" th:href="@{/contactos}" data-ekko-sound="pop">
-                    <span class="ek-action-icon"><i class="bi bi-people-fill"></i></span>
-                    <strong>Contactos</strong>
-                    <span>Busca personas y gestiona solicitudes.</span>
-                </a>
-                <a class="ek-action" th:href="@{/configuracion}" data-ekko-sound="pop">
-                    <span class="ek-action-icon"><i class="bi bi-gear-fill"></i></span>
-                    <strong>Ajustes</strong>
-                    <span>Cuenta, privacidad y preferencias.</span>
-                </a>
-            </nav>
+            <!-- INFORMACIÓN (lista de datos, como en las apps de mensajería) -->
+            <h2 class="ek-section-title">Información</h2>
+            <ul class="ek-info-list">
 
-            <section class="ek-card mt-4"
-                     th:with="pasos=${(tieneFoto ? 1 : 0) + (tieneNombre ? 1 : 0) + (tieneBio ? 1 : 0)}">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h2 class="h5 m-0">Completa tu perfil</h2>
-                    <strong th:text="${pasos * 100 / 3} + '%'">0%</strong>
-                </div>
-                <div class="ek-progress" role="progressbar" aria-label="Perfil completado">
-                    <div class="ek-progress-bar" th:attr="data-progress=${pasos * 100 / 3}"></div>
-                </div>
-                <ul class="ek-checklist">
-                    <li>
-                        <i class="bi" th:classappend="${tieneFoto} ? 'bi-check-circle-fill' : 'bi-circle'"></i>
-                        <span th:classappend="${tieneFoto} ? 'done'">Sube una foto de perfil</span>
-                    </li>
-                    <li>
-                        <i class="bi" th:classappend="${tieneNombre} ? 'bi-check-circle-fill' : 'bi-circle'"></i>
-                        <span th:classappend="${tieneNombre} ? 'done'">Elige tu nombre para mostrar</span>
-                    </li>
-                    <li>
-                        <i class="bi" th:classappend="${tieneBio} ? 'bi-check-circle-fill' : 'bi-circle'"></i>
-                        <span th:classappend="${tieneBio} ? 'done'">Cuéntales algo sobre ti</span>
-                    </li>
-                </ul>
-            </section>
+                <li class="ek-info-row">
+                    <span class="ek-info-icon" aria-hidden="true"><i class="bi bi-info-circle"></i></span>
+                    <div class="ek-info-text">
+                        <strong th:if="${tieneBio}" th:text="${currentUser.bio}">Biografía</strong>
+                        <strong class="is-empty" th:unless="${tieneBio}">Sin biografía todavía</strong>
+                        <small>Biografía</small>
+                    </div>
+                    <a class="ek-icon-btn" th:href="@{/perfil}" aria-label="Editar biografía"><i class="bi bi-pencil"></i></a>
+                </li>
+
+                <li class="ek-info-row">
+                    <span class="ek-info-icon" aria-hidden="true"><i class="bi bi-at"></i></span>
+                    <div class="ek-info-text">
+                        <strong class="ek-mono" th:text="${'@' + currentUser.username}">@usuario</strong>
+                        <small>Nombre de usuario · compártelo para que te encuentren</small>
+                    </div>
+                    <button type="button" class="ek-icon-btn" th:attr="data-copy-handle=${'@' + currentUser.username}" aria-label="Copiar mi nombre de usuario">
+                        <i class="bi bi-copy"></i>
+                    </button>
+                </li>
+
+                <li class="ek-info-row">
+                    <span class="ek-info-icon" aria-hidden="true"><i class="bi bi-emoji-smile"></i></span>
+                    <div class="ek-info-text">
+                        <strong th:if="${tieneNombre}" th:text="${currentUser.displayName}">Nombre</strong>
+                        <strong class="is-empty" th:unless="${tieneNombre}">Aún no elegiste un nombre para mostrar</strong>
+                        <small>Nombre visible</small>
+                    </div>
+                    <a class="ek-icon-btn" th:href="@{/perfil}" aria-label="Editar nombre visible"><i class="bi bi-pencil"></i></a>
+                </li>
+
+            </ul>
+
+            <!-- Solo aparece mientras falte algo del perfil -->
+            <th:block th:with="pasos=${(tieneFoto ? 1 : 0) + (tieneNombre ? 1 : 0) + (tieneBio ? 1 : 0)}">
+                <section class="ek-card ek-complete mt-4" th:if="${pasos < 3}" aria-labelledby="completeTitle">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h2 class="h6 m-0" id="completeTitle">Completa tu perfil</h2>
+                        <strong class="ek-mono" th:text="${pasos} + '/3'">0/3</strong>
+                    </div>
+                    <div class="ek-progress" role="progressbar" aria-label="Perfil completado"
+                         aria-valuemin="0" aria-valuemax="3" th:attr="aria-valuenow=${pasos}">
+                        <div class="ek-progress-bar" th:attr="data-progress=${pasos * 100 / 3}"></div>
+                    </div>
+                    <ul class="ek-checklist">
+                        <li>
+                            <i class="bi" th:classappend="${tieneFoto} ? 'bi-check-circle-fill' : 'bi-circle'"></i>
+                            <span th:classappend="${tieneFoto} ? 'done'">Sube una foto de perfil</span>
+                        </li>
+                        <li>
+                            <i class="bi" th:classappend="${tieneNombre} ? 'bi-check-circle-fill' : 'bi-circle'"></i>
+                            <span th:classappend="${tieneNombre} ? 'done'">Elige tu nombre para mostrar</span>
+                        </li>
+                        <li>
+                            <i class="bi" th:classappend="${tieneBio} ? 'bi-check-circle-fill' : 'bi-circle'"></i>
+                            <span th:classappend="${tieneBio} ? 'done'">Cuéntales algo sobre ti</span>
+                        </li>
+                    </ul>
+                </section>
+            </th:block>
 
         </div>
     </main>
