@@ -1,110 +1,118 @@
 # Ekko — Plataforma de Comunicación Social en Tiempo Real
 
-**Ekko** es una plataforma web de comunicación social desarrollada con Java y Spring Boot, diseñada para permitir que los usuarios se comuniquen mediante conversaciones en tiempo real, administren sus contactos y personalicen su perfil.
+**Ekko** es una plataforma web de comunicación social que permite a los usuarios conectarse mediante conversaciones en tiempo real, gestionar contactos y personalizar sus perfiles.
 
-La aplicación cuenta con una interfaz web adaptable, mecanismos de comunicación mediante WebSocket y funcionalidades PWA para facilitar su instalación y uso desde diferentes dispositivos.
+Cuenta con una interfaz adaptable, notificaciones y soporte PWA para instalarse en dispositivos compatibles.
 
 ## Aplicación desplegada
 
-**Acceso a Ekko:** https://ekko-75f5.onrender.com
+**Acceso:** https://ekko-75f5.onrender.com
 
-La aplicación se encuentra desplegada en **Render**, con PostgreSQL administrado mediante **Supabase**.
+- **Hosting:** Render.
+- **Base de datos:** PostgreSQL en Supabase.
+- **Repositorio:** GitHub.
 
 ## Funcionalidades principales
 
-- **Registro e inicio de sesión:** creación de cuentas y autenticación de usuarios.
-- **Verificación de correo electrónico:** validación de cuentas mediante correo electrónico.
-- **Recuperación de contraseña:** recuperación de acceso mediante correo electrónico.
-- **Mensajería en tiempo real:** envío y recepción de mensajes sin necesidad de recargar la página.
-- **Estado de mensajes:** seguimiento de mensajes entregados y leídos.
-- **Gestión de contactos:** búsqueda de usuarios, solicitudes de contacto y administración de contactos.
-- **Bloqueo de usuarios:** herramientas para gestionar la privacidad de las interacciones.
-- **Conversaciones:** consulta y administración del historial de conversaciones.
-- **Perfil de usuario:** personalización del nombre visible, fotografía y biografía.
-- **Configuración y privacidad:** opciones relacionadas con la cuenta y la privacidad.
-- **Notificaciones:** avisos de actividad y nuevos mensajes.
-- **PWA:** posibilidad de instalar Ekko como aplicación en dispositivos compatibles.
-- **Experiencia sin conexión:** página de respaldo cuando no hay conexión a Internet, mediante Service Worker y recursos almacenados en caché.
+- Registro e inicio de sesión.
+- Verificación de correo electrónico.
+- Recuperación de contraseña.
+- Mensajería en tiempo real.
+- Estados de mensajes enviados, entregados y leídos.
+- Búsqueda y gestión de contactos.
+- Solicitudes de contacto.
+- Bloqueo y desbloqueo de usuarios.
+- Historial de conversaciones.
+- Personalización del perfil (fotografía, nombre y biografía).
+- Notificaciones de actividad.
+- Configuración de cuenta y privacidad.
+- PWA instalable.
+- Página de respaldo para funcionamiento sin conexión.
 
 ## Tecnologías utilizadas
 
-### Backend
-- Java 21
-- Spring Boot
-- Spring MVC
-- Spring Security
-- Spring Data JPA
-- Maven
-- WebSocket
-- STOMP
-- JavaMailSender
+| Área | Tecnologías |
+|---|---|
+| Lenguaje | Java 21 |
+| Backend | Spring Boot 4.0.8 |
+| Arquitectura | Spring MVC |
+| Seguridad | Spring Security |
+| Persistencia | Spring Data JPA, Hibernate |
+| Tiempo real | WebSocket y STOMP |
+| Correo electrónico | JavaMailSender |
+| Frontend | HTML5, CSS3 y JavaScript |
+| Plantillas | Thymeleaf |
+| Diseño | Bootstrap 5 y Bootstrap Icons |
+| Base de datos | PostgreSQL |
+| Gestión de dependencias | Maven |
+| Despliegue | Render |
+| Infraestructura | Supabase |
+| Control de versiones | Git y GitHub |
 
-### Frontend
-- HTML5
-- CSS3
-- JavaScript
-- Thymeleaf
-- Bootstrap 5
-- Bootstrap Icons
+## Arquitectura
 
-### Base de datos
-- PostgreSQL
-- Supabase
+Ekko utiliza una arquitectura MVC organizada en capas:
 
-### Despliegue e infraestructura
-- Render — alojamiento y despliegue de la aplicación.
-- GitHub — repositorio y control de versiones.
-- Supabase — servicio de base de datos PostgreSQL.
-- PWA y Service Workers — instalación y experiencia sin conexión.
+- **Controller:** recibe y gestiona las solicitudes.
+- **Service:** contiene la lógica de negocio.
+- **Repository:** administra el acceso a los datos.
+- **Entity:** representa las entidades de la base de datos.
+- **DTO:** transporta información entre componentes.
+- **Security:** gestiona autenticación y autorización.
+- **WebSocket:** permite la comunicación en tiempo real.
+- **Templates:** contiene las vistas desarrolladas con Thymeleaf.
 
-## Arquitectura general
+La comunicación en tiempo real utiliza WebSocket con STOMP, mientras que PostgreSQL almacena la información de la aplicación.
 
-Ekko utiliza una arquitectura basada en Spring Boot:
+## Ejecución local
 
-- **Controladores:** gestionan las solicitudes HTTP y las interacciones con las vistas.
-- **Servicios:** contienen la lógica de negocio.
-- **Repositorios:** permiten acceder y administrar los datos mediante JPA.
-- **Entidades:** representan la información almacenada en PostgreSQL.
-- **Vistas:** utilizan Thymeleaf para generar las páginas web.
-- **WebSocket/STOMP:** permiten la comunicación bidireccional y la actualización de mensajes en tiempo real.
+**Requisitos:**
+- Java 21 o compatible.
+- Git.
+- PostgreSQL o una instancia de Supabase.
+- Maven (opcional, se incluye Maven Wrapper).
 
-## Despliegue y funcionamiento
+**Pasos:**
 
-La aplicación está publicada en Render y utiliza una base de datos PostgreSQL alojada en Supabase.
+1. Clonar el repositorio:
 
-Para utilizarla, no es necesario instalar Java, Maven ni configurar una base de datos local.
+```bash
+git clone URL_DEL_REPOSITORIO
+```
 
-1. Acceder a la aplicación: https://ekko-75f5.onrender.com
-2. Crear una cuenta o iniciar sesión.
-3. Verificar el correo electrónico cuando corresponda.
-4. Comenzar a utilizar las funcionalidades de comunicación de Ekko.
+2. Acceder al proyecto:
 
-El despliegue se gestiona mediante el repositorio de GitHub conectado a Render.
+```bash
+cd plataforma-comunicacion
+```
 
-## Configuración del entorno
+3. Configurar las variables de entorno necesarias:
 
-Para ejecutar una instancia propia del proyecto se requiere:
+```properties
+DB_URL=
+DB_USERNAME=
+DB_PASSWORD=
+```
 
-- Java 21.
-- Maven.
-- Una base de datos PostgreSQL.
-- Las variables de entorno necesarias para la conexión a la base de datos y la configuración del correo electrónico.
+También deben configurarse las credenciales SMTP para habilitar la verificación de correo y la recuperación de contraseña.
 
-La configuración de producción utiliza variables de entorno para evitar almacenar credenciales directamente en el código fuente.
+4. Ejecutar la aplicación en Windows:
 
-Entre las variables de conexión a la base de datos se encuentran:
+```powershell
+.\mvnw.cmd spring-boot:run
+```
 
-- `DB_URL`
-- `DB_USERNAME`
-- `DB_PASSWORD`
+5. Abrir en el navegador:
 
-También se deben configurar los parámetros SMTP correspondientes para habilitar el envío de correos electrónicos.
+```text
+http://localhost:8080
+```
 
-## Seguridad
+## Despliegue
 
-El proyecto incorpora Spring Security para gestionar la autenticación y proteger las funcionalidades de la aplicación.
+La aplicación está desplegada en Render y utiliza Supabase como servicio de base de datos PostgreSQL.
 
-Además, contempla mecanismos de verificación de correo electrónico, recuperación de contraseña y administración de la privacidad de los usuarios.
+El despliegue se gestiona mediante GitHub, conectado al servicio de Render. Las credenciales y configuraciones sensibles se administran mediante variables de entorno.
 
 ## Autor
 
