@@ -38,13 +38,15 @@
 
     const conversations = Array.from(document.querySelectorAll("[data-conversation-id]"));
 
-    function totalUnread() {
-        return conversations.reduce((sum, el) =>
-            sum + (Number(el.querySelector(".unread-count")?.textContent) || 0), 0);
+    // Al cargar, los contadores reflejan los no leídos reales de cada conversación.
+    if (E.chats) {
+        const map = {};
+        conversations.forEach(el => {
+            const n = Number(el.querySelector(".unread-count")?.textContent) || 0;
+            if (n > 0) map[el.dataset.conversationId] = n;
+        });
+        E.chats.set(map);
     }
-
-    // Al cargar, el contador global refleja los no leídos reales de la lista.
-    if (E.setUnread) E.setUnread(totalUnread());
 
     if (conversations.length === 0) {
         setStatus("Aún no hay conversaciones.", "offline");

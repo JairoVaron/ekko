@@ -15,6 +15,7 @@
 
     var EK_NOTIFICATIONS_KEY = 'ekko.notifications';
     var EK_UNREAD_KEY = 'ekko.notifications.unread';
+    var EK_CHATS_KEY = 'ekko.chats.unread';
     var EK_MAX_NOTIFICATIONS = 30;
     var MAX_TOASTS = 3;
 
@@ -148,15 +149,29 @@
             Sound.play(opts.sound || (type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'message' ? 'notify' : 'pop'));
         }
         var close = function () { el.classList.add('out'); setTimeout(function () { el.remove(); }, 220); };
-        el.addEventListener('click', close);
+        el.addEventListener('click', function () { close(); if (opts.url) { location.href = opts.url; } });
         setTimeout(close, opts.duration || 4500);
         return el;
     }
 
     /* ---------------------------------------------------------
-       NOTIFICACIONES (campana, contador, título, navegador)
+       NOTIFICACIONES
+       - Campana: avisos vistos/no vistos (contador del navbar)
+       - Chats: no leídos por conversación (contador del menú «Chats»)
+       - Escritorio/móvil: notificación del sistema con la pestaña oculta
        --------------------------------------------------------- */
     var baseTitle = document.title, unread = 0;
+    var chats = {};
+
+    // Ruta base de la app (por si corre bajo un context-path)
+    function appUrl(path) {
+        var base = '';
+        try {
+            var brand = $('.ek-brand');
+            if (brand) { base = new URL(brand.href, location.origin).pathname.replace(/\/inicio\/?$/, ''); }
+        } catch (e) { base = ''; }
+        return base.replace(/\/$/, '') + path;
+    }
 
     function setUnread(n) {
         unread = Math.max(0, n | 0);
@@ -168,12 +183,35 @@
         document.title = unread ? '(' + unread + ') ' + baseTitle : baseTitle;
     }
 
-    function addToBell(title, text) {
+    function chatsTotal() {
+        return Object.keys(chats).reduce(function (sum, k) { return sum + (chats[k] | 0); }, 0);
+    }
+    function saveChats() {
+        try { sessionStorage.setItem(EK_CHATS_KEY, JSON.stringify(chats)); } catch (error) { /* noop */ }
+        var total = chatsTotal();
+        $$('[data-ekko-chats-unread]').forEach(function (badge) {
+            badge.textContent = total > 99 ? '99+' : String(total);
+            badge.hidden = total === 0;
+        });
+    }
+    var Chats = {
+        set: function (map) {
+            chats = {};
+            Object.keys(map || {}).forEach(function (k) { var n = map[k] | 0; if (n > 0) { chats[k] = n; } });
+            saveChats();
+        },
+        add: function (id) { if (id == null) { return; } chats[id] = (chats[id] | 0) + 1; saveChats(); },
+        clear: function (id) { if (id != null && chats[id]) { delete chats[id]; saveChats(); } },
+        total: chatsTotal
+    };
+
+    function addToBell(title, text, url) {
         var list = $('[data-ekko-bell-list]');
         if (!list) { return; }
         var empty = $('[data-ekko-bell-empty]', list); if (empty) { empty.remove(); }
-        var item = document.createElement('div');
+        var item = document.createElement(url ? 'a' : 'div');
         item.className = 'ek-notif-item';
+        if (url) { item.href = url; }
         item.innerHTML = '<i class="bi bi-chat-heart-fill" aria-hidden="true"></i><div><strong></strong><small></small></div>';
         $('strong', item).textContent = title || 'Ekko';
         $('small', item).textContent = text || '';
@@ -205,7 +243,7 @@
             empty.innerHTML = '<i class="bi bi-chat-dots" aria-hidden="true"></i>Sin avisos nuevos.';
             list.appendChild(empty);
         } else {
-            notifications.slice().reverse().forEach(function (item) { addToBell(item.title, item.text); });
+            notifications.slice().reverse().forEach(function (item) { addToBell(item.title, item.text, item.url); });
         }
     }
 
@@ -214,6 +252,11 @@
         var storedUnread = 0;
         try { storedUnread = Number(sessionStorage.getItem(EK_UNREAD_KEY)) || 0; } catch (error) { storedUnread = 0; }
         setUnread(storedUnread);
+        try {
+            var raw = JSON.parse(sessionStorage.getItem(EK_CHATS_KEY) || '{}');
+            chats = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+        } catch (error) { chats = {}; }
+        saveChats();
     }
 
     function clearNotifications() {
@@ -222,31 +265,61 @@
         setUnread(0);
     }
 
-    /** Uso: Ekko.notify({ title, text, sound, desktop, toast }) */
+    // Notificación del sistema. Usa el Service Worker (necesario en Android/PWA) y, si no, el constructor clásico.
+    function showDesktop(title, text, url, tag) {
+        if (!('Notification' in window) || Notification.permission !== 'granted') { return; }
+        var opts = { body: text, icon: appUrl('/images/ekko-logo.svg'), badge: appUrl('/icons/icon-192.png'), data: { url: url || null } };
+        if (tag) { opts.tag = tag; }
+        var classic = function () {
+            try {
+                var n = new Notification(title, opts);
+                n.onclick = function () { window.focus(); if (url) { location.href = url; } n.close(); };
+            } catch (error) { /* notificaciones del sistema bloqueadas */ }
+        };
+        if ('serviceWorker' in navigator && navigator.serviceWorker.getRegistration) {
+            navigator.serviceWorker.getRegistration().then(function (reg) {
+                if (reg && reg.showNotification) { return reg.showNotification(title, opts); }
+                classic();
+            }).catch(classic);
+        } else { classic(); }
+    }
+
+    /**
+     * Ekko.notify({ title, text, url, chatId, tag, sound, toast, desktop, track })
+     *  - track:false  no cuenta en la campana ni en los no leídos (p. ej. mensaje del chat abierto)
+     *  - toast:false  no muestra el aviso en pantalla
+     */
     function notify(o) {
         o = o || {};
         var title = o.title || 'Ekko';
         var text = o.text || '';
 
-        var notifications = readStoredNotifications();
-        notifications.unshift({ title: title, text: text, createdAt: new Date().toISOString() });
-        saveStoredNotifications(notifications);
-        addToBell(title, text);
-        setUnread(unread + 1);
+        if (o.track !== false) {
+            var notifications = readStoredNotifications();
+            notifications.unshift({ title: title, text: text, url: o.url || null, createdAt: new Date().toISOString() });
+            saveStoredNotifications(notifications);
+            addToBell(title, text, o.url);
+            setUnread(unread + 1);
+            if (o.chatId != null) { Chats.add(o.chatId); }
+        }
 
         if (o.toast !== false) {
-            toast({ type: 'message', title: title, text: text, sound: o.sound || 'notify' });
+            toast({ type: 'message', title: title, text: text, url: o.url, sound: o.sound || 'notify' });
+        } else if (o.sound !== false) {
+            Sound.play(o.sound || 'notify');
         }
 
-        if (o.desktop !== false && document.hidden && 'Notification' in window && Notification.permission === 'granted') {
-            try { new Notification(title, { body: text, icon: '/images/ekko-logo.svg' }); }
-            catch (error) { /* notificaciones del sistema bloqueadas */ }
-        }
+        if (o.desktop !== false && document.hidden) { showDesktop(title, text, o.url, o.tag); }
     }
 
     function askDesktopPermission() {
         if ('Notification' in window && Notification.permission === 'default') { return Notification.requestPermission(); }
         return Promise.resolve(window.Notification ? Notification.permission : 'denied');
+    }
+
+    function syncDesktopPrompt() {
+        var show = 'Notification' in window && Notification.permission === 'default';
+        $$('[data-ekko-enable-desktop]').forEach(function (b) { b.hidden = !show; });
     }
 
     /* ---------------------------------------------------------
@@ -286,13 +359,13 @@
         });
     }
 
-    function themeMode() { var v = store.get('ekko-theme', null); return v === 'light' || v === 'dark' ? v : 'auto'; }
+    function themeMode() { var v = store.get('ekko-theme', null); return v === 'light' || v === 'dark' || v === 'auto' ? v : 'dark'; }
     function setTheme(mode) {
         var t = mode;
+        store.set('ekko-theme', mode);
         if (mode === 'auto') {
-            try { localStorage.removeItem('ekko-theme'); } catch (e) { /* noop */ }
             t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        } else { store.set('ekko-theme', mode); }
+        }
         document.documentElement.setAttribute('data-bs-theme', t); syncThemeButtons();
     }
 
@@ -321,6 +394,15 @@
         var bell = $('[data-ekko-bell]');
         if (bell) { bell.addEventListener('shown.bs.dropdown', function () { setUnread(0); }); }
         $$('[data-ekko-bell-clear]').forEach(function (b) { b.addEventListener('click', clearNotifications); });
+        syncDesktopPrompt();
+        $$('[data-ekko-enable-desktop]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                askDesktopPermission().then(function (p) {
+                    syncDesktopPrompt();
+                    if (p === 'granted') { toast({ type: 'success', text: 'Recibirás avisos cuando Ekko esté en segundo plano.' }); }
+                });
+            });
+        });
 
         // Enlace activo en el menú lateral
         var path = location.pathname.replace(/\/+$/, '') || '/';
@@ -416,6 +498,8 @@
         notify: notify,
         clearNotifications: clearNotifications,
         setUnread: setUnread,
+        chats: Chats,
+        appUrl: appUrl,
         askDesktopPermission: askDesktopPermission,
         store: store,
         $: $,
