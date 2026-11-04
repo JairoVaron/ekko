@@ -32,6 +32,12 @@ public class Message {
     @Column(name = "read_at")
     private Instant readAt;
 
+    @Column(name = "deleted_for_everyone", nullable = false)
+    private boolean deletedForEveryone = false;
+
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
+
     public Message() {
     }
 
@@ -88,5 +94,21 @@ public class Message {
 
     public void setReadAt(Instant readAt) {
         this.readAt = readAt;
+    }
+
+    public boolean isDeletedForEveryone() {
+        return deletedForEveryone;
+    }
+
+    public void setDeletedForEveryone(boolean deletedForEveryone) {
+        this.deletedForEveryone = deletedForEveryone;
+    }
+
+    public Instant getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(Instant deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }

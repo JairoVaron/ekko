@@ -1,6 +1,7 @@
 package com.plataforma.comunicacion.service;
 
 import com.plataforma.comunicacion.dto.ConversationSummary;
+import com.plataforma.comunicacion.dto.MessageDeletionEvent;
 import com.plataforma.comunicacion.dto.MessageStatusView;
 import com.plataforma.comunicacion.dto.MessageView;
 import com.plataforma.comunicacion.entity.AppUser;
@@ -8,10 +9,12 @@ import com.plataforma.comunicacion.entity.ContactRequest;
 import com.plataforma.comunicacion.entity.Conversation;
 import com.plataforma.comunicacion.entity.ConversationMember;
 import com.plataforma.comunicacion.entity.Message;
+import com.plataforma.comunicacion.entity.MessageHidden;
 import com.plataforma.comunicacion.repository.AppUserRepository;
 import com.plataforma.comunicacion.repository.ContactRequestRepository;
 import com.plataforma.comunicacion.repository.ConversationMemberRepository;
 import com.plataforma.comunicacion.repository.ConversationRepository;
+import com.plataforma.comunicacion.repository.MessageHiddenRepository;
 import com.plataforma.comunicacion.repository.MessageRepository;
 import com.plataforma.comunicacion.repository.UserBlockRepository;
 
@@ -36,6 +39,7 @@ public class ConversationService {
     private final ConversationRepository conversationRepository;
     private final ConversationMemberRepository conversationMemberRepository;
     private final MessageRepository messageRepository;
+    private final MessageHiddenRepository messageHiddenRepository;
 
     public ConversationService(
             AppUserRepository appUserRepository,
@@ -43,7 +47,8 @@ public class ConversationService {
             UserBlockRepository userBlockRepository,
             ConversationRepository conversationRepository,
             ConversationMemberRepository conversationMemberRepository,
-            MessageRepository messageRepository) {
+            MessageRepository messageRepository,
+            MessageHiddenRepository messageHiddenRepository) {
 
         this.appUserRepository = appUserRepository;
         this.contactRequestRepository = contactRequestRepository;
@@ -51,6 +56,7 @@ public class ConversationService {
         this.conversationRepository = conversationRepository;
         this.conversationMemberRepository = conversationMemberRepository;
         this.messageRepository = messageRepository;
+        this.messageHiddenRepository = messageHiddenRepository;
     }
 
     private AppUser requireActiveUser(Long userId) {
@@ -122,10 +128,6 @@ public class ConversationService {
         }
     }
 
-    /**
-     * Conserva el historial de conversaciones con cuentas eliminadas.
-     * No permite enviar mensajes nuevos a cuentas eliminadas.
-     */
     private void requireConversationAvailable(
             Long conversationId,
             Long currentUserId) {
@@ -145,7 +147,6 @@ public class ConversationService {
                                 new IllegalArgumentException(
                                         "El otro participante no existe."));
 
-                // Se conserva el historial de cuentas eliminadas.
                 if (otherUser.isAccountDeleted()) {
                     continue;
                 }
@@ -155,9 +156,6 @@ public class ConversationService {
         }
     }
 
-    /**
-     * Valida el acceso sin recuperar mensajes ni modificar estados.
-     */
     @Transactional(readOnly = true)
     public void validateConversationAccess(
             Long conversationId,
@@ -167,9 +165,41 @@ public class ConversationService {
         requireConversationAvailable(conversationId, currentUserId);
     }
 
-    /**
-     * Crea una conversación privada o devuelve la ya existente.
-     */
+    @Transactional(readOnly = true)
+    public void validateTypingAccess(
+            Long conversationId,
+            Long currentUserId) {
+
+        requireActiveUser(currentUserId);
+        requireConversationAvailable(conversationId, currentUserId);
+
+        List<ConversationMember> members =
+                conversationMemberRepository.findByConversation_Id(
+                        conversationId);
+
+        if (members.size() != 2) {
+            throw new IllegalArgumentException(
+                    "Esta función solo admite conversaciones privadas.");
+        }
+
+        AppUser otherUser = members.stream()
+                .map(ConversationMember::getUser)
+                .filter(user -> !Objects.equals(
+                        user.getId(), currentUserId))
+                .findFirst()
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "No se encontró al otro participante."));
+
+        if (otherUser.isAccountDeleted()) {
+            throw new IllegalArgumentException(
+                    "No puedes interactuar con una cuenta eliminada.");
+        }
+
+        requireAcceptedContact(currentUserId, otherUser.getId());
+        requireNotBlocked(currentUserId, otherUser.getId());
+    }
+
     public Long openConversation(
             Long currentUserId,
             Long otherUserId) {
@@ -222,9 +252,6 @@ public class ConversationService {
         return conversation.getId();
     }
 
-    /**
-     * Lista conversaciones, incluyendo las asociadas a cuentas eliminadas.
-     */
     @Transactional(readOnly = true)
     public List<ConversationSummary> listConversations(Long userId) {
 
@@ -258,8 +285,6 @@ public class ConversationService {
             AppUser otherUser = otherMembership.get().getUser();
             boolean deleted = otherUser.isAccountDeleted();
 
-            // Las conversaciones bloqueadas con cuentas activas se ocultan.
-            // El historial de cuentas eliminadas se conserva.
             if (!deleted) {
                 boolean blocked =
                         userBlockRepository
@@ -275,23 +300,31 @@ public class ConversationService {
             }
 
             List<Message> latestMessages =
-                    messageRepository
-                            .findByConversation_IdOrderBySentAtDesc(
-                                    conversationId,
-                                    PageRequest.of(0, 1));
+                    messageRepository.findVisibleMessagesForUser(
+                            conversationId,
+                            userId,
+                            PageRequest.of(0, 1));
 
-            String lastMessage = latestMessages.isEmpty()
-                    ? "Todavía no hay mensajes."
-                    : latestMessages.get(0).getContent();
+            String lastMessage;
+            Instant lastMessageAt;
 
-            Instant lastMessageAt = latestMessages.isEmpty()
-                    ? membership.getConversation().getCreatedAt()
-                    : latestMessages.get(0).getSentAt();
+            if (latestMessages.isEmpty()) {
+                lastMessage = "Todavía no hay mensajes.";
+                lastMessageAt = membership.getConversation().getCreatedAt();
+            } else {
+                Message latest = latestMessages.get(0);
+
+                lastMessage = latest.isDeletedForEveryone()
+                        ? "Este mensaje fue eliminado"
+                        : latest.getContent();
+
+                lastMessageAt = latest.getSentAt();
+            }
 
             long unreadCount =
-                    messageRepository
-                            .countByConversation_IdAndReadAtIsNullAndSender_IdNot(
-                                    conversationId, userId);
+                    messageRepository.countUnreadMessagesForUser(
+                            conversationId,
+                            userId);
 
             String otherUsername = deleted
                     ? "Cuenta eliminada"
@@ -330,9 +363,8 @@ public class ConversationService {
     }
 
     /**
-     * Recupera los últimos 50 mensajes en orden cronológico.
-     * Los mensajes recibidos se marcan como entregados y leídos
-     * al recuperar el historial.
+     * Recupera los últimos 50 mensajes visibles para el usuario.
+     * Los mensajes globalmente eliminados no se marcan como leídos.
      */
     public List<MessageView> getMessages(
             Long conversationId,
@@ -342,9 +374,9 @@ public class ConversationService {
         requireConversationAvailable(conversationId, currentUserId);
 
         List<Message> unreadMessages =
-                messageRepository
-                        .findByConversation_IdAndReadAtIsNullAndSender_IdNot(
-                                conversationId, currentUserId);
+                messageRepository.findUnreadMessagesForUser(
+                        conversationId,
+                        currentUserId);
 
         Instant now = Instant.now();
 
@@ -363,13 +395,14 @@ public class ConversationService {
         }
 
         List<Message> messages =
-                messageRepository
-                        .findByConversation_IdOrderBySentAtDesc(
-                                conversationId,
-                                PageRequest.of(0, 50));
+                messageRepository.findVisibleMessagesForUser(
+                        conversationId,
+                        currentUserId,
+                        PageRequest.of(0, 50));
 
         return messages.stream()
                 .map(message -> {
+
                     AppUser sender = message.getSender();
 
                     boolean senderDeleted =
@@ -398,13 +431,17 @@ public class ConversationService {
                             message.getId(),
                             sender == null ? null : sender.getId(),
                             senderUsername,
-                            message.getContent(),
+                            message.isDeletedForEveryone()
+                                    ? "Este mensaje fue eliminado"
+                                    : message.getContent(),
                             message.getSentAt(),
                             mine,
                             message.getDeliveredAt(),
                             message.getReadAt(),
                             senderDisplayName,
-                            senderAvatarUrl
+                            senderAvatarUrl,
+                            message.isDeletedForEveryone(),
+                            message.getDeletedAt()
                     );
                 })
                 .sorted(Comparator.comparing(
@@ -414,9 +451,6 @@ public class ConversationService {
                 .toList();
     }
 
-    /**
-     * Guarda el mensaje y devuelve el registro guardado.
-     */
     public MessageView sendMessage(
             Long conversationId,
             Long currentUserId,
@@ -487,13 +521,92 @@ public class ConversationService {
                 saved.getDeliveredAt(),
                 saved.getReadAt(),
                 senderDisplayName,
-                sender.getAvatarUrl()
+                sender.getAvatarUrl(),
+                false,
+                null
         );
     }
 
     /**
-     * Registra la entrega de un mensaje al destinatario.
+     * Elimina un mensaje para el usuario actual o para todos.
+     *
+     * Para todos: solamente el autor puede hacerlo.
+     * Para mí: se registra la ocultación únicamente para el usuario actual.
      */
+    public MessageDeletionEvent deleteMessage(
+            Long messageId,
+            Long expectedConversationId,
+            Long currentUserId,
+            boolean deleteForEveryone) {
+
+        AppUser currentUser = requireActiveUser(currentUserId);
+
+        requireConversationAvailable(
+                expectedConversationId,
+                currentUserId);
+
+        Message message = messageRepository
+                .findByIdAndConversation_Id(
+                        messageId,
+                        expectedConversationId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "El mensaje no existe en esta conversación."));
+
+        if (message.isDeletedForEveryone()) {
+            throw new IllegalArgumentException(
+                    "Este mensaje ya fue eliminado para todos.");
+        }
+
+        if (deleteForEveryone) {
+
+            if (message.getSender() == null
+                    || !Objects.equals(
+                            message.getSender().getId(),
+                            currentUserId)) {
+
+                throw new IllegalArgumentException(
+                        "Solo el autor puede eliminar el mensaje para todos.");
+            }
+
+            Instant now = Instant.now();
+
+            message.setDeletedForEveryone(true);
+            message.setDeletedAt(now);
+
+            // Se sustituye el contenido original para que no permanezca
+            // disponible en la base de datos como texto del mensaje.
+            message.setContent("Este mensaje fue eliminado");
+
+            messageRepository.saveAndFlush(message);
+
+            return new MessageDeletionEvent(
+                    expectedConversationId,
+                    messageId,
+                    currentUserId,
+                    true,
+                    now
+            );
+        }
+
+        // El mensaje ya está oculto para este usuario.
+        if (!messageHiddenRepository.existsByMessage_IdAndUser_Id(
+                messageId,
+                currentUserId)) {
+
+            messageHiddenRepository.saveAndFlush(
+                    new MessageHidden(message, currentUser));
+        }
+
+        return new MessageDeletionEvent(
+                expectedConversationId,
+                messageId,
+                currentUserId,
+                false,
+                Instant.now()
+        );
+    }
+
     public MessageStatusView markMessageDelivered(
             Long messageId,
             Long expectedConversationId,
@@ -514,6 +627,18 @@ public class ConversationService {
         }
 
         requireConversationAvailable(conversationId, currentUserId);
+
+        if (message.isDeletedForEveryone()) {
+            throw new IllegalArgumentException(
+                    "No se puede confirmar la entrega de un mensaje eliminado.");
+        }
+
+        if (messageHiddenRepository.existsByMessage_IdAndUser_Id(
+                messageId,
+                currentUserId)) {
+            throw new IllegalArgumentException(
+                    "El mensaje ya no está disponible en tu historial.");
+        }
 
         if (message.getSender() != null
                 && Objects.equals(
@@ -537,9 +662,6 @@ public class ConversationService {
                 message.getReadAt());
     }
 
-    /**
-     * Registra la lectura de un mensaje por parte del destinatario.
-     */
     public MessageStatusView markMessageRead(
             Long messageId,
             Long expectedConversationId,
@@ -561,6 +683,18 @@ public class ConversationService {
 
         requireConversationAvailable(conversationId, currentUserId);
 
+        if (message.isDeletedForEveryone()) {
+            throw new IllegalArgumentException(
+                    "No se puede marcar como leído un mensaje eliminado.");
+        }
+
+        if (messageHiddenRepository.existsByMessage_IdAndUser_Id(
+                messageId,
+                currentUserId)) {
+            throw new IllegalArgumentException(
+                    "El mensaje ya no está disponible en tu historial.");
+        }
+
         if (message.getSender() != null
                 && Objects.equals(
                         message.getSender().getId(), currentUserId)) {
@@ -570,7 +704,6 @@ public class ConversationService {
 
         Instant now = Instant.now();
 
-        // La lectura implica que el mensaje fue entregado.
         if (message.getDeliveredAt() == null) {
             message.setDeliveredAt(now);
         }
@@ -590,15 +723,11 @@ public class ConversationService {
                 message.getDeliveredAt(),
                 message.getReadAt());
     }
-    
-        /**
-         * Obtiene el nombre de usuario del otro participante
-         * para enviarle notificaciones privadas.
-         */
-        @Transactional(readOnly = true)
-        public String getOtherParticipantUsername(
-                Long conversationId,
-                Long currentUserId) {
+
+    @Transactional(readOnly = true)
+    public String getOtherParticipantUsername(
+            Long conversationId,
+            Long currentUserId) {
 
         requireActiveUser(currentUserId);
         requireConversationAvailable(conversationId, currentUserId);
@@ -608,8 +737,8 @@ public class ConversationService {
                         conversationId);
 
         if (members.size() != 2) {
-                throw new IllegalArgumentException(
-                        "La conversación no es privada o no tiene dos participantes.");
+            throw new IllegalArgumentException(
+                    "La conversación no es privada o no tiene dos participantes.");
         }
 
         AppUser recipient = members.stream()
@@ -622,10 +751,10 @@ public class ConversationService {
                                 "No se encontró al destinatario de la notificación."));
 
         if (recipient.isAccountDeleted()) {
-                throw new IllegalArgumentException(
-                        "No se puede notificar a una cuenta eliminada.");
+            throw new IllegalArgumentException(
+                    "No se puede notificar a una cuenta eliminada.");
         }
 
         return recipient.getUsername();
-        }
+    }
 }

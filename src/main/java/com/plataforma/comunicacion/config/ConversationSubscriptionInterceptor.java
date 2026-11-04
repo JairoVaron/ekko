@@ -58,32 +58,36 @@ public class ConversationSubscriptionInterceptor
 
         Principal principal = accessor.getUser();
 
-        // Validar la suscripción al canal privado de notificaciones.
         if (NOTIFICATIONS_DESTINATION.equals(destination)) {
-            AppUser user = requireAuthenticatedActiveUser(principal);
 
-            if (user.isAccountDeleted()) {
-                throw new IllegalArgumentException(
-                        "La cuenta ya no está activa.");
-            }
+            requireAuthenticatedActiveUser(principal);
 
             return message;
         }
 
-        // Mantener la validación existente de las conversaciones.
         if (!destination.startsWith(CONVERSATION_PREFIX)) {
             return message;
         }
 
         AppUser user = requireAuthenticatedActiveUser(principal);
 
-        String suffix =
-                destination.substring(CONVERSATION_PREFIX.length());
+        String suffix = destination.substring(
+                CONVERSATION_PREFIX.length());
 
+        // Solo se admiten los tres destinos conocidos.
         if (suffix.endsWith("/status")) {
             suffix = suffix.substring(
-                    0,
-                    suffix.length() - "/status".length());
+                    0, suffix.length() - "/status".length());
+
+        } else if (suffix.endsWith("/typing")) {
+            suffix = suffix.substring(
+                    0, suffix.length() - "/typing".length());
+        }
+
+        // Evita rutas adicionales o destinos manipulados.
+        if (suffix.isBlank() || suffix.contains("/")) {
+            throw new IllegalArgumentException(
+                    "El destino de la conversación no es válido.");
         }
 
         final Long conversationId;
@@ -94,7 +98,9 @@ public class ConversationSubscriptionInterceptor
             if (conversationId <= 0) {
                 throw new NumberFormatException();
             }
+
         } catch (NumberFormatException exception) {
+
             throw new IllegalArgumentException(
                     "El identificador de conversación no es válido.");
         }
@@ -114,14 +120,13 @@ public class ConversationSubscriptionInterceptor
                 || principal.getName().isBlank()) {
 
             throw new IllegalArgumentException(
-                    "Debes iniciar sesión para recibir notificaciones.");
+                    "Debes iniciar sesión para acceder a este destino.");
         }
 
         AppUser user = appUserRepository
                 .findByUsernameIgnoreCase(principal.getName())
-                .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "No se encontró el usuario autenticado."));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No se encontró el usuario autenticado."));
 
         if (user.isAccountDeleted()) {
             throw new IllegalArgumentException(

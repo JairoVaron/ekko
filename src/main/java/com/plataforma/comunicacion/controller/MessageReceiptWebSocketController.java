@@ -23,6 +23,7 @@ public class MessageReceiptWebSocketController {
             ConversationService conversationService,
             AppUserRepository appUserRepository,
             SimpMessagingTemplate messagingTemplate) {
+
         this.conversationService = conversationService;
         this.appUserRepository = appUserRepository;
         this.messagingTemplate = messagingTemplate;
@@ -35,18 +36,25 @@ public class MessageReceiptWebSocketController {
 
         Long userId = getAuthenticatedUserId(principal);
 
+        if (request == null
+                || request.messageId() == null
+                || request.conversationId() == null) {
+            throw new IllegalArgumentException(
+                    "La confirmación de entrega no es válida.");
+        }
+
         MessageStatusView status =
-            conversationService.markMessageDelivered(
-                request.messageId(),
-                request.conversationId(),
-                userId
-            );
+                conversationService.markMessageDelivered(
+                        request.messageId(),
+                        request.conversationId(),
+                        userId
+                );
 
         messagingTemplate.convertAndSend(
-            "/topic/conversations/"
-                + status.conversationId()
-                + "/status",
-            status
+                "/topic/conversations/"
+                        + status.conversationId()
+                        + "/status",
+                status
         );
     }
 
@@ -57,38 +65,44 @@ public class MessageReceiptWebSocketController {
 
         Long userId = getAuthenticatedUserId(principal);
 
+        if (request == null
+                || request.messageId() == null
+                || request.conversationId() == null) {
+            throw new IllegalArgumentException(
+                    "La confirmación de lectura no es válida.");
+        }
+
         MessageStatusView status =
-            conversationService.markMessageRead(
-                request.messageId(),
-                request.conversationId(),
-                userId
-            );
+                conversationService.markMessageRead(
+                        request.messageId(),
+                        request.conversationId(),
+                        userId
+                );
 
         messagingTemplate.convertAndSend(
-            "/topic/conversations/"
-                + status.conversationId()
-                + "/status",
-            status
+                "/topic/conversations/"
+                        + status.conversationId()
+                        + "/status",
+                status
         );
     }
 
     private Long getAuthenticatedUserId(Principal principal) {
+
         if (principal == null || principal.getName() == null) {
             throw new IllegalArgumentException(
-                "Debes iniciar sesión."
-            );
+                    "Debes iniciar sesión.");
         }
 
         AppUser user = appUserRepository
-            .findByUsernameIgnoreCase(principal.getName())
-            .orElseThrow(() -> new IllegalArgumentException(
-                "La cuenta no existe."
-            ));
+                .findByUsernameIgnoreCase(principal.getName())
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "La cuenta no existe."));
 
         if (user.isAccountDeleted()) {
             throw new IllegalArgumentException(
-                "La cuenta fue eliminada."
-            );
+                    "La cuenta fue eliminada.");
         }
 
         return user.getId();

@@ -64,24 +64,20 @@ public class MessageWebSocketController {
 
         Long conversationId = request.conversationId();
 
-        // Guarda y valida el mensaje mediante el servicio existente.
         MessageView savedMessage = conversationService.sendMessage(
                 conversationId,
                 currentUser.getId(),
                 request.content()
         );
 
-        // Mantiene el canal original del chat en tiempo real.
         publishMessage(conversationId, savedMessage);
 
-        // Busca al otro participante de la conversación.
         String recipientUsername =
                 conversationService.getOtherParticipantUsername(
                         conversationId,
                         currentUser.getId()
                 );
 
-        // Crea el aviso privado para la campana global.
         ChatNotification notification = new ChatNotification(
                 conversationId,
                 savedMessage.id(),
@@ -100,10 +96,6 @@ public class MessageWebSocketController {
         );
     }
 
-    /**
-     * Publica el mensaje guardado en el canal compartido.
-     * No cambia la estructura de MessageView que consume chat.js.
-     */
     public void publishMessage(
             Long conversationId,
             MessageView message) {
@@ -123,7 +115,9 @@ public class MessageWebSocketController {
                 message.deliveredAt(),
                 message.readAt(),
                 message.senderDisplayName(),
-                message.senderAvatarUrl()
+                message.senderAvatarUrl(),
+                message.deletedForEveryone(),
+                message.deletedAt()
         );
 
         messagingTemplate.convertAndSend(

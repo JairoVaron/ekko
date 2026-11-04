@@ -12,6 +12,8 @@ public record MessageView(
         Instant deliveredAt,
         Instant readAt,
         String senderDisplayName,
-        String senderAvatarUrl
+        String senderAvatarUrl,
+        boolean deletedForEveryone,
+        Instant deletedAt
 ) {
 }
