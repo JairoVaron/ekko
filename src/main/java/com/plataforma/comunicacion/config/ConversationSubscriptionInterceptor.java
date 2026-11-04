@@ -24,6 +24,9 @@ public class ConversationSubscriptionInterceptor
     private static final String NOTIFICATIONS_DESTINATION =
             "/user/queue/notifications";
 
+    private static final String CONTACTS_DESTINATION =
+            "/user/queue/contacts";
+
     private final AppUserRepository appUserRepository;
     private final ConversationService conversationService;
 
@@ -58,10 +61,10 @@ public class ConversationSubscriptionInterceptor
 
         Principal principal = accessor.getUser();
 
-        if (NOTIFICATIONS_DESTINATION.equals(destination)) {
+        if (NOTIFICATIONS_DESTINATION.equals(destination)
+                || CONTACTS_DESTINATION.equals(destination)) {
 
             requireAuthenticatedActiveUser(principal);
-
             return message;
         }
 
@@ -74,7 +77,6 @@ public class ConversationSubscriptionInterceptor
         String suffix = destination.substring(
                 CONVERSATION_PREFIX.length());
 
-        // Solo se admiten los tres destinos conocidos.
         if (suffix.endsWith("/status")) {
             suffix = suffix.substring(
                     0, suffix.length() - "/status".length());
@@ -84,7 +86,6 @@ public class ConversationSubscriptionInterceptor
                     0, suffix.length() - "/typing".length());
         }
 
-        // Evita rutas adicionales o destinos manipulados.
         if (suffix.isBlank() || suffix.contains("/")) {
             throw new IllegalArgumentException(
                     "El destino de la conversación no es válido.");
@@ -100,7 +101,6 @@ public class ConversationSubscriptionInterceptor
             }
 
         } catch (NumberFormatException exception) {
-
             throw new IllegalArgumentException(
                     "El identificador de conversación no es válido.");
         }
