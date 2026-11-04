@@ -1,21 +1,21 @@
 package com.plataforma.comunicacion.service;
 
+import com.plataforma.comunicacion.dto.ContactRealtimeView;
 import com.plataforma.comunicacion.dto.ContactRequestView;
 import com.plataforma.comunicacion.dto.ContactUserView;
+import com.plataforma.comunicacion.dto.GlobalNotification;
 import com.plataforma.comunicacion.entity.AppUser;
 import com.plataforma.comunicacion.entity.ContactRequest;
 import com.plataforma.comunicacion.entity.UserBlock;
 import com.plataforma.comunicacion.repository.AppUserRepository;
 import com.plataforma.comunicacion.repository.ContactRequestRepository;
 import com.plataforma.comunicacion.repository.UserBlockRepository;
-import com.plataforma.comunicacion.dto.GlobalNotification;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -43,10 +43,13 @@ public class ContactService {
         this.messagingTemplate = messagingTemplate;
     }
 
+    /* VALIDACIONES */
     private AppUser requireActiveUser(Long id) {
+
         AppUser user = users.findById(id)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("El usuario no existe"));
+                        new IllegalArgumentException(
+                                "El usuario no existe"));
 
         if (user.isAccountDeleted()) {
             throw new IllegalArgumentException(
@@ -57,21 +60,32 @@ public class ContactService {
     }
 
     private void requireDifferentUsers(Long first, Long second) {
-        if (first.equals(second)) {
+
+        if (first == null || second == null || first.equals(second)) {
             throw new IllegalArgumentException(
                     "No puedes realizar esta acción sobre tu propia cuenta");
         }
     }
 
     private void requireNotBlocked(Long first, Long second) {
+
         if (blocks.existsByBlocker_IdAndBlocked_Id(first, second)
                 || blocks.existsByBlocker_IdAndBlocked_Id(second, first)) {
+
             throw new IllegalArgumentException(
                     "No puedes realizar esta acción debido a un bloqueo");
         }
     }
 
+    private boolean isBlocked(Long first, Long second) {
+
+        return blocks.existsByBlocker_IdAndBlocked_Id(first, second)
+                || blocks.existsByBlocker_IdAndBlocked_Id(second, first);
+    }
+
+    /* CONVERSIÓN A DTO */
     private ContactUserView toUserView(AppUser user) {
+
         return new ContactUserView(
                 user.getId(),
                 user.getUsername(),
@@ -82,6 +96,7 @@ public class ContactService {
     }
 
     private ContactRequestView toRequestView(ContactRequest request) {
+
         AppUser requester = request.getRequester();
 
         return new ContactRequestView(
@@ -90,13 +105,17 @@ public class ContactService {
                 requester.getUsername(),
                 requester.getDisplayName(),
                 request.getCreatedAt(),
-                requester.isAccountDeleted() ? null : requester.getAvatarUrl()
+                requester.isAccountDeleted()
+                        ? null
+                        : requester.getAvatarUrl()
         );
     }
 
+    /* BUSCAR USUARIOS */
     @Transactional(readOnly = true)
     public List<ContactUserView> searchUsers(
-            Long currentUserId, String query) {
+            Long currentUserId,
+            String query) {
 
         requireActiveUser(currentUserId);
 
@@ -116,16 +135,15 @@ public class ContactService {
                         term)
                 .stream()
                 .filter(user -> !user.getId().equals(currentUserId))
-                .filter(user -> !blocks.existsByBlocker_IdAndBlocked_Id(
-                        currentUserId, user.getId()))
-                .filter(user -> !blocks.existsByBlocker_IdAndBlocked_Id(
-                        user.getId(), currentUserId))
+                .filter(user -> !isBlocked(currentUserId, user.getId()))
                 .map(this::toUserView)
                 .toList();
     }
 
-        @Transactional
-        public void sendRequest(Long requesterId, Long addresseeId) {
+    /* ENVIAR SOLICITUD */
+    @Transactional
+    public void sendRequest(Long requesterId, Long addresseeId) {
+
         requireDifferentUsers(requesterId, addresseeId);
 
         AppUser requester = requireActiveUser(requesterId);
@@ -146,87 +164,94 @@ public class ContactService {
         if (existing != null
                 && ("PENDING".equals(existing.getStatus())
                 || "ACCEPTED".equals(existing.getStatus()))) {
-                throw new IllegalArgumentException(
-                        "Ya existe una solicitud o relación con este usuario");
+
+            throw new IllegalArgumentException(
+                    "Ya existe una solicitud o relación con este usuario");
         }
 
         if (reverse != null
                 && ("PENDING".equals(reverse.getStatus())
                 || "ACCEPTED".equals(reverse.getStatus()))) {
-                throw new IllegalArgumentException(
-                        "Ya existe una solicitud o relación con este usuario");
+
+            throw new IllegalArgumentException(
+                    "Ya existe una solicitud o relación con este usuario");
         }
 
         ContactRequest request;
 
         if (existing != null) {
-                // Volver a activar una solicitud que fue rechazada anteriormente.
-                existing.setStatus("PENDING");
-                request = requests.save(existing);
-        } else {
-                request = new ContactRequest();
-                request.setRequester(requester);
-                request.setAddressee(addressee);
-                request.setStatus("PENDING");
 
-                request = requests.save(request);
+            existing.setStatus("PENDING");
+            request = requests.save(existing);
+
+        } else {
+
+            request = new ContactRequest();
+            request.setRequester(requester);
+            request.setAddressee(addressee);
+            request.setStatus("PENDING");
+
+            request = requests.save(request);
         }
 
-        // Guardar primero y enviar el aviso solamente si la transacción
-        // termina correctamente.
-        final Long requestId = request.getId();
-        final String recipientUsername = addressee.getUsername();
-        final Long senderId = requester.getId();
+        requests.flush();
 
         String senderName = requester.getDisplayName();
 
         if (senderName == null || senderName.isBlank()) {
-                senderName = requester.getUsername();
+            senderName = requester.getUsername();
         }
-
-        final String finalSenderName = senderName;
 
         GlobalNotification notification = new GlobalNotification(
                 "CONTACT_REQUEST",
-                requestId,
+                request.getId(),
                 null,
                 null,
-                senderId,
-                finalSenderName,
+                requester.getId(),
+                senderName,
                 "Te ha enviado una solicitud de contacto.",
                 Instant.now().toString(),
                 "/contactos"
         );
 
-        TransactionSynchronizationManager.registerSynchronization(
-                new TransactionSynchronization() {
-                        @Override
-                        public void afterCommit() {
-                        messagingTemplate.convertAndSendToUser(
-                                recipientUsername,
-                                "/queue/notifications",
-                                notification
-                        );
-                        }
-                }
-        );
-        }
+        publishSnapshotsAfterCommit(requester, addressee);
 
+        String recipientUsername = addressee.getUsername();
+
+        afterCommit(() -> messagingTemplate.convertAndSendToUser(
+                recipientUsername,
+                "/queue/notifications",
+                notification
+        ));
+    }
+
+    /* SOLICITUDES RECIBIDAS */
     @Transactional(readOnly = true)
     public List<ContactRequestView> receivedRequests(Long userId) {
+
         requireActiveUser(userId);
 
         return requests
                 .findByAddressee_IdAndStatusOrderByCreatedAtDesc(
                         userId, "PENDING")
                 .stream()
-                .filter(request -> !request.getRequester().isAccountDeleted())
+                .filter(request ->
+                        !request.getRequester().isAccountDeleted())
+                .filter(request ->
+                        !isBlocked(
+                                userId,
+                                request.getRequester().getId()))
                 .map(this::toRequestView)
                 .toList();
     }
 
+    /* =====================================================
+       6. LISTA DE CONTACTOS
+       ===================================================== */
+
     @Transactional(readOnly = true)
     public List<ContactUserView> contacts(Long userId) {
+
         requireActiveUser(userId);
 
         List<ContactUserView> result = new ArrayList<>();
@@ -242,12 +267,14 @@ public class ContactService {
         sent.stream()
                 .map(ContactRequest::getAddressee)
                 .filter(user -> !user.isAccountDeleted())
+                .filter(user -> !isBlocked(userId, user.getId()))
                 .map(this::toUserView)
                 .forEach(result::add);
 
         received.stream()
                 .map(ContactRequest::getRequester)
                 .filter(user -> !user.isAccountDeleted())
+                .filter(user -> !isBlocked(userId, user.getId()))
                 .map(this::toUserView)
                 .forEach(result::add);
 
@@ -263,13 +290,19 @@ public class ContactService {
                 .toList();
     }
 
+    /* =====================================================
+       7. ACEPTAR SOLICITUD
+       ===================================================== */
+
     @Transactional
     public void acceptRequest(Long currentUserId, Long requestId) {
+
         requireActiveUser(currentUserId);
 
         ContactRequest request = requests.findById(requestId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Solicitud no encontrada"));
+                        new IllegalArgumentException(
+                                "Solicitud no encontrada"));
 
         if (!request.getAddressee().getId().equals(currentUserId)) {
             throw new IllegalArgumentException(
@@ -281,20 +314,34 @@ public class ContactService {
                     "La solicitud ya no está pendiente");
         }
 
-        requireNotBlocked(request.getRequester().getId(), currentUserId);
-        requireActiveUser(request.getRequester().getId());
+        AppUser requester = requireActiveUser(
+                request.getRequester().getId());
+
+        AppUser addressee = requireActiveUser(currentUserId);
+
+        requireNotBlocked(requester.getId(), addressee.getId());
 
         request.setStatus("ACCEPTED");
+
         requests.save(request);
+        requests.flush();
+
+        publishSnapshotsAfterCommit(requester, addressee);
     }
+
+    /* =====================================================
+       8. RECHAZAR SOLICITUD
+       ===================================================== */
 
     @Transactional
     public void rejectRequest(Long currentUserId, Long requestId) {
+
         requireActiveUser(currentUserId);
 
         ContactRequest request = requests.findById(requestId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Solicitud no encontrada"));
+                        new IllegalArgumentException(
+                                "Solicitud no encontrada"));
 
         if (!request.getAddressee().getId().equals(currentUserId)) {
             throw new IllegalArgumentException(
@@ -306,25 +353,43 @@ public class ContactService {
                     "La solicitud ya no está pendiente");
         }
 
+        AppUser requester = requireActiveUser(
+                request.getRequester().getId());
+
+        AppUser addressee = requireActiveUser(currentUserId);
+
         request.setStatus("REJECTED");
+
         requests.save(request);
+        requests.flush();
+
+        publishSnapshotsAfterCommit(requester, addressee);
     }
+
+    /* =====================================================
+       9. ELIMINAR CONTACTO
+       ===================================================== */
 
     @Transactional
     public void removeContact(Long currentUserId, Long otherUserId) {
+
         requireDifferentUsers(currentUserId, otherUserId);
-        requireActiveUser(currentUserId);
+
+        AppUser currentUser = requireActiveUser(currentUserId);
+        AppUser otherUser = requireActiveUser(otherUserId);
 
         boolean first = requests
                 .findByRequester_IdAndAddressee_Id(
                         currentUserId, otherUserId)
-                .filter(request -> "ACCEPTED".equals(request.getStatus()))
+                .filter(request ->
+                        "ACCEPTED".equals(request.getStatus()))
                 .isPresent();
 
         boolean second = requests
                 .findByRequester_IdAndAddressee_Id(
                         otherUserId, currentUserId)
-                .filter(request -> "ACCEPTED".equals(request.getStatus()))
+                .filter(request ->
+                        "ACCEPTED".equals(request.getStatus()))
                 .isPresent();
 
         if (!first && !second) {
@@ -337,38 +402,91 @@ public class ContactService {
 
         requests.deleteByRequester_IdAndAddressee_IdAndStatus(
                 otherUserId, currentUserId, "ACCEPTED");
+
+        requests.flush();
+
+        publishSnapshotsAfterCommit(currentUser, otherUser);
     }
+
+    /* =====================================================
+       10. BLOQUEAR USUARIO
+       ===================================================== */
 
     @Transactional
     public void blockUser(Long blockerId, Long blockedId) {
+
         requireDifferentUsers(blockerId, blockedId);
 
         AppUser blocker = requireActiveUser(blockerId);
         AppUser blocked = requireActiveUser(blockedId);
 
-        if (!blocks.existsByBlocker_IdAndBlocked_Id(blockerId, blockedId)) {
+        if (!blocks.existsByBlocker_IdAndBlocked_Id(
+                blockerId, blockedId)) {
+
             blocks.save(new UserBlock(blocker, blocked));
         }
 
-        requests.deleteByRequester_IdAndAddressee_Id(blockerId, blockedId);
-        requests.deleteByRequester_IdAndAddressee_Id(blockedId, blockerId);
+        // Eliminar solicitudes y relaciones anteriores
+        // en ambas direcciones.
+        requests.deleteByRequester_IdAndAddressee_Id(
+                blockerId, blockedId);
+
+        requests.deleteByRequester_IdAndAddressee_Id(
+                blockedId, blockerId);
+
+        requests.flush();
+        blocks.flush();
+
+        publishSnapshotsAfterCommit(blocker, blocked);
     }
+
+    /* =====================================================
+       11. DESBLOQUEAR USUARIO
+       ===================================================== */
 
     @Transactional
     public void unblockUser(Long blockerId, Long blockedId) {
-        requireDifferentUsers(blockerId, blockedId);
-        requireActiveUser(blockerId);
 
-        if (!blocks.existsByBlocker_IdAndBlocked_Id(blockerId, blockedId)) {
+        requireDifferentUsers(blockerId, blockedId);
+
+        AppUser blocker = requireActiveUser(blockerId);
+        AppUser blocked = requireActiveUser(blockedId);
+
+        if (!blocks.existsByBlocker_IdAndBlocked_Id(
+                blockerId, blockedId)) {
+
             throw new IllegalArgumentException(
                     "No tienes bloqueado a este usuario");
         }
 
-        blocks.deleteByBlocker_IdAndBlocked_Id(blockerId, blockedId);
+        // Eliminar únicamente el bloqueo existente.
+        blocks.deleteByBlocker_IdAndBlocked_Id(
+                blockerId, blockedId);
+
+        // Limpiar cualquier solicitud o relación antigua
+        // en ambas direcciones para evitar restaurarla.
+        requests.deleteByRequester_IdAndAddressee_Id(
+                blockerId, blockedId);
+
+        requests.deleteByRequester_IdAndAddressee_Id(
+                blockedId, blockerId);
+
+        // Asegurar que las eliminaciones se ejecuten
+        // antes de preparar las actualizaciones.
+        blocks.flush();
+        requests.flush();
+
+        // Actualizar las listas de ambos usuarios.
+        publishSnapshotsAfterCommit(blocker, blocked);
     }
+
+    /* =====================================================
+       12. USUARIOS BLOQUEADOS
+       ===================================================== */
 
     @Transactional(readOnly = true)
     public List<ContactUserView> blockedUsers(Long userId) {
+
         requireActiveUser(userId);
 
         return blocks.findByBlocker_Id(userId)
@@ -377,5 +495,74 @@ public class ContactService {
                 .filter(user -> !user.isAccountDeleted())
                 .map(this::toUserView)
                 .toList();
+    }
+
+    /* =====================================================
+       13. ACTUALIZACIÓN EN TIEMPO REAL
+       ===================================================== */
+
+    private ContactRealtimeView createSnapshot(Long userId) {
+
+        return new ContactRealtimeView(
+                "CONTACTS_UPDATED",
+                contacts(userId),
+                receivedRequests(userId),
+                blockedUsers(userId)
+        );
+    }
+
+    private void publishSnapshotsAfterCommit(
+            AppUser first,
+            AppUser second) {
+
+        // Crear los snapshots después de ejecutar las
+        // operaciones pendientes de la base de datos.
+        ContactRealtimeView firstSnapshot =
+                createSnapshot(first.getId());
+
+        ContactRealtimeView secondSnapshot =
+                createSnapshot(second.getId());
+
+        String firstUsername = first.getUsername();
+        String secondUsername = second.getUsername();
+
+        afterCommit(() -> {
+
+            messagingTemplate.convertAndSendToUser(
+                    firstUsername,
+                    "/queue/contacts",
+                    firstSnapshot
+            );
+
+            messagingTemplate.convertAndSendToUser(
+                    secondUsername,
+                    "/queue/contacts",
+                    secondSnapshot
+            );
+        });
+    }
+
+    /* =====================================================
+       14. EJECUTAR DESPUÉS DEL COMMIT
+       ===================================================== */
+
+    private void afterCommit(Runnable action) {
+
+        if (!TransactionSynchronizationManager
+                .isSynchronizationActive()) {
+
+            throw new IllegalStateException(
+                    "No existe una transacción activa para programar la actualización");
+        }
+
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+
+                    @Override
+                    public void afterCommit() {
+                        action.run();
+                    }
+                }
+        );
     }
 }
