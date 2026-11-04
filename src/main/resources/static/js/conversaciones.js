@@ -1,15 +1,9 @@
-/* =========================================================
-   EKKO · conversaciones.js
-   Gestión de conversaciones en tiempo real.
-   ========================================================= */
-
 (() => {
     "use strict";
 
     /* =====================================================
-       1. EVITAR INICIALIZACIÓN DUPLICADA
+       EVITAR INICIALIZACIÓN DUPLICADA
        ===================================================== */
-
     if (window.__ekkoConversationsInitialized) {
         return;
     }
@@ -17,9 +11,8 @@
     window.__ekkoConversationsInitialized = true;
 
     /* =====================================================
-       2. ELEMENTOS DEL DOCUMENTO
+       ELEMENTOS DEL DOCUMENTO
        ===================================================== */
-
     const E = window.Ekko || {};
 
     const currentUserId = Number(
@@ -49,9 +42,8 @@
     );
 
     /* =====================================================
-       3. CONFIGURACIÓN
+       CONFIGURACIÓN
        ===================================================== */
-
     const CONFIG = {
         websocketPath: "/ws",
 
@@ -65,9 +57,8 @@
     };
 
     /* =====================================================
-       4. ESTADO
+       ESTADO
        ===================================================== */
-
     let socket = null;
     let buffer = "";
 
@@ -81,9 +72,8 @@
     const typingTimers = new Map();
 
     /* =====================================================
-       5. ESTADO DE CONEXIÓN
+       ESTADO DE CONEXIÓN
        ===================================================== */
-
     function setStatus(message, state = "connecting") {
         if (!status) {
             return;
@@ -94,9 +84,8 @@
     }
 
     /* =====================================================
-       6. VALIDACIÓN DEL USUARIO
+       VALIDACIÓN DEL USUARIO
        ===================================================== */
-
     if (
         !Number.isSafeInteger(currentUserId) ||
         currentUserId <= 0
@@ -115,9 +104,8 @@
     }
 
     /* =====================================================
-       7. UTILIDADES
+       UTILIDADES
        ===================================================== */
-
     function findConversation(conversationId) {
         const id = String(conversationId);
 
@@ -182,9 +170,8 @@
     }
 
     /* =====================================================
-       8. CONTADORES GLOBALES
+       CONTADORES GLOBALES
        ===================================================== */
-
     function updateGlobalUnreadCount() {
         if (
             !E.chats ||
@@ -241,9 +228,8 @@
     }
 
     /* =====================================================
-       9. FILTRO DE CONVERSACIONES
+       FILTRO DE CONVERSACIONES
        ===================================================== */
-
     function applyConversationFilter() {
         if (!filter) {
             return;
@@ -286,9 +272,8 @@
     );
 
     /* =====================================================
-       10. INDICADORES DE ESCRITURA
+       INDICADORES DE ESCRITURA
        ===================================================== */
-
     function clearTypingTimer(conversationId) {
         const id = String(conversationId);
 
@@ -465,9 +450,8 @@
     }
 
     /* =====================================================
-       11. ACTUALIZAR EL ÚLTIMO MENSAJE
+       ACTUALIZAR EL ÚLTIMO MENSAJE
        ===================================================== */
-
     function updateLastMessage(message, element) {
         const lastMessage = element.querySelector(
             ".last-message"
@@ -477,44 +461,34 @@
             ".last-message-at"
         );
 
-        /*
-         * El MessageView del backend utiliza:
-         *
-         * id
-         * senderId
-         * senderUsername
-         * content
-         * sentAt
-         * mine
-         * deliveredAt
-         * readAt
-         */
-
+        // Actualizar el contenido de la vista previa.
         if (lastMessage) {
             lastMessage.textContent =
-                message.content ?? "";
+                message.deletedForEveryone === true
+                    ? "Este mensaje fue eliminado"
+                    : (message.content ?? "");
 
             lastMessage.hidden = false;
         }
 
+        // Actualizar la fecha sin modificar el contenido.
         if (lastMessageAt) {
-            lastMessage.textContent =
+            lastMessageAt.textContent =
                 message.sentAt
                     ? formatDate(message.sentAt)
                     : "";
         }
 
-        // Si se recibe un mensaje, ya no debe aparecer
-        // el indicador de escritura anterior.
+        // Ocultar el indicador de escritura anterior.
         hideTypingIndicator(
             element.dataset.conversationId
         );
     }
 
-    /* =====================================================
-       12. ACTUALIZAR ACTIVIDAD DE CONVERSACIÓN
-       ===================================================== */
 
+    /* =====================================================
+       ACTUALIZAR ACTIVIDAD DE CONVERSACIÓN
+       ===================================================== */
     function moveConversationToTop(element) {
         if (!conversationList || !element) {
             return;
@@ -539,9 +513,8 @@
     }
 
     /* =====================================================
-       13. PROCESAR UN MENSAJE NUEVO
+       PROCESAR UN MENSAJE NUEVO
        ===================================================== */
-
     function updateConversation(message, conversationId) {
         if (
             !message ||
@@ -616,15 +589,13 @@
     }
 
     /* =====================================================
-       14. INICIALIZAR CONTADORES
+       INICIALIZAR CONTADORES
        ===================================================== */
-
     updateGlobalUnreadCount();
 
     /* =====================================================
-       15. ENVIAR FRAMES STOMP
+       ENVIAR FRAMES STOMP
        ===================================================== */
-
     function sendFrame(
         command,
         headers = {},
@@ -657,9 +628,8 @@
     }
 
     /* =====================================================
-       16. SUSCRIBIRSE A LAS CONVERSACIONES
+       SUSCRIBIRSE A LAS CONVERSACIONES
        ===================================================== */
-
     function subscribeAll() {
         conversations.forEach(element => {
             const id = element.dataset.conversationId;
@@ -733,9 +703,8 @@
     }
 
     /* =====================================================
-       17. PROCESAR FRAMES STOMP
+       PROCESAR FRAMES STOMP
        ===================================================== */
-
     function processFrame(frame) {
         frame = frame.replace(/\r\n/g, "\n");
 
@@ -785,7 +754,6 @@
         /* ---------------------------------------------
            CONEXIÓN ESTABLECIDA
            --------------------------------------------- */
-
         if (command === "CONNECTED") {
             try {
                 subscribeAll();
@@ -804,7 +772,6 @@
         /* ---------------------------------------------
            MENSAJES RECIBIDOS
            --------------------------------------------- */
-
         if (command === "MESSAGE") {
             const destination =
                 headers.destination || "";
@@ -874,7 +841,6 @@
         /* ---------------------------------------------
            ERRORES DEL SERVIDOR
            --------------------------------------------- */
-
         if (command === "ERROR") {
             console.error(
                 "Ekko: error STOMP del servidor.",
@@ -891,9 +857,8 @@
     }
 
     /* =====================================================
-       18. RECONEXIÓN AUTOMÁTICA
+       RECONEXIÓN AUTOMÁTICA
        ===================================================== */
-
     function scheduleReconnect() {
         if (manuallyClosed) {
             return;
@@ -914,9 +879,8 @@
     }
 
     /* =====================================================
-       19. CONEXIÓN WEBSOCKET
+       CONEXIÓN WEBSOCKET
        ===================================================== */
-
     function connect() {
         if (manuallyClosed) {
             return;
@@ -963,7 +927,6 @@
         /* ---------------------------------------------
            APERTURA
            --------------------------------------------- */
-
         ws.addEventListener("open", () => {
             if (socket !== ws) {
                 return;
@@ -988,7 +951,6 @@
         /* ---------------------------------------------
            RECEPCIÓN DE DATOS
            --------------------------------------------- */
-
         ws.addEventListener("message", event => {
             if (socket !== ws) {
                 return;
@@ -1019,7 +981,6 @@
         /* ---------------------------------------------
            CIERRE
            --------------------------------------------- */
-
         ws.addEventListener("close", () => {
             if (socket !== ws) {
                 return;
@@ -1044,7 +1005,6 @@
         /* ---------------------------------------------
            ERRORES
            --------------------------------------------- */
-
         ws.addEventListener("error", error => {
             console.error(
                 "Ekko: error en WebSocket.",
@@ -1054,9 +1014,8 @@
     }
 
     /* =====================================================
-       20. LIMPIEZA AL SALIR
+       LIMPIEZA AL SALIR
        ===================================================== */
-
     window.addEventListener("beforeunload", () => {
         manuallyClosed = true;
 
@@ -1073,9 +1032,8 @@
     });
 
     /* =====================================================
-       21. INICIALIZACIÓN
+       INICIALIZACIÓN
        ===================================================== */
-
     applyConversationFilter();
 
     connect();
