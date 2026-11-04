@@ -67,7 +67,6 @@
                                    th:href="@{/mensajes/{id}(id=${conversation.conversationId})}"
                                    th:text="${nombre}"></a>
                             </h3>
-
                             <small class="ek-conv-time last-message-at"
                                    th:if="${conversation.lastMessageAt != null}"
                                    th:text="${#temporals.format(conversation.lastMessageAt, 'dd/MM HH:mm')}"></small>
@@ -75,9 +74,26 @@
                                    th:unless="${conversation.lastMessageAt != null}"></small>
                         </div>
 
-                        <p class="ek-conv-last">
-                            <span class="last-message" th:text="${conversation.lastMessage}"></span>
-                        </p>
+                        <div class="ek-conv-last">
+                            <span class="last-message"
+                                th:text="${conversation.lastMessageContent != null
+                                    ? conversation.lastMessageContent
+                                    : 'Inicia una conversación'}">
+                                Inicia una conversación
+                            </span>
+                            <span
+                                class="conversation-typing"
+                                hidden
+                                role="status"
+                                aria-live="polite">
+                                <span class="conversation-typing-dots">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </span>
+                                Está escribiendo...
+                            </span>
+                        </div>
                     </div>
 
                     <p class="ek-unread-pill unread"

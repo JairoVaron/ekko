@@ -40,6 +40,14 @@
                     <p id="connectionStatus" class="ek-status-pill" role="status" aria-live="polite" data-state="connecting">
                         Conectando al chat...
                     </p>
+                    <p id="typingIndicator" class="ek-typing-indicator" role="status" aria-live="polite" hidden>
+                        <span class="ek-typing-dots" aria-hidden="true">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </span>
+                        Está escribiendo...
+                    </p>
                 </div>
 
                 <a class="ek-icon-btn" th:href="@{/contactos}" aria-label="Contactos"
@@ -64,27 +72,42 @@
                     </p>
 
                     <article th:each="message : ${messages}"
-                             class="message"
-                             th:classappend="${message.mine ? ' message-mine' : ' message-other'}"
-                             th:attr="data-message-id=${message.id}, data-mine=${message.mine}">
+                            class="message"
+                            th:classappend="${message.mine ? ' message-mine' : ' message-other'}"
+                            th:attr="
+                                data-message-id=${message.id},
+                                data-mine=${message.mine},
+                                data-deleted=${message.deletedForEveryone}">
 
                         <p class="sender visually-hidden">
                             <strong th:text="${message.mine ? 'Tú' : message.senderUsername}"></strong>
                         </p>
 
-                        <p class="text" th:text="${message.content}"></p>
+                        <p class="text"
+                        th:text="${message.deletedForEveryone
+                                ? 'Este mensaje fue eliminado'
+                                : message.content}">
+                        </p>
 
                         <div class="message-meta">
+
                             <small class="message-time"
-                                   th:if="${message.sentAt != null}"
-                                   th:text="${#temporals.format(message.sentAt, 'dd/MM HH:mm')}"></small>
+                                th:if="${message.sentAt != null}"
+                                th:text="${#temporals.format(message.sentAt, 'dd/MM HH:mm')}">
+                            </small>
 
                             <small class="message-status"
-                                   th:if="${message.mine}"
-                                   th:attr="data-state=${message.readAt != null ? 'read' : (message.deliveredAt != null ? 'delivered' : 'sent')}"
-                                   th:text="${message.readAt != null
-                                       ? '✓✓ Leído'
-                                       : (message.deliveredAt != null ? '✓✓ Entregado' : '✓ Enviado')}"></small>
+                                th:if="${message.mine and !message.deletedForEveryone}"
+                                th:attr="data-state=${message.readAt != null
+                                        ? 'read'
+                                        : (message.deliveredAt != null ? 'delivered' : 'sent')}"
+                                th:text="${message.readAt != null
+                                        ? '✓✓ Leído'
+                                        : (message.deliveredAt != null
+                                            ? '✓✓ Entregado'
+                                            : '✓ Enviado')}">
+                            </small>
+
                         </div>
                     </article>
 
