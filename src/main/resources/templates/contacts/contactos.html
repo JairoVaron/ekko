@@ -78,31 +78,48 @@
                                 <p th:text="${contact.bio != null and !#strings.isEmpty(contact.bio) ? contact.bio : 'Este usuario todavía no tiene biografía.'}">Biografía</p>
                             </div>
 
+                            <!-- Acción principal a la vista; bloquear y eliminar van en el menú ⋮ -->
                             <div class="ek-person-actions">
-                                <form th:action="@{/mensajes/abrir/{userId}(userId=${contact.id})}" method="post">
+                                <form class="ek-person-main" th:action="@{/mensajes/abrir/{userId}(userId=${contact.id})}" method="post">
                                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                                     <button type="submit" class="btn btn-ekko btn-sm" data-ekko-sound="pop">
                                         <i class="bi bi-chat-dots-fill"></i>Enviar mensaje
                                     </button>
                                 </form>
 
-                                <form th:action="@{/contactos/bloquear/{id}(id=${contact.id})}" method="post"
-                                      data-ekko-confirm="No podrán enviarte mensajes ni solicitudes mientras esté bloqueado."
-                                      data-confirm-title="¿Bloquear a este usuario?" data-confirm-ok="Bloquear" data-confirm-danger>
-                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                                    <button type="submit" class="btn btn-ekko-soft btn-sm">
-                                        <i class="bi bi-slash-circle"></i>Bloquear
+                                <div class="dropdown">
+                                    <button type="button" class="ek-icon-btn ek-person-more"
+                                            data-bs-toggle="dropdown" aria-expanded="false"
+                                            th:attr="aria-label=${'Más opciones de ' + nombre}">
+                                        <i class="bi bi-three-dots-vertical"></i>
                                     </button>
-                                </form>
 
-                                <form th:action="@{/contactos/eliminar/{id}(id=${contact.id})}" method="post"
-                                      data-ekko-confirm="Dejará de aparecer en tu lista de contactos."
-                                      data-confirm-title="¿Eliminar contacto?" data-confirm-ok="Eliminar" data-confirm-danger>
-                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                                    <button type="submit" class="btn btn-ekko-danger btn-sm">
-                                        <i class="bi bi-person-dash-fill"></i>Eliminar contacto
-                                    </button>
-                                </form>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <form th:action="@{/contactos/bloquear/{id}(id=${contact.id})}" method="post"
+                                                  data-ek-confirm="No podrá enviarte mensajes ni solicitudes mientras esté bloqueado."
+                                                  th:attr="data-ek-title=${'¿Bloquear a ' + nombre + '?'}"
+                                                  data-ek-ok="Bloquear">
+                                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                                <button type="submit" class="dropdown-item">
+                                                    <i class="bi bi-slash-circle"></i>Bloquear
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <form th:action="@{/contactos/eliminar/{id}(id=${contact.id})}" method="post"
+                                                  data-ek-confirm="Dejará de aparecer en tu lista de contactos."
+                                                  th:attr="data-ek-title=${'¿Eliminar a ' + nombre + '?'}"
+                                                  data-ek-ok="Eliminar">
+                                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                                <button type="submit" class="dropdown-item is-danger">
+                                                    <i class="bi bi-person-dash-fill"></i>Eliminar contacto
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </article>
                     </div>

@@ -1,6 +1,8 @@
 /*
  * EKKO · contactos.js
  * Actualización en tiempo real de contactos, solicitudes y bloqueados.
+ * Las acciones peligrosas (bloquear / eliminar) viven en un menú ⋮ y piden
+ * confirmación con un diálogo propio de Ekko (sin alertas del navegador).
  */
 (function () {
     'use strict';
@@ -53,6 +55,104 @@
         return node;
     }
 
+    /* ---------- Diálogo propio de Ekko ---------- */
+
+    /**
+     * Muestra un diálogo y devuelve una promesa con true (aceptar) o false.
+     * opts: { title, message, okText, cancelText, danger }
+     * Si cancelText es null, solo muestra el botón de aceptar (aviso).
+     */
+    function ekDialog(opts) {
+        return new Promise(function (resolve) {
+            var previous = document.activeElement;
+
+            var overlay = element('div', 'ek-dialog-overlay');
+            var box = element('div', 'ek-dialog');
+
+            box.setAttribute('role', 'dialog');
+            box.setAttribute('aria-modal', 'true');
+            box.setAttribute('aria-labelledby', 'ekDialogTitle');
+
+            var title = element('h2', '', opts.title || '¿Estás seguro?');
+            title.id = 'ekDialogTitle';
+
+            var text = element('p', 'ek-dialog-text', opts.message || '');
+            var actions = element('div', 'ek-dialog-actions');
+
+            function close(result) {
+                document.removeEventListener('keydown', onKey, true);
+                overlay.remove();
+
+                if (previous && previous.focus && document.contains(previous)) {
+                    previous.focus();
+                }
+
+                resolve(result);
+            }
+
+            function onKey(event) {
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    close(false);
+                    return;
+                }
+
+                if (event.key !== 'Tab') {
+                    return;
+                }
+
+                var buttons = box.querySelectorAll('button');
+                var first = buttons[0];
+                var last = buttons[buttons.length - 1];
+
+                if (event.shiftKey && document.activeElement === first) {
+                    event.preventDefault();
+                    last.focus();
+                } else if (!event.shiftKey && document.activeElement === last) {
+                    event.preventDefault();
+                    first.focus();
+                }
+            }
+
+            var ok = element(
+                'button',
+                'ek-dialog-btn' + (opts.danger ? ' is-danger' : ''),
+                opts.okText || 'Aceptar'
+            );
+            ok.type = 'button';
+            ok.addEventListener('click', function () { close(true); });
+            actions.appendChild(ok);
+
+            var cancel = null;
+
+            if (opts.cancelText !== null) {
+                cancel = element('button', 'ek-dialog-btn', opts.cancelText || 'Cancelar');
+                cancel.type = 'button';
+                cancel.addEventListener('click', function () { close(false); });
+                actions.appendChild(cancel);
+            }
+
+            overlay.addEventListener('click', function (event) {
+                if (event.target === overlay) {
+                    close(false);
+                }
+            });
+
+            box.appendChild(title);
+            box.appendChild(text);
+            box.appendChild(actions);
+            overlay.appendChild(box);
+            document.body.appendChild(overlay);
+
+            document.addEventListener('keydown', onKey, true);
+
+            // El foco inicial va a "Cancelar" para evitar confirmaciones accidentales.
+            (cancel || ok).focus();
+        });
+    }
+
+    /* ---------- Construcción de tarjetas ---------- */
+
     function avatar(url, alt) {
         var img = element('img', 'ek-initial');
 
@@ -72,7 +172,10 @@
         return img;
     }
 
-    function createForm(action, buttonClass, iconClass, label, confirmMessage) {
+    /**
+     * confirm (opcional): { title, message, ok } -> pide confirmación antes de enviar.
+     */
+    function createForm(action, buttonClass, iconClass, label, confirm) {
         var form = element('form');
 
         form.action = action;
@@ -88,8 +191,10 @@
         var button = element('button', buttonClass);
         button.type = 'submit';
 
-        if (confirmMessage) {
-            form.dataset.ekkoConfirm = confirmMessage;
+        if (confirm) {
+            form.dataset.ekConfirm = confirm.message;
+            form.dataset.ekTitle = confirm.title;
+            form.dataset.ekOk = confirm.ok;
         }
 
         if (iconClass) {
@@ -101,6 +206,60 @@
         form.appendChild(button);
 
         return form;
+    }
+
+    /** Menú ⋮ con las acciones peligrosas de un contacto. */
+    function contactMenu(user) {
+        var name = user.displayName || user.username || 'este usuario';
+
+        var wrap = element('div', 'dropdown');
+
+        var toggle = element('button', 'ek-icon-btn ek-person-more');
+        toggle.type = 'button';
+        toggle.setAttribute('data-bs-toggle', 'dropdown');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', 'Más opciones de ' + name);
+        toggle.appendChild(element('i', 'bi bi-three-dots-vertical'));
+
+        var menu = element('ul', 'dropdown-menu dropdown-menu-end');
+
+        var blockItem = element('li');
+        blockItem.appendChild(createForm(
+            endpoints.block + user.id,
+            'dropdown-item',
+            'bi bi-slash-circle',
+            'Bloquear',
+            {
+                title: '¿Bloquear a ' + name + '?',
+                message: 'No podrá enviarte mensajes ni solicitudes mientras esté bloqueado.',
+                ok: 'Bloquear'
+            }
+        ));
+
+        var dividerItem = element('li');
+        dividerItem.appendChild(element('hr', 'dropdown-divider'));
+
+        var removeItem = element('li');
+        removeItem.appendChild(createForm(
+            endpoints.remove + user.id,
+            'dropdown-item is-danger',
+            'bi bi-person-dash-fill',
+            'Eliminar contacto',
+            {
+                title: '¿Eliminar a ' + name + '?',
+                message: 'Dejará de aparecer en tu lista de contactos.',
+                ok: 'Eliminar'
+            }
+        ));
+
+        menu.appendChild(blockItem);
+        menu.appendChild(dividerItem);
+        menu.appendChild(removeItem);
+
+        wrap.appendChild(toggle);
+        wrap.appendChild(menu);
+
+        return wrap;
     }
 
     function personInfo(user, includeBio) {
@@ -148,28 +307,17 @@
         var actions = element('div', 'ek-person-actions');
 
         if (type === 'contact') {
-            actions.appendChild(createForm(
+            var mainForm = createForm(
                 endpoints.messages + user.id,
                 'btn btn-ekko btn-sm',
                 'bi bi-chat-dots-fill',
                 'Enviar mensaje'
-            ));
+            );
 
-            actions.appendChild(createForm(
-                endpoints.block + user.id,
-                'btn btn-ekko-soft btn-sm',
-                'bi bi-slash-circle',
-                'Bloquear',
-                'No podrán enviarte mensajes ni solicitudes mientras esté bloqueado.'
-            ));
+            mainForm.classList.add('ek-person-main');
 
-            actions.appendChild(createForm(
-                endpoints.remove + user.id,
-                'btn btn-ekko-danger btn-sm',
-                'bi bi-person-dash-fill',
-                'Eliminar contacto',
-                'Dejará de aparecer en tu lista de contactos.'
-            ));
+            actions.appendChild(mainForm);
+            actions.appendChild(contactMenu(user));
         }
 
         if (type === 'request') {
@@ -306,38 +454,14 @@
         updateCounter('tab-bloqueados', blocked.length, false);
     }
 
+    /* ---------- Envío de formularios ---------- */
+
     /*
      * Los formularios de contactos se envían mediante fetch.
      * El servicio publicará el nuevo estado por WebSocket.
      * El formulario de abrir conversación queda intacto.
      */
-    document.addEventListener('submit', async function (event) {
-        var form = event.target;
-
-        if (!(form instanceof HTMLFormElement)) {
-            return;
-        }
-
-        if (!form.action.includes('/contactos/')) {
-            return;
-        }
-
-        event.preventDefault();
-
-        if (form.dataset.submitting === 'true') {
-            return;
-        }
-
-        if (form.dataset.ekkoConfirm) {
-            var confirmed = window.confirm(
-                form.dataset.ekkoConfirm
-            );
-
-            if (!confirmed) {
-                return;
-            }
-        }
-
+    async function sendForm(form) {
         var button = form.querySelector('button[type="submit"]');
 
         form.dataset.submitting = 'true';
@@ -383,7 +507,12 @@
                     desktop: false
                 });
             } else {
-                window.alert(error.message || 'No se pudo completar la operación.');
+                ekDialog({
+                    title: 'No se pudo completar',
+                    message: error.message || 'Inténtalo nuevamente.',
+                    okText: 'Entendido',
+                    cancelText: null
+                });
             }
 
         } finally {
@@ -393,6 +522,44 @@
                 button.disabled = false;
             }
         }
+    }
+
+    document.addEventListener('submit', function (event) {
+        var form = event.target;
+
+        if (!(form instanceof HTMLFormElement)) {
+            return;
+        }
+
+        if (
+            (form.method || '').toLowerCase() !== 'post'
+            || !form.action.includes('/contactos/')
+        ) {
+            return;
+        }
+
+        event.preventDefault();
+
+        if (form.dataset.submitting === 'true') {
+            return;
+        }
+
+        if (form.dataset.ekConfirm) {
+            ekDialog({
+                title: form.dataset.ekTitle || '¿Estás seguro?',
+                message: form.dataset.ekConfirm,
+                okText: form.dataset.ekOk || 'Aceptar',
+                danger: true
+            }).then(function (accepted) {
+                if (accepted) {
+                    sendForm(form);
+                }
+            });
+
+            return;
+        }
+
+        sendForm(form);
     });
 
     window.addEventListener(
