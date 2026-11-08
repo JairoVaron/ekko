@@ -29,7 +29,7 @@ a.ek-setting:hover,button.ek-setting:hover{background:var(--ek-hover);color:var(
 .ek-pref-control input[type="range"]{width:120px;accent-color:var(--ek-primary)}
 .ek-seg{display:inline-flex;background:var(--ek-surface-2);border-radius:99px;padding:3px}
 .ek-seg .btn{border:0;border-radius:99px;padding:.35rem .8rem;font-size:.85rem;font-weight:700;color:var(--ek-muted);background:transparent}
-.ek-seg .btn-check:checked+.btn{background:var(--ek-surface);color:var(--ek-primary);box-shadow:var(--ek-bubble-glow)}
+.ek-seg .btn-check:checked+.btn{background:var(--ek-surface);color:var(--ek-primary);box-shadow:0 1px 3px rgba(15,27,45,.18)}
 .ek-seg .btn-check:focus-visible+.btn{outline:2px solid var(--ek-primary)}
 .ek-notice{margin-top:1.5rem;padding:1rem 1.1rem;border-radius:16px;background:var(--ek-info-soft);border:1px solid var(--ek-border);font-size:.9rem}
 

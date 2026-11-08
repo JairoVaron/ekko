@@ -379,27 +379,14 @@
    CUERPO DE LOS MENSAJES
    ========================================================= */
 
-.ek-chat-body {
+.ek-chat-body{
     position: relative;
     display: flex;
     flex: 1;
     flex-direction: column;
     min-height: 0;
-    background: linear-gradient(
-        to bottom,
-        rgba(90, 50, 15, .02),
-        rgba(90, 50, 15, .07)
-    );
+    background: var(--ek-bg);
 }
-
-[data-bs-theme="dark"] .ek-chat-body {
-    background: linear-gradient(
-        to bottom,
-        rgba(10, 7, 5, .35),
-        rgba(23, 17, 13, .5)
-    );
-}
-
 
 /* ---------- Lista de mensajes ---------- */
 
@@ -467,6 +454,7 @@
     border: 1px solid transparent;
     border-radius: 16px;
     box-shadow: var(--ek-bubble-glow);
+    position: relative;
 }
 
 .message .text {
@@ -769,63 +757,112 @@
 
 
 /* =========================================================
-   ACCIONES DE LOS MENSAJES
+   ELIMINAR MENSAJES
    ========================================================= */
 
-.message-actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
-    margin-top: 8px;
-}
-
-.message-actions button {
-    padding: 4px 7px;
+.message-menu-btn {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
     border: 0;
-    border-radius: 7px;
+    border-radius: 50%;
     background: transparent;
-    font-size: .76rem;
+    color: inherit;
+    font-size: .8rem;
+    opacity: 0;
     cursor: pointer;
-    transition:
-        background .2s ease,
-        opacity .2s ease;
+    transition: opacity .15s ease, background-color .15s ease;
 }
 
-
-/* ---------- Eliminar mensaje ---------- */
-
-.message-action-delete {
-    color: inherit;
+.message:hover .message-menu-btn,
+.message-menu-btn:focus-visible {
     opacity: .75;
 }
 
-.message-action-delete:hover {
-    background: rgba(128, 128, 128, .15);
+.message-menu-btn:hover {
     opacity: 1;
+    background: rgba(128, 128, 128, .25);
 }
 
-
-/* ---------- Eliminar para todos ---------- */
-
-.message-action-delete-all {
-    color: #dc3545;
+/* En pantallas táctiles se usa la pulsación larga */
+@media (hover: none) {
+    .message-menu-btn { display: none; }
+    .message { -webkit-touch-callout: none; }
 }
 
-.message-action-delete-all:hover {
-    background: rgba(220, 53, 69, .12);
+/* ---------- Diálogo de confirmación ---------- */
+
+.ek-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2100;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgba(5, 10, 22, .6);
 }
 
-
-/* ---------- Mensajes eliminados ---------- */
-
-.message[data-deleted="true"] .text {
-    font-style: italic;
-    opacity: .7;
+.ek-dialog {
+    width: min(340px, 100%);
+    padding: 1.25rem 1.25rem .6rem;
+    border: 1px solid var(--ek-border);
+    border-radius: 18px;
+    background: var(--ek-surface);
+    color: var(--ek-text);
+    box-shadow: 0 16px 40px rgba(5, 10, 22, .35);
+    animation: ekDialogIn .14s ease-out;
 }
 
-.message[data-deleted="true"] .message-actions {
-    display: none;
+.ek-dialog h2 {
+    margin: 0 0 .5rem;
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.ek-dialog-preview {
+    display: -webkit-box;
+    margin: 0 0 .9rem;
+    padding: .5rem .7rem;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    border-left: 3px solid #f97316;
+    border-radius: 8px;
+    background: var(--ek-surface-2);
+    color: var(--ek-muted);
+    font-size: .85rem;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+.ek-dialog-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0 -.5rem;
+}
+
+.ek-dialog-btn {
+    padding: .7rem .85rem;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--ek-primary);
+    font: inherit;
+    font-weight: 700;
+    text-align: right;
+    cursor: pointer;
+}
+
+.ek-dialog-btn:hover { background: var(--ek-hover); }
+.ek-dialog-btn.is-danger { color: var(--ek-err); }
+.ek-dialog-btn.is-danger:hover { background: var(--ek-err-soft); }
+
+@keyframes ekDialogIn {
+    from { opacity: 0; transform: scale(.96); }
 }
 
 
@@ -842,7 +879,7 @@
 
     .ek-conv,
     .ek-send,
-    .message-actions button {
+    .message-menu-btn {
         transition: none;
     }
 }

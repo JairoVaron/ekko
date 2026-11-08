@@ -17,13 +17,14 @@ body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
 .ek-icon-btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;min-width:40px;height:40px;padding:0 .6rem;
   border:0;border-radius:12px;background:transparent;color:var(--ek-muted);font:inherit;font-weight:600;font-size:.9rem;position:relative;cursor:pointer;text-decoration:none}
 .ek-icon-btn:hover{background:var(--ek-hover);color:var(--ek-primary);text-decoration:none}
-.ek-navbar .ek-icon-btn{color:#e6d3bd}
-.ek-navbar .ek-icon-btn:hover{background:rgba(224,144,74,.12);color:#e8a96a}
+.ek-navbar .ek-icon-btn{color:#cfe0f5}
+.ek-navbar .ek-icon-btn:hover{background:rgba(255,255,255,.08);color:#fb923c}
+
 .ek-dot,.ek-badge{min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--ek-accent);color:#fff;font-family:var(--ek-mono);font-size:.66rem;font-weight:600;line-height:18px;text-align:center}
 .ek-dot{position:absolute;top:1px;right:1px;border:2px solid var(--ek-nav-bg);box-sizing:content-box;min-width:14px;height:14px;line-height:14px}
 
 .ek-user-btn{display:flex;align-items:center;gap:.5rem;background:transparent;border:0;color:#fff;padding:.2rem .6rem .2rem .2rem;border-radius:99px;cursor:pointer;font:inherit}
-.ek-user-btn:hover{background:rgba(224,144,74,.12)}
+.ek-user-btn:hover{background:rgba(255,255,255,.08)}
 .ek-user-name{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;font-size:.9rem}
 
 /* Menús desplegables (Bootstrap) */
