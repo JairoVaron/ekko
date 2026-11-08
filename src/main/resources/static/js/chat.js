@@ -311,16 +311,59 @@
         }
     }
 
-    function removeMessageActions(article) {
-        article.querySelector(".message-actions")?.remove();
+    /* ---------- Eliminación de mensajes  ---------- */
+    let deleteDialog = null;
+    let deleteDialogReturnFocus = null;
+    let pressTimer = null;
+
+    function closeDeleteDialog() {
+        if (!deleteDialog) return;
+
+        deleteDialog.remove();
+        deleteDialog = null;
+
+        document.removeEventListener("keydown", onDeleteDialogKeydown, true);
+
+        deleteDialogReturnFocus?.focus?.();
+        deleteDialogReturnFocus = null;
     }
 
-    function setupMessageActions(article) {
-        if (!article || article.dataset.deleted === "true") {
+    function onDeleteDialogKeydown(event) {
+        if (!deleteDialog) return;
+
+        if (event.key === "Escape") {
+            event.preventDefault();
+            closeDeleteDialog();
             return;
         }
 
-        if (article.querySelector(".message-actions")) {
+        if (event.key !== "Tab") return;
+
+        // Mantiene el foco dentro del diálogo.
+        const buttons = deleteDialog.querySelectorAll("button");
+        const first = buttons[0];
+        const last = buttons[buttons.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+        }
+    }
+
+    function createDialogButton(label, className, onClick) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "ek-dialog-btn" + (className ? " " + className : "");
+        button.textContent = label;
+        button.addEventListener("click", onClick);
+        return button;
+    }
+
+    function openDeleteDialog(article, trigger) {
+        if (deleteDialog || !article || article.dataset.deleted === "true") {
             return;
         }
 
@@ -329,64 +372,110 @@
 
         if (!messageId) return;
 
-        const actions = document.createElement("div");
-        actions.className = "message-actions";
+        deleteDialogReturnFocus = trigger || null;
 
-        const deleteMeButton = document.createElement("button");
-        deleteMeButton.type = "button";
-        deleteMeButton.className = "message-action-delete";
-        deleteMeButton.textContent = "Eliminar para mí";
-        deleteMeButton.setAttribute(
-            "aria-label",
-            "Eliminar este mensaje de mi historial"
-        );
+        const overlay = document.createElement("div");
+        overlay.className = "ek-dialog-overlay";
 
-        deleteMeButton.addEventListener("click", () => {
-            const confirmed = window.confirm(
-                "¿Quieres eliminar este mensaje de tu historial? " +
-                "La otra persona seguirá viéndolo."
-            );
-
-            if (!confirmed) return;
-
-            requestMessageDeletion(messageId, false);
+        overlay.addEventListener("click", event => {
+            if (event.target === overlay) closeDeleteDialog();
         });
 
-        actions.appendChild(deleteMeButton);
+        const box = document.createElement("div");
+        box.className = "ek-dialog";
+        box.setAttribute("role", "dialog");
+        box.setAttribute("aria-modal", "true");
+        box.setAttribute("aria-labelledby", "deleteDialogTitle");
+
+        const title = document.createElement("h2");
+        title.id = "deleteDialogTitle";
+        title.textContent = "¿Eliminar mensaje?";
+
+        const preview = document.createElement("p");
+        preview.className = "ek-dialog-preview";
+        preview.textContent =
+            (article.querySelector(".text")?.textContent || "").slice(0, 160);
+
+        const actions = document.createElement("div");
+        actions.className = "ek-dialog-actions";
 
         if (mine) {
-            const deleteEveryoneButton =
-                document.createElement("button");
-
-            deleteEveryoneButton.type = "button";
-            deleteEveryoneButton.className =
-                "message-action-delete-all";
-
-            deleteEveryoneButton.textContent =
-                "Eliminar para todos";
-
-            deleteEveryoneButton.setAttribute(
-                "aria-label",
-                "Eliminar este mensaje para todos"
+            actions.appendChild(
+                createDialogButton("Eliminar para todos", "is-danger", () => {
+                    closeDeleteDialog();
+                    requestMessageDeletion(messageId, true);
+                })
             );
-
-            deleteEveryoneButton.addEventListener("click", () => {
-                const confirmed = window.confirm(
-                    "¿Eliminar este mensaje para todos? " +
-                    "El contenido dejará de estar disponible " +
-                    "para ambos participantes."
-                );
-
-                if (!confirmed) return;
-
-                requestMessageDeletion(messageId, true);
-            });
-
-            actions.appendChild(deleteEveryoneButton);
         }
 
-        article.appendChild(actions);
+        actions.appendChild(
+            createDialogButton("Eliminar para mí", "is-danger", () => {
+                closeDeleteDialog();
+                requestMessageDeletion(messageId, false);
+            })
+        );
+
+        const cancel = createDialogButton("Cancelar", "", closeDeleteDialog);
+        actions.appendChild(cancel);
+
+        box.append(title, preview, actions);
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+
+        deleteDialog = overlay;
+        document.addEventListener("keydown", onDeleteDialogKeydown, true);
+
+        // El foco inicial va a "Cancelar" para evitar borrados accidentales.
+        cancel.focus();
     }
+
+    function removeMessageActions(article) {
+        article.querySelector(".message-menu-btn")?.remove();
+    }
+
+    function setupMessageActions(article) {
+        if (!article || article.dataset.deleted === "true") return;
+        if (!article.dataset.messageId) return;
+        if (article.querySelector(".message-menu-btn")) return;
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "message-menu-btn";
+        button.setAttribute("aria-label", "Opciones del mensaje");
+        button.setAttribute("aria-haspopup", "dialog");
+        button.innerHTML = '<i class="bi bi-chevron-down" aria-hidden="true"></i>';
+
+        button.addEventListener("click", event => {
+            event.stopPropagation();
+            openDeleteDialog(article, button);
+        });
+
+        article.appendChild(button);
+    }
+
+    // Clic derecho (escritorio) y pulsación larga (Android).
+    list.addEventListener("contextmenu", event => {
+        const article = event.target.closest("article[data-message-id]");
+
+        if (!article || article.dataset.deleted === "true") return;
+
+        event.preventDefault();
+        openDeleteDialog(article, article.querySelector(".message-menu-btn"));
+    });
+
+    // Pulsación larga manual (iOS no dispara "contextmenu").
+    list.addEventListener("touchstart", event => {
+        const article = event.target.closest("article[data-message-id]");
+
+        if (!article || article.dataset.deleted === "true") return;
+
+        clearTimeout(pressTimer);
+        pressTimer = setTimeout(() => openDeleteDialog(article, null), 550);
+    }, { passive: true });
+
+    ["touchend", "touchmove", "touchcancel"].forEach(type => {
+        list.addEventListener(type, () => clearTimeout(pressTimer), { passive: true });
+    });
 
     function processDeletionEvent(payload) {
         if (
