@@ -209,15 +209,30 @@
     }
 
     function dispatchContactUpdate(data) {
-        if (!data || data.type !== 'CONTACTS_UPDATED') {
+
+        if (!data || !data.type) {
             return;
         }
 
-        window.dispatchEvent(
-            new CustomEvent('ekko:contacts-updated', {
-                detail: data
-            })
-        );
+        if (data.type === "CONTACTS_UPDATED") {
+
+            window.dispatchEvent(
+                new CustomEvent("ekko:contacts-updated", {
+                    detail: data
+                })
+            );
+
+            return;
+        }
+
+        if (data.type === "BLOCK_STATUS_UPDATED") {
+
+            window.dispatchEvent(
+                new CustomEvent("ekko:block-status-updated", {
+                    detail: data
+                })
+            );
+        }
     }
 
     function processFrame(frame) {
