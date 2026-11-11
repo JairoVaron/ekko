@@ -40,30 +40,39 @@ public class ConversationController {
     }
 
     private AppUser currentUser(Authentication authentication) {
+
         if (authentication == null
                 || !authentication.isAuthenticated()
                 || authentication.getName() == null) {
-            throw new IllegalStateException("Debes iniciar sesión.");
+
+            throw new IllegalStateException(
+                    "Debes iniciar sesión.");
         }
 
         AppUser user = appUserRepository
                 .findByUsernameIgnoreCase(authentication.getName())
                 .orElseThrow(() ->
-                        new IllegalStateException("Usuario no encontrado."));
+                        new IllegalStateException(
+                                "Usuario no encontrado."));
 
         if (user.isAccountDeleted()) {
-            throw new IllegalStateException("La cuenta no está activa.");
+            throw new IllegalStateException(
+                    "La cuenta no está activa.");
         }
 
         return user;
     }
 
     @GetMapping
-    public String list(Authentication authentication, Model model) {
+    public String list(
+            Authentication authentication,
+            Model model) {
+
         AppUser user = currentUser(authentication);
 
         model.addAttribute("username", user.getUsername());
         model.addAttribute("currentUserId", user.getId());
+
         model.addAttribute(
                 "conversations",
                 conversationService.listConversations(user.getId()));
@@ -80,14 +89,20 @@ public class ConversationController {
         AppUser user = currentUser(authentication);
 
         try {
-            Long conversationId = conversationService.openConversation(
-                    user.getId(), userId);
+
+            Long conversationId =
+                    conversationService.openConversation(
+                            user.getId(),
+                            userId);
 
             return "redirect:/mensajes/" + conversationId;
 
         } catch (IllegalArgumentException exception) {
+
             redirectAttributes.addFlashAttribute(
-                    "error", exception.getMessage());
+                    "error",
+                    exception.getMessage());
+
             return "redirect:/contactos";
         }
     }
@@ -102,10 +117,12 @@ public class ConversationController {
         AppUser user = currentUser(authentication);
 
         try {
+
             model.addAttribute(
                     "messages",
                     conversationService.getMessages(
-                            conversationId, user.getId()));
+                            conversationId,
+                            user.getId()));
 
             Long otherUserId = conversationMemberRepository
                     .findByConversation_Id(conversationId)
@@ -122,7 +139,8 @@ public class ConversationController {
                             new IllegalArgumentException(
                                     "El otro participante ya no existe."));
 
-            boolean otherAccountDeleted = otherUser.isAccountDeleted();
+            boolean otherAccountDeleted =
+                    otherUser.isAccountDeleted();
 
             String otherUsername = otherAccountDeleted
                     ? "Cuenta eliminada"
@@ -141,22 +159,49 @@ public class ConversationController {
 
             String otherBio = otherAccountDeleted
                     ? null
-                    : otherUser.getBio();        
+                    : otherUser.getBio();
+
+            // Estado del bloqueo desde la perspectiva del usuario actual.
+            boolean blockedByMe = !otherAccountDeleted
+                    && conversationService.isBlockedByCurrentUser(
+                            conversationId,
+                            user.getId());
+
+            boolean blockedByOther = !otherAccountDeleted
+                    && conversationService.isBlockedByOtherUser(
+                            conversationId,
+                            user.getId());
 
             model.addAttribute("username", user.getUsername());
             model.addAttribute("currentUserId", user.getId());
-            model.addAttribute("currentUserAvatarUrl", user.getAvatarUrl());
+            model.addAttribute(
+                    "currentUserAvatarUrl",
+                    user.getAvatarUrl());
+
             model.addAttribute("conversationId", conversationId);
+
             model.addAttribute("otherUsername", otherUsername);
-            model.addAttribute("otherDisplayName", otherDisplayName);
+            model.addAttribute(
+                    "otherDisplayName",
+                    otherDisplayName);
             model.addAttribute("otherAvatarUrl", otherAvatarUrl);
             model.addAttribute("otherBio", otherBio);
+
+            model.addAttribute("blockedByMe", blockedByMe);
+            model.addAttribute("blockedByOther", blockedByOther);
+
+            model.addAttribute(
+                    "otherAccountDeleted",
+                    otherAccountDeleted);
 
             return "chat/conversacion";
 
         } catch (IllegalArgumentException exception) {
+
             redirectAttributes.addFlashAttribute(
-                    "error", exception.getMessage());
+                    "error",
+                    exception.getMessage());
+
             return "redirect:/mensajes";
         }
     }
@@ -171,16 +216,22 @@ public class ConversationController {
         AppUser user = currentUser(authentication);
 
         try {
-            MessageView savedMessage = conversationService.sendMessage(
-                    conversationId, user.getId(), content);
 
-            // Se conserva la publicación del mensaje guardado por WebSocket.
+            MessageView savedMessage =
+                    conversationService.sendMessage(
+                            conversationId,
+                            user.getId(),
+                            content);
+
             messageWebSocketController.publishMessage(
-                    conversationId, savedMessage);
+                    conversationId,
+                    savedMessage);
 
         } catch (IllegalArgumentException exception) {
+
             redirectAttributes.addFlashAttribute(
-                    "error", exception.getMessage());
+                    "error",
+                    exception.getMessage());
         }
 
         return "redirect:/mensajes/" + conversationId;
