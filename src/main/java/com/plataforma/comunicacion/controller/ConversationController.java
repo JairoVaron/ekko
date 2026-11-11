@@ -4,6 +4,7 @@ import com.plataforma.comunicacion.dto.MessageView;
 import com.plataforma.comunicacion.entity.AppUser;
 import com.plataforma.comunicacion.repository.AppUserRepository;
 import com.plataforma.comunicacion.repository.ConversationMemberRepository;
+import com.plataforma.comunicacion.service.ContactService;
 import com.plataforma.comunicacion.service.ConversationService;
 
 import org.springframework.security.core.Authentication;
@@ -16,6 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.Map;
+
 import java.util.Objects;
 
 @Controller
@@ -23,17 +30,20 @@ import java.util.Objects;
 public class ConversationController {
 
     private final ConversationService conversationService;
+    private final ContactService contactService;
     private final AppUserRepository appUserRepository;
     private final ConversationMemberRepository conversationMemberRepository;
     private final MessageWebSocketController messageWebSocketController;
 
     public ConversationController(
             ConversationService conversationService,
+            ContactService contactService,
             AppUserRepository appUserRepository,
             ConversationMemberRepository conversationMemberRepository,
             MessageWebSocketController messageWebSocketController) {
 
         this.conversationService = conversationService;
+        this.contactService = contactService;
         this.appUserRepository = appUserRepository;
         this.conversationMemberRepository = conversationMemberRepository;
         this.messageWebSocketController = messageWebSocketController;
@@ -61,6 +71,19 @@ public class ConversationController {
         }
 
         return user;
+    }
+
+    private Long findOtherUserId(Long conversationId, Long currentUserId) {
+
+        return conversationMemberRepository
+                .findByConversation_Id(conversationId)
+                .stream()
+                .map(member -> member.getUser().getId())
+                .filter(id -> !Objects.equals(id, currentUserId))
+                .findFirst()
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "No se encontró al otro participante."));
     }
 
     @GetMapping
@@ -124,15 +147,8 @@ public class ConversationController {
                             conversationId,
                             user.getId()));
 
-            Long otherUserId = conversationMemberRepository
-                    .findByConversation_Id(conversationId)
-                    .stream()
-                    .map(member -> member.getUser().getId())
-                    .filter(id -> !Objects.equals(id, user.getId()))
-                    .findFirst()
-                    .orElseThrow(() ->
-                            new IllegalArgumentException(
-                                    "No se encontró al otro participante."));
+            Long otherUserId =
+                    findOtherUserId(conversationId, user.getId());
 
             AppUser otherUser = appUserRepository.findById(otherUserId)
                     .orElseThrow(() ->
@@ -161,7 +177,6 @@ public class ConversationController {
                     ? null
                     : otherUser.getBio();
 
-            // Estado del bloqueo desde la perspectiva del usuario actual.
             boolean blockedByMe = !otherAccountDeleted
                     && conversationService.isBlockedByCurrentUser(
                             conversationId,
@@ -179,6 +194,7 @@ public class ConversationController {
                     user.getAvatarUrl());
 
             model.addAttribute("conversationId", conversationId);
+            model.addAttribute("otherUserId", otherUserId);
 
             model.addAttribute("otherUsername", otherUsername);
             model.addAttribute(
@@ -205,6 +221,105 @@ public class ConversationController {
             return "redirect:/mensajes";
         }
     }
+
+    @PostMapping("/{conversationId}/desbloquear")
+    public String unblock(
+            @PathVariable Long conversationId,
+            Authentication authentication,
+            RedirectAttributes redirectAttributes) {
+
+        AppUser user = currentUser(authentication);
+
+        try {
+
+            // Comprueba que el usuario autenticado pertenece
+            // realmente a esta conversación.
+            conversationService.validateConversationAccess(
+                    conversationId,
+                    user.getId());
+
+            // El ID del otro usuario se obtiene desde la base de datos.
+            Long otherUserId =
+                    findOtherUserId(conversationId, user.getId());
+
+            // El desbloqueo se realiza desde la perspectiva
+            // del usuario autenticado.
+            contactService.unblockUser(
+                    user.getId(),
+                    otherUserId);
+
+            redirectAttributes.addFlashAttribute(
+                    "success",
+                    "Has desbloqueado a esta persona.");
+
+        } catch (IllegalArgumentException exception) {
+
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    exception.getMessage());
+        }
+
+        return "redirect:/mensajes/" + conversationId;
+    }
+
+        /* =====================================================
+        DESBLOQUEAR USUARIO SIN RECARGAR EL CHAT
+        ===================================================== */
+
+        @PostMapping("/{conversationId}/desbloquear/async")
+        @ResponseBody
+        public ResponseEntity<Map<String, String>> unblockAsync(
+                @PathVariable Long conversationId,
+                Authentication authentication) {
+
+        try {
+
+                AppUser user = currentUser(authentication);
+
+                // Verificar que el usuario pertenece a la conversación.
+                conversationService.validateConversationAccess(
+                        conversationId,
+                        user.getId());
+
+                // Obtener al otro participante desde la base de datos.
+                Long otherUserId =
+                        findOtherUserId(conversationId, user.getId());
+
+                // Desbloquear desde la perspectiva del usuario autenticado.
+                contactService.unblockUser(
+                        user.getId(),
+                        otherUserId);
+
+                return ResponseEntity.ok(
+                        Map.of(
+                                "status", "success",
+                                "message", "Has desbloqueado a esta persona."
+                        )
+                );
+
+        } catch (IllegalArgumentException exception) {
+
+                return ResponseEntity
+                        .badRequest()
+                        .body(
+                                Map.of(
+                                        "status", "error",
+                                        "message", exception.getMessage()
+                                )
+                        );
+
+        } catch (IllegalStateException exception) {
+
+                return ResponseEntity
+                        .status(HttpStatus.FORBIDDEN)
+                        .body(
+                                Map.of(
+                                        "status", "error",
+                                        "message", exception.getMessage()
+                                )
+                        );
+        }
+        }
 
     @PostMapping("/{conversationId}/enviar")
     public String send(

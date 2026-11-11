@@ -1,5 +1,6 @@
 package com.plataforma.comunicacion.service;
 
+import com.plataforma.comunicacion.dto.BlockStatusRealtimeView;
 import com.plataforma.comunicacion.dto.ContactRealtimeView;
 import com.plataforma.comunicacion.dto.ContactRequestView;
 import com.plataforma.comunicacion.dto.ContactUserView;
@@ -43,7 +44,10 @@ public class ContactService {
         this.messagingTemplate = messagingTemplate;
     }
 
-    /* VALIDACIONES */
+    /* =====================================================
+       VALIDACIONES
+       ===================================================== */
+
     private AppUser requireActiveUser(Long id) {
 
         AppUser user = users.findById(id)
@@ -83,7 +87,10 @@ public class ContactService {
                 || blocks.existsByBlocker_IdAndBlocked_Id(second, first);
     }
 
-    /* CONVERSIÓN A DTO */
+    /* =====================================================
+       CONVERSIÓN A DTO
+       ===================================================== */
+
     private ContactUserView toUserView(AppUser user) {
 
         return new ContactUserView(
@@ -111,7 +118,10 @@ public class ContactService {
         );
     }
 
-    /* BUSCAR USUARIOS */
+    /* =====================================================
+       BUSCAR USUARIOS
+       ===================================================== */
+
     @Transactional(readOnly = true)
     public List<ContactUserView> searchUsers(
             Long currentUserId,
@@ -140,7 +150,10 @@ public class ContactService {
                 .toList();
     }
 
-    /* ENVIAR SOLICITUD */
+    /* =====================================================
+       ENVIAR SOLICITUD
+       ===================================================== */
+
     @Transactional
     public void sendRequest(Long requesterId, Long addresseeId) {
 
@@ -225,7 +238,10 @@ public class ContactService {
         ));
     }
 
-    /* SOLICITUDES RECIBIDAS */
+    /* =====================================================
+       SOLICITUDES RECIBIDAS
+       ===================================================== */
+
     @Transactional(readOnly = true)
     public List<ContactRequestView> receivedRequests(Long userId) {
 
@@ -246,7 +262,7 @@ public class ContactService {
     }
 
     /* =====================================================
-       6. LISTA DE CONTACTOS
+       LISTA DE CONTACTOS
        ===================================================== */
 
     @Transactional(readOnly = true)
@@ -291,7 +307,7 @@ public class ContactService {
     }
 
     /* =====================================================
-       7. ACEPTAR SOLICITUD
+       ACEPTAR SOLICITUD
        ===================================================== */
 
     @Transactional
@@ -330,7 +346,7 @@ public class ContactService {
     }
 
     /* =====================================================
-       8. RECHAZAR SOLICITUD
+       RECHAZAR SOLICITUD
        ===================================================== */
 
     @Transactional
@@ -367,7 +383,7 @@ public class ContactService {
     }
 
     /* =====================================================
-       9. ELIMINAR CONTACTO
+       ELIMINAR CONTACTO
        ===================================================== */
 
     @Transactional
@@ -408,32 +424,30 @@ public class ContactService {
         publishSnapshotsAfterCommit(currentUser, otherUser);
     }
 
-        /* =====================================================
-        10. BLOQUEAR USUARIO
-        ===================================================== */
+    /* =====================================================
+       BLOQUEAR USUARIO
+       ===================================================== */
 
-        @Transactional
-        public void blockUser(Long blockerId, Long blockedId) {
+    @Transactional
+    public void blockUser(Long blockerId, Long blockedId) {
 
         requireDifferentUsers(blockerId, blockedId);
 
         AppUser blocker = requireActiveUser(blockerId);
         AppUser blocked = requireActiveUser(blockedId);
 
-        // Crear el bloqueo solamente si todavía no existe.
         if (!blocks.existsByBlocker_IdAndBlocked_Id(
                 blockerId, blockedId)) {
 
-                blocks.save(new UserBlock(blocker, blocked));
+            blocks.save(new UserBlock(blocker, blocked));
         }
 
         /*
-        * Eliminar únicamente solicitudes pendientes.
-        *
-        * IMPORTANTE:
-        * Las relaciones ACCEPTED se conservan.
-        * Así podremos recuperar el contacto al desbloquear.
-        */
+         * Eliminamos exclusivamente las solicitudes pendientes.
+         *
+         * Las relaciones ACCEPTED se conservan para que
+         * puedan recuperarse al desbloquear.
+         */
 
         requests.deleteByRequester_IdAndAddressee_IdAndStatus(
                 blockerId, blockedId, "PENDING");
@@ -444,16 +458,21 @@ public class ContactService {
         requests.flush();
         blocks.flush();
 
-        // Actualizar los datos de contactos de ambos usuarios.
         publishSnapshotsAfterCommit(blocker, blocked);
-        }
 
-        /* =====================================================
-        11. DESBLOQUEAR USUARIO
-        ===================================================== */
+        publishBlockStatusAfterCommit(
+                blocker,
+                blocked,
+                true
+        );
+    }
 
-        @Transactional
-        public void unblockUser(Long blockerId, Long blockedId) {
+    /* =====================================================
+       DESBLOQUEAR USUARIO
+       ===================================================== */
+
+    @Transactional
+    public void unblockUser(Long blockerId, Long blockedId) {
 
         requireDifferentUsers(blockerId, blockedId);
 
@@ -463,32 +482,34 @@ public class ContactService {
         if (!blocks.existsByBlocker_IdAndBlocked_Id(
                 blockerId, blockedId)) {
 
-                throw new IllegalArgumentException(
-                        "No tienes bloqueado a este usuario");
+            throw new IllegalArgumentException(
+                    "No tienes bloqueado a este usuario");
         }
 
         /*
-        * Eliminar exclusivamente el bloqueo.
-        *
-        * No eliminamos las relaciones ACCEPTED:
-        * si existían antes del bloqueo, volverán a aparecer
-        * automáticamente en las listas de contactos.
-        *
-        * Si no existía una relación aceptada antes,
-        * no crearemos ninguna.
-        */
+         * Eliminamos exclusivamente el bloqueo.
+         *
+         * No modificamos las relaciones ACCEPTED.
+         * Si existían antes del bloqueo, vuelven a aparecer
+         * en las listas de contactos automáticamente.
+         */
 
         blocks.deleteByBlocker_IdAndBlocked_Id(
                 blockerId, blockedId);
 
         blocks.flush();
 
-        // Actualizar las listas de ambos usuarios.
         publishSnapshotsAfterCommit(blocker, blocked);
-        }
+
+        publishBlockStatusAfterCommit(
+                blocker,
+                blocked,
+                false
+        );
+    }
 
     /* =====================================================
-       12. USUARIOS BLOQUEADOS
+       USUARIOS BLOQUEADOS
        ===================================================== */
 
     @Transactional(readOnly = true)
@@ -505,7 +526,7 @@ public class ContactService {
     }
 
     /* =====================================================
-       13. ACTUALIZACIÓN EN TIEMPO REAL
+       SNAPSHOT DE CONTACTOS
        ===================================================== */
 
     private ContactRealtimeView createSnapshot(Long userId) {
@@ -522,8 +543,6 @@ public class ContactService {
             AppUser first,
             AppUser second) {
 
-        // Crear los snapshots después de ejecutar las
-        // operaciones pendientes de la base de datos.
         ContactRealtimeView firstSnapshot =
                 createSnapshot(first.getId());
 
@@ -550,7 +569,65 @@ public class ContactService {
     }
 
     /* =====================================================
-       14. EJECUTAR DESPUÉS DEL COMMIT
+       EVENTO DE BLOQUEO EN TIEMPO REAL
+       ===================================================== */
+
+    private void publishBlockStatusAfterCommit(
+            AppUser blocker,
+            AppUser blocked,
+            boolean isBlocked) {
+
+        /*
+         * La perspectiva del usuario que realizó el bloqueo:
+         *
+         * blockedByMe = true cuando bloqueó.
+         * blockedByOther = false.
+         */
+
+        BlockStatusRealtimeView blockerEvent =
+                new BlockStatusRealtimeView(
+                        "BLOCK_STATUS_UPDATED",
+                        blocked.getId(),
+                        isBlocked,
+                        false
+                );
+
+        /*
+         * La perspectiva del usuario bloqueado:
+         *
+         * blockedByMe = false.
+         * blockedByOther = true cuando lo bloquearon.
+         */
+
+        BlockStatusRealtimeView blockedEvent =
+                new BlockStatusRealtimeView(
+                        "BLOCK_STATUS_UPDATED",
+                        blocker.getId(),
+                        false,
+                        isBlocked
+                );
+
+        String blockerUsername = blocker.getUsername();
+        String blockedUsername = blocked.getUsername();
+
+        afterCommit(() -> {
+
+            messagingTemplate.convertAndSendToUser(
+                    blockerUsername,
+                    "/queue/contacts",
+                    blockerEvent
+            );
+
+            messagingTemplate.convertAndSendToUser(
+                    blockedUsername,
+                    "/queue/contacts",
+                    blockedEvent
+            );
+        });
+    }
+
+    /* =====================================================
+       EJECUTAR DESPUÉS DEL COMMIT
        ===================================================== */
 
     private void afterCommit(Runnable action) {
