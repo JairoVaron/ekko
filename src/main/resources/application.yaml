@@ -30,3 +30,10 @@ logging:
   level:
     root: INFO
     com.plataforma.comunicacion: INFO
+
+ekko:
+  turnstile:
+    site-key: ${TURNSTILE_SITE_KEY}
+    secret-key: ${TURNSTILE_SECRET_KEY}
+    verify-url: https://challenges.cloudflare.com/turnstile/v0/siteverify
+    expected-hostname: ${TURNSTILE_HOSTNAME:localhost}
