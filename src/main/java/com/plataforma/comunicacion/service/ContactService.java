@@ -408,44 +408,52 @@ public class ContactService {
         publishSnapshotsAfterCommit(currentUser, otherUser);
     }
 
-    /* =====================================================
-       10. BLOQUEAR USUARIO
-       ===================================================== */
+        /* =====================================================
+        10. BLOQUEAR USUARIO
+        ===================================================== */
 
-    @Transactional
-    public void blockUser(Long blockerId, Long blockedId) {
+        @Transactional
+        public void blockUser(Long blockerId, Long blockedId) {
 
         requireDifferentUsers(blockerId, blockedId);
 
         AppUser blocker = requireActiveUser(blockerId);
         AppUser blocked = requireActiveUser(blockedId);
 
+        // Crear el bloqueo solamente si todavía no existe.
         if (!blocks.existsByBlocker_IdAndBlocked_Id(
                 blockerId, blockedId)) {
 
-            blocks.save(new UserBlock(blocker, blocked));
+                blocks.save(new UserBlock(blocker, blocked));
         }
 
-        // Eliminar solicitudes y relaciones anteriores
-        // en ambas direcciones.
-        requests.deleteByRequester_IdAndAddressee_Id(
-                blockerId, blockedId);
+        /*
+        * Eliminar únicamente solicitudes pendientes.
+        *
+        * IMPORTANTE:
+        * Las relaciones ACCEPTED se conservan.
+        * Así podremos recuperar el contacto al desbloquear.
+        */
 
-        requests.deleteByRequester_IdAndAddressee_Id(
-                blockedId, blockerId);
+        requests.deleteByRequester_IdAndAddressee_IdAndStatus(
+                blockerId, blockedId, "PENDING");
+
+        requests.deleteByRequester_IdAndAddressee_IdAndStatus(
+                blockedId, blockerId, "PENDING");
 
         requests.flush();
         blocks.flush();
 
+        // Actualizar los datos de contactos de ambos usuarios.
         publishSnapshotsAfterCommit(blocker, blocked);
-    }
+        }
 
-    /* =====================================================
-       11. DESBLOQUEAR USUARIO
-       ===================================================== */
+        /* =====================================================
+        11. DESBLOQUEAR USUARIO
+        ===================================================== */
 
-    @Transactional
-    public void unblockUser(Long blockerId, Long blockedId) {
+        @Transactional
+        public void unblockUser(Long blockerId, Long blockedId) {
 
         requireDifferentUsers(blockerId, blockedId);
 
@@ -455,30 +463,29 @@ public class ContactService {
         if (!blocks.existsByBlocker_IdAndBlocked_Id(
                 blockerId, blockedId)) {
 
-            throw new IllegalArgumentException(
-                    "No tienes bloqueado a este usuario");
+                throw new IllegalArgumentException(
+                        "No tienes bloqueado a este usuario");
         }
 
-        // Eliminar únicamente el bloqueo existente.
+        /*
+        * Eliminar exclusivamente el bloqueo.
+        *
+        * No eliminamos las relaciones ACCEPTED:
+        * si existían antes del bloqueo, volverán a aparecer
+        * automáticamente en las listas de contactos.
+        *
+        * Si no existía una relación aceptada antes,
+        * no crearemos ninguna.
+        */
+
         blocks.deleteByBlocker_IdAndBlocked_Id(
                 blockerId, blockedId);
 
-        // Limpiar cualquier solicitud o relación antigua
-        // en ambas direcciones para evitar restaurarla.
-        requests.deleteByRequester_IdAndAddressee_Id(
-                blockerId, blockedId);
-
-        requests.deleteByRequester_IdAndAddressee_Id(
-                blockedId, blockerId);
-
-        // Asegurar que las eliminaciones se ejecuten
-        // antes de preparar las actualizaciones.
         blocks.flush();
-        requests.flush();
 
         // Actualizar las listas de ambos usuarios.
         publishSnapshotsAfterCommit(blocker, blocked);
-    }
+        }
 
     /* =====================================================
        12. USUARIOS BLOQUEADOS

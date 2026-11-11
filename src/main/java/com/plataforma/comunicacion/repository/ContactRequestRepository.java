@@ -10,34 +10,54 @@ public interface ContactRequestRepository
         extends JpaRepository<ContactRequest, Long> {
 
     List<ContactRequest> findByAddressee_IdAndStatusOrderByCreatedAtDesc(
-        Long addresseeId,
-        String status
+            Long addresseeId,
+            String status
     );
 
     List<ContactRequest> findByRequester_IdAndStatusOrderByCreatedAtDesc(
-        Long requesterId,
-        String status
+            Long requesterId,
+            String status
     );
 
     Optional<ContactRequest> findByRequester_IdAndAddressee_Id(
-        Long requesterId,
-        Long addresseeId
+            Long requesterId,
+            Long addresseeId
     );
 
     boolean existsByRequester_IdAndAddressee_IdAndStatus(
-        Long requesterId,
-        Long addresseeId,
-        String status
+            Long requesterId,
+            Long addresseeId,
+            String status
     );
 
+    /*
+     * Comprueba una relación aceptada sin importar
+     * quién envió originalmente la solicitud.
+     */
+
+    default boolean existsAcceptedContact(
+            Long firstUserId,
+            Long secondUserId) {
+
+        return existsByRequester_IdAndAddressee_IdAndStatus(
+                firstUserId,
+                secondUserId,
+                "ACCEPTED"
+        ) || existsByRequester_IdAndAddressee_IdAndStatus(
+                secondUserId,
+                firstUserId,
+                "ACCEPTED"
+        );
+    }
+
     void deleteByRequester_IdAndAddressee_Id(
-        Long requesterId,
-        Long addresseeId
+            Long requesterId,
+            Long addresseeId
     );
 
     void deleteByRequester_IdAndAddressee_IdAndStatus(
-        Long requesterId,
-        Long addresseeId,
-        String status
+            Long requesterId,
+            Long addresseeId,
+            String status
     );
 }
