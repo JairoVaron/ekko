@@ -1,14 +1,36 @@
 /* =========================================================
    EKKO · chat.js
    ========================================================= */
+
 (() => {
     "use strict";
 
     const E = window.Ekko || {};
-    const play = name => { if (E.sound) E.sound.play(name); };
 
-    const conversationId = Number(document.body.dataset.conversationId);
-    const currentUserId = Number(document.body.dataset.currentUserId);
+    const play = name => {
+        if (E.sound) {
+            E.sound.play(name);
+        }
+    };
+
+    const body = document.body;
+
+    const conversationId = Number(body.dataset.conversationId);
+    const currentUserId = Number(body.dataset.currentUserId);
+    const otherUserId = Number(body.dataset.otherUserId);
+
+    /* ---------- Estado del bloqueo ---------- */
+
+    let blockedByMe = body.dataset.blockedByMe === "true";
+    let blockedByOther = body.dataset.blockedByOther === "true";
+
+    const otherAccountDeleted =
+        body.dataset.otherAccountDeleted === "true";
+
+    let chatBlocked =
+        blockedByMe || blockedByOther || otherAccountDeleted;
+
+    /* ---------- Elementos del DOM ---------- */
 
     const list = document.getElementById("messageList");
     const form = document.getElementById("messageForm");
@@ -21,6 +43,7 @@
     const emojiBtn = document.getElementById("emojiToggle");
     const emojiPanel = document.getElementById("emojiPanel");
     const counter = document.getElementById("charCounter");
+    const sendButton = document.getElementById("sendButton");
 
     const otherName =
         (document.querySelector(".ek-chat-name span:last-child") || {})
@@ -28,21 +51,52 @@
 
     function setStatus(text, state) {
         if (!status) return;
+
         status.textContent = text;
         status.dataset.state = state || "connecting";
     }
 
-    if (!conversationId || !currentUserId || !list || !form || !input) {
-        if (status) setStatus("Faltan datos para iniciar el chat.", "offline");
-        console.error("conversationId o currentUserId inválido.");
+    if (
+        !conversationId
+        || !currentUserId
+        || !otherUserId
+        || !list
+        || !form
+        || !input
+    ) {
+        setStatus("Faltan datos para iniciar el chat.", "offline");
+
+        console.error(
+            "Ekko: faltan datos para iniciar la conversación.",
+            {
+                conversationId,
+                currentUserId,
+                otherUserId
+            }
+        );
+
         return;
     }
 
-    if (E.chats) E.chats.clear(conversationId);
+    if (E.chats) {
+        E.chats.clear(conversationId);
+    }
 
-    const topic = "/topic/conversations/" + conversationId;
-    const statusTopic = topic + "/status";
-    const typingTopic = topic + "/typing";
+    /* ---------- Destinos STOMP ---------- */
+
+    const topic =
+        "/topic/conversations/" + conversationId;
+
+    const statusTopic =
+        topic + "/status";
+
+    const typingTopic =
+        topic + "/typing";
+
+    const contactsTopic =
+        "/user/queue/contacts";
+
+    /* ---------- Estado de conexión ---------- */
 
     let socket = null;
     let connected = false;
@@ -53,26 +107,40 @@
     let submittingHttp = false;
     let missed = 0;
 
-    // Estado del indicador de escritura.
+    /* ---------- Estado de escritura ---------- */
+
     let typingActive = false;
     let typingStopTimer = null;
     let typingLastSentAt = 0;
     let remoteTypingTimer = null;
 
+    /* ---------- Recibos ---------- */
+
     const deliveredSent = new Set();
     const readSent = new Set();
 
-    /* ---------- Utilidades de interfaz ---------- */
+    /* ---------- Eliminación ---------- */
+
+    let deleteDialog = null;
+    let deleteDialogReturnFocus = null;
+    let pressTimer = null;
+
+    /* =====================================================
+       UTILIDADES DE INTERFAZ
+       ===================================================== */
 
     function showError(message) {
         if (!errorBox) return;
+
         errorBox.textContent = message;
         errorBox.hidden = false;
+
         play("error");
     }
 
     function clearError() {
         if (!errorBox) return;
+
         errorBox.textContent = "";
         errorBox.hidden = true;
     }
@@ -88,8 +156,13 @@
 
         missed = 0;
 
-        if (scrollBtn) scrollBtn.hidden = true;
-        if (scrollBadge) scrollBadge.hidden = true;
+        if (scrollBtn) {
+            scrollBtn.hidden = true;
+        }
+
+        if (scrollBadge) {
+            scrollBadge.hidden = true;
+        }
     }
 
     function statusLabel(state) {
@@ -114,27 +187,33 @@
     }
 
     function autosize() {
+        if (!input) return;
+
         input.style.height = "auto";
+
         input.style.height =
             Math.min(input.scrollHeight, 140) + "px";
 
         if (counter) {
             const left = 5000 - input.value.length;
+
             counter.hidden = left > 500;
-            counter.textContent = input.value.length + "/5000";
+            counter.textContent =
+                input.value.length + "/5000";
         }
     }
 
-    /* ---------- Indicador de escritura ---------- */
+    /* =====================================================
+       INDICADOR DE ESCRITURA
+       ===================================================== */
 
     function showRemoteTyping() {
-        if (!typingIndicator) return;
+        if (chatBlocked || !typingIndicator) return;
 
         typingIndicator.hidden = false;
 
         clearTimeout(remoteTypingTimer);
 
-        // Protección ante desconexiones o eventos perdidos.
         remoteTypingTimer = setTimeout(() => {
             hideRemoteTyping();
         }, 4000);
@@ -150,7 +229,13 @@
     }
 
     function sendTypingState(typing) {
-        if (!connected || !socket || socket.readyState !== WebSocket.OPEN) {
+        if (chatBlocked) return;
+
+        if (
+            !connected
+            || !socket
+            || socket.readyState !== WebSocket.OPEN
+        ) {
             return;
         }
 
@@ -166,6 +251,7 @@
                     typing
                 })
             );
+
         } catch (error) {
             console.error(
                 "No se pudo enviar el estado de escritura.",
@@ -181,10 +267,15 @@
         if (!typingActive) return;
 
         typingActive = false;
-        sendTypingState(false);
+
+        if (!chatBlocked) {
+            sendTypingState(false);
+        }
     }
 
     function notifyTyping() {
+        if (chatBlocked) return;
+
         if (!input.value.trim()) {
             stopTyping();
             return;
@@ -195,11 +286,12 @@
         if (!typingActive) {
             typingActive = true;
             typingLastSentAt = now;
+
             sendTypingState(true);
 
         } else if (now - typingLastSentAt >= 1200) {
-            // Renueva el evento sin enviar uno por cada pulsación.
             typingLastSentAt = now;
+
             sendTypingState(true);
         }
 
@@ -211,57 +303,610 @@
     }
 
     function processTypingEvent(payload) {
-        if (!payload || payload.conversationId !== conversationId) {
+        if (chatBlocked) {
+            hideRemoteTyping();
+            return;
+        }
+
+        if (
+            !payload
+            || Number(payload.conversationId) !== conversationId
+        ) {
             return;
         }
 
         const senderId = Number(payload.userId);
 
-        // Nunca mostrar nuestro propio indicador.
         if (!senderId || senderId === currentUserId) {
             return;
         }
 
         if (payload.typing === true) {
             showRemoteTyping();
+
         } else if (payload.typing === false) {
             hideRemoteTyping();
         }
     }
 
-    /* ---------- STOMP ---------- */
+    /* =====================================================
+       DIÁLOGO DE ELIMINACIÓN
+       ===================================================== */
+
+    function closeDeleteDialog() {
+        if (!deleteDialog) return;
+
+        deleteDialog.remove();
+        deleteDialog = null;
+
+        document.removeEventListener(
+            "keydown",
+            onDeleteDialogKeydown,
+            true
+        );
+
+        deleteDialogReturnFocus?.focus?.();
+        deleteDialogReturnFocus = null;
+    }
+
+    function onDeleteDialogKeydown(event) {
+        if (!deleteDialog) return;
+
+        if (event.key === "Escape") {
+            event.preventDefault();
+            closeDeleteDialog();
+            return;
+        }
+
+        if (event.key !== "Tab") return;
+
+        const buttons =
+            deleteDialog.querySelectorAll("button");
+
+        const first = buttons[0];
+        const last = buttons[buttons.length - 1];
+
+        if (!first || !last) return;
+
+        if (
+            event.shiftKey
+            && document.activeElement === first
+        ) {
+            event.preventDefault();
+            last.focus();
+
+        } else if (
+            !event.shiftKey
+            && document.activeElement === last
+        ) {
+            event.preventDefault();
+            first.focus();
+        }
+    }
+
+    function createDialogButton(label, className, onClick) {
+        const button = document.createElement("button");
+
+        button.type = "button";
+
+        button.className =
+            "ek-dialog-btn" + (className ? " " + className : "");
+
+        button.textContent = label;
+        button.addEventListener("click", onClick);
+
+        return button;
+    }
+
+    function openDeleteDialog(article, trigger) {
+        if (
+            deleteDialog
+            || !article
+            || article.dataset.deleted === "true"
+        ) {
+            return;
+        }
+
+        const messageId = article.dataset.messageId;
+        const mine = article.dataset.mine === "true";
+
+        if (!messageId) return;
+
+        deleteDialogReturnFocus = trigger || null;
+
+        const overlay = document.createElement("div");
+        overlay.className = "ek-dialog-overlay";
+
+        overlay.addEventListener("click", event => {
+            if (event.target === overlay) {
+                closeDeleteDialog();
+            }
+        });
+
+        const box = document.createElement("div");
+        box.className = "ek-dialog";
+
+        box.setAttribute("role", "dialog");
+        box.setAttribute("aria-modal", "true");
+        box.setAttribute(
+            "aria-labelledby",
+            "deleteDialogTitle"
+        );
+
+        const title = document.createElement("h2");
+        title.id = "deleteDialogTitle";
+        title.textContent = "¿Eliminar mensaje?";
+
+        const preview = document.createElement("p");
+        preview.className = "ek-dialog-preview";
+
+        preview.textContent =
+            (
+                article.querySelector(".text")?.textContent || ""
+            ).slice(0, 160);
+
+        const actions = document.createElement("div");
+        actions.className = "ek-dialog-actions";
+
+        if (mine) {
+            actions.appendChild(
+                createDialogButton(
+                    "Eliminar para todos",
+                    "is-danger",
+                    () => {
+                        closeDeleteDialog();
+                        requestMessageDeletion(messageId, true);
+                    }
+                )
+            );
+        }
+
+        actions.appendChild(
+            createDialogButton(
+                "Eliminar para mí",
+                "is-danger",
+                () => {
+                    closeDeleteDialog();
+                    requestMessageDeletion(messageId, false);
+                }
+            )
+        );
+
+        const cancel = createDialogButton(
+            "Cancelar",
+            "",
+            closeDeleteDialog
+        );
+
+        actions.appendChild(cancel);
+
+        box.append(title, preview, actions);
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+
+        deleteDialog = overlay;
+
+        document.addEventListener(
+            "keydown",
+            onDeleteDialogKeydown,
+            true
+        );
+
+        cancel.focus();
+    }
+
+    function removeMessageActions(article) {
+        article.querySelector(".message-menu-btn")?.remove();
+    }
+
+    function setupMessageActions(article) {
+        if (!article || article.dataset.deleted === "true") return;
+        if (!article.dataset.messageId) return;
+        if (article.querySelector(".message-menu-btn")) return;
+
+        const button = document.createElement("button");
+
+        button.type = "button";
+        button.className = "message-menu-btn";
+
+        button.setAttribute(
+            "aria-label",
+            "Opciones del mensaje"
+        );
+
+        button.setAttribute("aria-haspopup", "dialog");
+
+        button.innerHTML =
+            '<i class="bi bi-chevron-down" aria-hidden="true"></i>';
+
+        button.addEventListener("click", event => {
+            event.stopPropagation();
+            openDeleteDialog(article, button);
+        });
+
+        article.appendChild(button);
+    }
+
+    /* =====================================================
+       BLOQUEO Y DESBLOQUEO
+       ===================================================== */
+
+    function getBlockStatusContainer() {
+        return document.querySelector(".ek-chat-block-status");
+    }
+
+    function createBlockStatusContainer() {
+        let container = getBlockStatusContainer();
+
+        if (container) return container;
+
+        container = document.createElement("section");
+        container.className = "ek-chat-block-status";
+        container.setAttribute("aria-live", "polite");
+
+        const header =
+            document.querySelector(".ek-chat-header")
+            || document.querySelector(".ek-chat-main");
+
+        if (header) {
+            header.insertAdjacentElement("afterend", container);
+        } else {
+            form.insertAdjacentElement("beforebegin", container);
+        }
+
+        return container;
+    }
+
+    function renderBlockStatus() {
+        const blocked =
+            blockedByMe
+            || blockedByOther
+            || otherAccountDeleted;
+
+        let container = getBlockStatusContainer();
+
+        if (!blocked) {
+            container?.remove();
+            return;
+        }
+
+        container = createBlockStatusContainer();
+        container.replaceChildren();
+
+        const message = document.createElement("div");
+        message.className = "ek-chat-block-message";
+
+        const icon = document.createElement("i");
+        icon.className =
+            "ek-chat-block-icon bi bi-shield-lock";
+
+        icon.setAttribute("aria-hidden", "true");
+
+        const content = document.createElement("div");
+        content.className = "ek-chat-block-content";
+
+        const title = document.createElement("strong");
+        const description = document.createElement("p");
+
+        if (otherAccountDeleted) {
+            title.textContent = "Cuenta no disponible";
+
+            description.textContent =
+                "No puedes enviar mensajes a esta cuenta.";
+
+        } else if (blockedByMe) {
+            title.textContent =
+                "Has bloqueado a esta persona";
+
+            description.textContent =
+                "Desbloquea a esta persona para volver a enviar mensajes.";
+
+        } else {
+            title.textContent =
+                "Esta persona te ha bloqueado";
+
+            description.textContent =
+                "No puedes enviar mensajes mientras el bloqueo esté activo.";
+        }
+
+        content.append(title, description);
+        message.append(icon, content);
+        container.appendChild(message);
+
+        if (blockedByMe) {
+            const unblockForm =
+                document.createElement("form");
+
+            unblockForm.className = "ek-unblock-form";
+            unblockForm.method = "post";
+
+            unblockForm.action =
+                "/mensajes/"
+                + conversationId
+                + "/desbloquear";
+
+            const csrfInput =
+                form.querySelector('input[name="_csrf"]');
+
+            if (csrfInput) {
+                const token = document.createElement("input");
+
+                token.type = "hidden";
+                token.name = "_csrf";
+                token.value = csrfInput.value;
+
+                unblockForm.appendChild(token);
+            }
+
+            const button = document.createElement("button");
+
+            button.type = "submit";
+            button.className = "ek-unblock-btn";
+            button.textContent = "Desbloquear";
+
+            unblockForm.appendChild(button);
+            container.appendChild(unblockForm);
+        }
+    }
+
+    function updateComposerState() {
+        chatBlocked =
+            blockedByMe
+            || blockedByOther
+            || otherAccountDeleted;
+
+        input.disabled = chatBlocked;
+
+        if (sendButton) {
+            sendButton.disabled = chatBlocked;
+        }
+
+        if (emojiBtn) {
+            emojiBtn.disabled = chatBlocked;
+        }
+
+        if (emojiPanel) {
+            emojiPanel.hidden = chatBlocked;
+
+            emojiPanel
+                .querySelectorAll("button")
+                .forEach(button => {
+                    button.disabled = chatBlocked;
+                });
+        }
+
+        form.classList.toggle(
+            "ek-chat-composer-blocked",
+            chatBlocked
+        );
+
+        if (chatBlocked) {
+            stopTyping();
+            hideRemoteTyping();
+
+            if (deleteDialog) {
+                closeDeleteDialog();
+            }
+
+            if (emojiPanel) {
+                emojiPanel.hidden = true;
+            }
+
+            clearError();
+
+        } else {
+            clearError();
+        }
+
+        renderBlockStatus();
+    }
+
+    function processBlockStatusEvent(payload) {
+        if (
+            !payload
+            || payload.type !== "BLOCK_STATUS_UPDATED"
+            || Number(payload.otherUserId) !== otherUserId
+        ) {
+            return;
+        }
+
+        const nextBlockedByMe =
+            payload.blockedByMe === true;
+
+        const nextBlockedByOther =
+            payload.blockedByOther === true;
+
+        const nextBlocked =
+            nextBlockedByMe
+            || nextBlockedByOther
+            || otherAccountDeleted;
+
+        /*
+         * Si el bloqueo acaba de activarse, enviamos el evento
+         * de finalización de escritura antes de actualizar el estado.
+         */
+        if (nextBlocked && !chatBlocked && typingActive) {
+            stopTyping();
+        }
+
+        blockedByMe = nextBlockedByMe;
+        blockedByOther = nextBlockedByOther;
+
+        body.dataset.blockedByMe = String(blockedByMe);
+        body.dataset.blockedByOther = String(blockedByOther);
+
+        updateComposerState();
+
+        console.info(
+            "Ekko: estado de bloqueo actualizado.",
+            {
+                otherUserId,
+                blockedByMe,
+                blockedByOther
+            }
+        );
+    }
+
+    /* =====================================================
+       DESBLOQUEO AJAX
+       ===================================================== */
+
+    document.addEventListener("submit", async event => {
+        const target = event.target;
+
+        if (
+            !(target instanceof HTMLFormElement)
+            || !target.matches(".ek-unblock-form")
+        ) {
+            return;
+        }
+
+        event.preventDefault();
+
+        if (!blockedByMe) return;
+
+        const unblockForm = target;
+
+        const button = unblockForm.querySelector(
+            'button[type="submit"]'
+        );
+
+        if (!button || button.disabled) return;
+
+        button.disabled = true;
+        button.textContent = "Desbloqueando...";
+
+        try {
+            /*
+             * El formulario conserva su ruta tradicional.
+             * Convertimos la ruta a la variante AJAX.
+             */
+            const asyncUrl = unblockForm.action.replace(
+                /\/desbloquear\/?$/,
+                "/desbloquear/async"
+            );
+
+            const response = await fetch(asyncUrl, {
+                method: "POST",
+                body: new FormData(unblockForm),
+                credentials: "same-origin",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Accept": "application/json"
+                }
+            });
+
+            let result;
+
+            try {
+                result = await response.json();
+            } catch {
+                throw new Error(
+                    "El servidor devolvió una respuesta no válida."
+                );
+            }
+
+            if (
+                !response.ok
+                || !result
+                || result.status !== "success"
+            ) {
+                throw new Error(
+                    result?.message
+                    || "No se pudo desbloquear a esta persona."
+                );
+            }
+
+            /*
+             * El servidor confirmó el desbloqueo.
+             * Actualizamos esta sesión inmediatamente.
+             *
+             * El evento BLOCK_STATUS_UPDATED del backend
+             * sincronizará también las demás sesiones.
+             */
+            blockedByMe = false;
+            blockedByOther = false;
+
+            body.dataset.blockedByMe = "false";
+            body.dataset.blockedByOther = "false";
+
+            updateComposerState();
+
+            play("sent");
+
+        } catch (error) {
+            console.error(
+                "Ekko: error al desbloquear.",
+                error
+            );
+
+            button.disabled = false;
+            button.textContent = "Desbloquear";
+
+            showError(
+                error.message
+                || "No se pudo desbloquear a esta persona. Inténtalo nuevamente."
+            );
+        }
+    });
+
+    /* =====================================================
+       STOMP
+       ===================================================== */
 
     function sendFrame(command, headers = {}, body = "") {
-        if (!socket || socket.readyState !== WebSocket.OPEN) {
+        if (
+            !socket
+            || socket.readyState !== WebSocket.OPEN
+        ) {
             throw new Error("WebSocket no conectado.");
         }
 
         const headerText = Object.entries(headers)
-            .map(([k, v]) => k + ":" + v)
+            .map(([key, value]) => key + ":" + value)
             .join("\n");
 
         socket.send(
-            command + "\n" + headerText + "\n\n" + body + "\0"
+            command
+            + "\n"
+            + headerText
+            + "\n\n"
+            + body
+            + "\0"
         );
     }
 
+    /* =====================================================
+       ESTADOS DE ENTREGA Y LECTURA
+       ===================================================== */
+
     function updateStatus(receipt) {
-        if (!receipt || receipt.messageId == null) return;
+        if (
+            !receipt
+            || receipt.messageId == null
+        ) {
+            return;
+        }
 
         const element = list.querySelector(
             '[data-message-id="' + String(receipt.messageId) + '"]'
         );
 
-        if (!element || element.dataset.mine !== "true") return;
+        if (!element || element.dataset.mine !== "true") {
+            return;
+        }
 
-        let label = element.querySelector(".message-status");
+        let label =
+            element.querySelector(".message-status");
 
         if (!label) {
             label = document.createElement("small");
             label.className = "message-status";
 
-            (element.querySelector(".message-meta") || element)
-                .appendChild(label);
+            (
+                element.querySelector(".message-meta")
+                || element
+            ).appendChild(label);
         }
 
         const state = receipt.readAt
@@ -274,12 +919,23 @@
         label.textContent = statusLabel(state);
     }
 
-    /* ---------- Eliminación de mensajes ---------- */
-    function requestMessageDeletion(messageId, deleteForEveryone) {
-        if (!connected || !socket || socket.readyState !== WebSocket.OPEN) {
+    /* =====================================================
+       ELIMINACIÓN DE MENSAJES
+       ===================================================== */
+
+    function requestMessageDeletion(
+        messageId,
+        deleteForEveryone
+    ) {
+        if (
+            !connected
+            || !socket
+            || socket.readyState !== WebSocket.OPEN
+        ) {
             showError(
                 "No hay conexión con el servidor. Intenta nuevamente."
             );
+
             return;
         }
 
@@ -311,172 +967,6 @@
         }
     }
 
-    /* ---------- Eliminación de mensajes  ---------- */
-    let deleteDialog = null;
-    let deleteDialogReturnFocus = null;
-    let pressTimer = null;
-
-    function closeDeleteDialog() {
-        if (!deleteDialog) return;
-
-        deleteDialog.remove();
-        deleteDialog = null;
-
-        document.removeEventListener("keydown", onDeleteDialogKeydown, true);
-
-        deleteDialogReturnFocus?.focus?.();
-        deleteDialogReturnFocus = null;
-    }
-
-    function onDeleteDialogKeydown(event) {
-        if (!deleteDialog) return;
-
-        if (event.key === "Escape") {
-            event.preventDefault();
-            closeDeleteDialog();
-            return;
-        }
-
-        if (event.key !== "Tab") return;
-
-        // Mantiene el foco dentro del diálogo.
-        const buttons = deleteDialog.querySelectorAll("button");
-        const first = buttons[0];
-        const last = buttons[buttons.length - 1];
-
-        if (event.shiftKey && document.activeElement === first) {
-            event.preventDefault();
-            last.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-            event.preventDefault();
-            first.focus();
-        }
-    }
-
-    function createDialogButton(label, className, onClick) {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "ek-dialog-btn" + (className ? " " + className : "");
-        button.textContent = label;
-        button.addEventListener("click", onClick);
-        return button;
-    }
-
-    function openDeleteDialog(article, trigger) {
-        if (deleteDialog || !article || article.dataset.deleted === "true") {
-            return;
-        }
-
-        const messageId = article.dataset.messageId;
-        const mine = article.dataset.mine === "true";
-
-        if (!messageId) return;
-
-        deleteDialogReturnFocus = trigger || null;
-
-        const overlay = document.createElement("div");
-        overlay.className = "ek-dialog-overlay";
-
-        overlay.addEventListener("click", event => {
-            if (event.target === overlay) closeDeleteDialog();
-        });
-
-        const box = document.createElement("div");
-        box.className = "ek-dialog";
-        box.setAttribute("role", "dialog");
-        box.setAttribute("aria-modal", "true");
-        box.setAttribute("aria-labelledby", "deleteDialogTitle");
-
-        const title = document.createElement("h2");
-        title.id = "deleteDialogTitle";
-        title.textContent = "¿Eliminar mensaje?";
-
-        const preview = document.createElement("p");
-        preview.className = "ek-dialog-preview";
-        preview.textContent =
-            (article.querySelector(".text")?.textContent || "").slice(0, 160);
-
-        const actions = document.createElement("div");
-        actions.className = "ek-dialog-actions";
-
-        if (mine) {
-            actions.appendChild(
-                createDialogButton("Eliminar para todos", "is-danger", () => {
-                    closeDeleteDialog();
-                    requestMessageDeletion(messageId, true);
-                })
-            );
-        }
-
-        actions.appendChild(
-            createDialogButton("Eliminar para mí", "is-danger", () => {
-                closeDeleteDialog();
-                requestMessageDeletion(messageId, false);
-            })
-        );
-
-        const cancel = createDialogButton("Cancelar", "", closeDeleteDialog);
-        actions.appendChild(cancel);
-
-        box.append(title, preview, actions);
-        overlay.appendChild(box);
-        document.body.appendChild(overlay);
-
-        deleteDialog = overlay;
-        document.addEventListener("keydown", onDeleteDialogKeydown, true);
-
-        // El foco inicial va a "Cancelar" para evitar borrados accidentales.
-        cancel.focus();
-    }
-
-    function removeMessageActions(article) {
-        article.querySelector(".message-menu-btn")?.remove();
-    }
-
-    function setupMessageActions(article) {
-        if (!article || article.dataset.deleted === "true") return;
-        if (!article.dataset.messageId) return;
-        if (article.querySelector(".message-menu-btn")) return;
-
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "message-menu-btn";
-        button.setAttribute("aria-label", "Opciones del mensaje");
-        button.setAttribute("aria-haspopup", "dialog");
-        button.innerHTML = '<i class="bi bi-chevron-down" aria-hidden="true"></i>';
-
-        button.addEventListener("click", event => {
-            event.stopPropagation();
-            openDeleteDialog(article, button);
-        });
-
-        article.appendChild(button);
-    }
-
-    // Clic derecho (escritorio) y pulsación larga (Android).
-    list.addEventListener("contextmenu", event => {
-        const article = event.target.closest("article[data-message-id]");
-
-        if (!article || article.dataset.deleted === "true") return;
-
-        event.preventDefault();
-        openDeleteDialog(article, article.querySelector(".message-menu-btn"));
-    });
-
-    // Pulsación larga manual (iOS no dispara "contextmenu").
-    list.addEventListener("touchstart", event => {
-        const article = event.target.closest("article[data-message-id]");
-
-        if (!article || article.dataset.deleted === "true") return;
-
-        clearTimeout(pressTimer);
-        pressTimer = setTimeout(() => openDeleteDialog(article, null), 550);
-    }, { passive: true });
-
-    ["touchend", "touchmove", "touchcancel"].forEach(type => {
-        list.addEventListener(type, () => clearTimeout(pressTimer), { passive: true });
-    });
-
     function processDeletionEvent(payload) {
         if (
             !payload
@@ -498,19 +988,21 @@
             const content = article.querySelector(".text");
 
             if (content) {
-                content.textContent = "Este mensaje fue eliminado";
+                content.textContent =
+                    "Este mensaje fue eliminado";
             }
 
             article.dataset.deleted = "true";
 
             removeMessageActions(article);
 
-            article.querySelector(".message-status")?.remove();
+            article.querySelector(
+                ".message-status"
+            )?.remove();
 
             return;
         }
 
-        // La eliminación individual solo afecta al usuario que la solicitó.
         if (Number(payload.userId) === currentUserId) {
             article.remove();
 
@@ -520,11 +1012,14 @@
                 );
 
             if (remainingMessages.length === 0) {
-                let empty = document.getElementById("emptyMessages");
+                let empty =
+                    document.getElementById("emptyMessages");
 
                 if (!empty) {
                     empty = document.createElement("p");
+
                     empty.id = "emptyMessages";
+
                     empty.textContent =
                         "Todavía no hay mensajes. ¡Envía el primero!";
 
@@ -534,9 +1029,66 @@
         }
     }
 
-    /** Devuelve true si el mensaje se añadió (y no existía antes). */
+    /* =====================================================
+       ACCIONES DE MENSAJES
+       ===================================================== */
+
+    list.addEventListener("contextmenu", event => {
+        const article = event.target.closest(
+            "article[data-message-id]"
+        );
+
+        if (
+            !article
+            || article.dataset.deleted === "true"
+        ) {
+            return;
+        }
+
+        event.preventDefault();
+
+        openDeleteDialog(
+            article,
+            article.querySelector(".message-menu-btn")
+        );
+    });
+
+    list.addEventListener("touchstart", event => {
+        const article = event.target.closest(
+            "article[data-message-id]"
+        );
+
+        if (
+            !article
+            || article.dataset.deleted === "true"
+        ) {
+            return;
+        }
+
+        clearTimeout(pressTimer);
+
+        pressTimer = setTimeout(() => {
+            openDeleteDialog(article, null);
+        }, 550);
+
+    }, { passive: true });
+
+    ["touchend", "touchmove", "touchcancel"].forEach(type => {
+        list.addEventListener(
+            type,
+            () => clearTimeout(pressTimer),
+            { passive: true }
+        );
+    });
+
+    /* =====================================================
+       MENSAJES
+       ===================================================== */
+
     function addMessage(message) {
-        if (!message || message.id == null) return false;
+        if (!message || message.id == null) {
+            return false;
+        }
 
         const id = String(message.id);
 
@@ -556,11 +1108,14 @@
 
         document.getElementById("emptyMessages")?.remove();
 
-        const mine = Number(message.senderId) === currentUserId;
+        const mine =
+            Number(message.senderId) === currentUserId;
 
         const article = document.createElement("article");
-        article.className = "message " +
-            (mine ? "message-mine" : "message-other");
+
+        article.className =
+            "message "
+            + (mine ? "message-mine" : "message-other");
 
         article.dataset.messageId = id;
         article.dataset.mine = String(mine);
@@ -569,6 +1124,7 @@
         senderLine.className = "sender visually-hidden";
 
         const sender = document.createElement("strong");
+
         sender.textContent = mine
             ? "Tú"
             : (message.senderUsername || "Usuario");
@@ -593,8 +1149,10 @@
 
         if (message.sentAt) {
             const time = document.createElement("small");
+
             time.className = "message-time";
             time.textContent = formatDate(message.sentAt);
+
             meta.appendChild(time);
         }
 
@@ -606,9 +1164,11 @@
                     : "sent";
 
             const label = document.createElement("small");
+
             label.className = "message-status";
             label.dataset.state = state;
             label.textContent = statusLabel(state);
+
             meta.appendChild(label);
         }
 
@@ -622,10 +1182,16 @@
         return true;
     }
 
+    /* =====================================================
+       RECIBOS DE ENTREGA Y LECTURA
+       ===================================================== */
+
     function sendReceipt(destination, id, set) {
         const key = String(id);
 
-        if (!connected || set.has(key)) return;
+        if (!connected || set.has(key)) {
+            return;
+        }
 
         set.add(key);
 
@@ -644,6 +1210,7 @@
 
         } catch (error) {
             set.delete(key);
+
             console.error(
                 "No se pudo confirmar el mensaje.",
                 error
@@ -652,7 +1219,10 @@
     }
 
     function confirmIncomingMessages() {
-        if (!connected || document.visibilityState !== "visible") {
+        if (
+            !connected
+            || document.visibilityState !== "visible"
+        ) {
             return;
         }
 
@@ -675,15 +1245,19 @@
         });
     }
 
+    /* =====================================================
+       MENSAJES ENTRANTES
+       ===================================================== */
+
     function onIncoming(payload) {
         const wasNearBottom = nearBottom();
         const created = addMessage(payload);
 
         if (!created) return;
 
-        const mine = Number(payload.senderId) === currentUserId;
+        const mine =
+            Number(payload.senderId) === currentUserId;
 
-        // Si llega un mensaje, el indicador deja de ser necesario.
         if (!mine) {
             hideRemoteTyping();
         }
@@ -693,6 +1267,7 @@
 
         } else if (scrollBtn) {
             missed++;
+
             scrollBtn.hidden = false;
 
             if (scrollBadge) {
@@ -720,15 +1295,25 @@
         }
     }
 
+    /* =====================================================
+       PROCESAMIENTO DE FRAMES STOMP
+       ===================================================== */
+
     function processFrame(frame) {
         frame = frame.replace(/\r\n/g, "\n");
 
         const separator = frame.indexOf("\n\n");
+
         if (separator < 0) return;
 
-        const lines = frame.substring(0, separator).split("\n");
-        const body = frame.substring(separator + 2);
+        const lines =
+            frame.substring(0, separator).split("\n");
+
+        const frameBody =
+            frame.substring(separator + 2);
+
         const command = lines.shift();
+
         const headers = {};
 
         lines.forEach(line => {
@@ -741,7 +1326,10 @@
             }
         });
 
+        /* ---------- Conexión establecida ---------- */
+
         if (command === "CONNECTED") {
+
             sendFrame("SUBSCRIBE", {
                 id: "conversation-" + conversationId,
                 destination: topic
@@ -752,6 +1340,20 @@
                 destination: statusTopic
             });
 
+            /*
+             * Canal privado de contactos.
+             * Recibe CONTACTS_UPDATED y BLOCK_STATUS_UPDATED.
+             * Utiliza esta misma conexión WebSocket.
+             */
+            sendFrame("SUBSCRIBE", {
+                id: "contacts-" + currentUserId,
+                destination: contactsTopic
+            });
+
+            /*
+             * Mantener la suscripción incluso si comienza bloqueado.
+             * Al desbloquear no necesitaremos reconectar.
+             */
             sendFrame("SUBSCRIBE", {
                 id: "typing-" + conversationId,
                 destination: typingTopic
@@ -760,13 +1362,14 @@
             connected = true;
             retryDelay = 1000;
 
-            setStatus("En línea · tiempo real", "online");
+            setStatus(
+                "En línea · tiempo real",
+                "online"
+            );
 
             confirmIncomingMessages();
 
-            // Si se recupera la conexión mientras el usuario escribe,
-            // se vuelve a anunciar el estado.
-            if (input.value.trim()) {
+            if (!chatBlocked && input.value.trim()) {
                 typingActive = false;
                 notifyTyping();
             }
@@ -774,24 +1377,51 @@
             return;
         }
 
+        /* ---------- Mensaje recibido ---------- */
+
         if (command === "MESSAGE") {
             try {
-                const payload = JSON.parse(body);
-                const destination = headers.destination || "";
+                const payload = JSON.parse(frameBody);
+
+                const destination =
+                    headers.destination || "";
+
+                /*
+                 * Evento de bloqueo o desbloqueo.
+                 * Solo se aplica al otro participante de este chat.
+                 */
+                if (
+                    payload
+                    && payload.type === "BLOCK_STATUS_UPDATED"
+                ) {
+                    processBlockStatusEvent(payload);
+                    return;
+                }
+
+                /* ---------- Recibos ---------- */
 
                 if (destination === statusTopic) {
                     updateStatus(payload);
                     return;
                 }
 
+                /* ---------- Escritura ---------- */
+
                 if (destination === typingTopic) {
                     processTypingEvent(payload);
                     return;
                 }
 
-                if (destination !== topic) return;
-                // Los eventos de eliminación tienen messageId
-                // y conversationId, a diferencia de los mensajes.
+                /* ---------- Historial de conversación ---------- */
+
+                if (destination !== topic) {
+                    return;
+                }
+
+                /*
+                 * Los eventos de eliminación tienen messageId
+                 * y conversationId, a diferencia de los mensajes.
+                 */
                 if (
                     payload
                     && payload.messageId != null
@@ -813,7 +1443,9 @@
                         deliveredSent
                     );
 
-                    if (document.visibilityState === "visible") {
+                    if (
+                        document.visibilityState === "visible"
+                    ) {
                         sendReceipt(
                             "/app/chat.read",
                             payload.id,
@@ -832,21 +1464,39 @@
             return;
         }
 
+        /* ---------- Error STOMP ---------- */
+
         if (command === "ERROR") {
-            console.error("Error STOMP:", body);
-            setStatus("El servidor rechazó una operación.", "offline");
+            console.error(
+                "Error STOMP:",
+                frameBody
+            );
+
+            setStatus(
+                "El servidor rechazó una operación.",
+                "offline"
+            );
         }
     }
+
+    /* =====================================================
+       CONEXIÓN WEBSOCKET
+       ===================================================== */
 
     function connect() {
         if (manuallyClosed) return;
 
         connected = false;
-        setStatus("Conectando al chat...", "connecting");
 
-        const scheme = location.protocol === "https:"
-            ? "wss:"
-            : "ws:";
+        setStatus(
+            "Conectando al chat...",
+            "connecting"
+        );
+
+        const scheme =
+            location.protocol === "https:"
+                ? "wss:"
+                : "ws:";
 
         const ws = new WebSocket(
             scheme + "//" + location.host + "/ws"
@@ -881,10 +1531,13 @@
             buffer += event.data;
 
             const frames = buffer.split("\0");
+
             buffer = frames.pop() || "";
 
             frames.forEach(frame => {
-                if (frame.trim()) processFrame(frame);
+                if (frame.trim()) {
+                    processFrame(frame);
+                }
             });
         });
 
@@ -919,13 +1572,33 @@
         });
 
         ws.addEventListener("error", error => {
-            console.error("Error WebSocket.", error);
+            console.error(
+                "Error WebSocket.",
+                error
+            );
         });
     }
 
-    /* ---------- Envío ---------- */
+    /* =====================================================
+       ENVÍO DE MENSAJES
+       ===================================================== */
 
     form.addEventListener("submit", event => {
+
+        if (chatBlocked) {
+            event.preventDefault();
+
+            stopTyping();
+
+            showError(
+                otherAccountDeleted
+                    ? "No puedes enviar mensajes a una cuenta eliminada."
+                    : "No puedes enviar mensajes mientras exista un bloqueo."
+            );
+
+            return;
+        }
+
         if (submittingHttp) {
             submittingHttp = false;
             stopTyping();
@@ -948,7 +1621,10 @@
 
         clearError();
 
-        // Respaldo HTTP si no hay conexión STOMP.
+        /*
+         * Respaldo HTTP cuando no hay conexión STOMP.
+         * El formulario conserva su action original.
+         */
         if (
             !connected
             || !socket
@@ -976,6 +1652,7 @@
             stopTyping();
 
             input.value = "";
+
             autosize();
 
             play("sent");
@@ -990,15 +1667,23 @@
             );
 
             submittingHttp = true;
+
             form.requestSubmit();
         }
     });
 
-    // Enter envía (en ordenador); Shift+Enter inserta salto de línea.
-    const finePointer = window.matchMedia
+    /* ---------- Enter y Shift + Enter ---------- */
+
+    const finePointer =
+        window.matchMedia
         && window.matchMedia("(pointer: fine)").matches;
 
     input.addEventListener("keydown", event => {
+        if (chatBlocked) {
+            event.preventDefault();
+            return;
+        }
+
         if (
             finePointer
             && event.key === "Enter"
@@ -1013,6 +1698,8 @@
     input.addEventListener("input", () => {
         autosize();
 
+        if (chatBlocked) return;
+
         if (errorBox && !errorBox.hidden) {
             clearError();
         }
@@ -1024,22 +1711,32 @@
         stopTyping();
     });
 
-    /* ---------- Emojis ---------- */
+    /* =====================================================
+       EMOJIS
+       ===================================================== */
 
     if (emojiBtn && emojiPanel) {
+
         "😀 😂 😊 😍 🥰 😎 🤔 😅 😭 😢 😡 🥳 👍 👏 🙏 💪 🔥 ✨ ❤️ 💙 🌊 🐬 🐚 🏝️ ☀️ 🎉 👀 🙌 😴 🤝 💬 ✅"
             .split(" ")
             .forEach(emoji => {
 
-                const b = document.createElement("button");
-                b.type = "button";
-                b.textContent = emoji;
-                b.setAttribute(
+                const button =
+                    document.createElement("button");
+
+                button.type = "button";
+                button.textContent = emoji;
+
+                button.setAttribute(
                     "aria-label",
                     "Insertar " + emoji
                 );
 
-                b.addEventListener("click", () => {
+                button.disabled = chatBlocked;
+
+                button.addEventListener("click", () => {
+                    if (chatBlocked) return;
+
                     const start =
                         input.selectionStart ?? input.value.length;
 
@@ -1054,34 +1751,41 @@
                     );
 
                     input.focus();
+
                     autosize();
                     notifyTyping();
                 });
 
-                emojiPanel.appendChild(b);
+                emojiPanel.appendChild(button);
             });
 
         emojiBtn.addEventListener("click", () => {
+            if (chatBlocked) return;
+
             emojiPanel.hidden = !emojiPanel.hidden;
         });
 
-        document.addEventListener("click", e => {
+        document.addEventListener("click", event => {
             if (
                 !emojiPanel.hidden
-                && !e.target.closest("#emojiPanel, #emojiToggle")
+                && !event.target.closest(
+                    "#emojiPanel, #emojiToggle"
+                )
             ) {
                 emojiPanel.hidden = true;
             }
         });
 
-        document.addEventListener("keydown", e => {
-            if (e.key === "Escape") {
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape") {
                 emojiPanel.hidden = true;
             }
         });
     }
 
-    /* ---------- Desplazamiento y ciclo de vida ---------- */
+    /* =====================================================
+       DESPLAZAMIENTO Y CICLO DE VIDA
+       ===================================================== */
 
     scrollBtn?.addEventListener("click", () => {
         scrollToBottom(true);
@@ -1093,6 +1797,10 @@
 
             if (scrollBtn) {
                 scrollBtn.hidden = true;
+            }
+
+            if (scrollBadge) {
+                scrollBadge.hidden = true;
             }
         }
     }, { passive: true });
@@ -1108,10 +1816,15 @@
 
         clearTimeout(retryTimer);
         clearTimeout(typingStopTimer);
+        clearTimeout(remoteTypingTimer);
+        clearTimeout(pressTimer);
 
-        // Intento de avisar al otro participante antes de cerrar.
+        /*
+         * Avisar que dejamos de escribir antes de cerrar.
+         */
         if (
-            connected
+            !chatBlocked
+            && connected
             && socket
             && socket.readyState === WebSocket.OPEN
             && typingActive
@@ -1120,6 +1833,7 @@
         }
 
         typingActive = false;
+
         hideRemoteTyping();
 
         if (
@@ -1129,6 +1843,10 @@
             socket.close();
         }
     });
+
+    /* =====================================================
+       INICIALIZACIÓN
+       ===================================================== */
 
     list.style.scrollBehavior = "auto";
 
@@ -1142,7 +1860,7 @@
         list.style.scrollBehavior = "";
     }, 400);
 
-    // Acciones de eliminación para el historial inicial.
+    // Acciones para los mensajes que ya estaban cargados.
     list.querySelectorAll(
         'article[data-message-id]'
     ).forEach(article => {
@@ -1151,7 +1869,12 @@
         }
     });
 
+    // Aplicar el estado inicial del bloqueo.
+    updateComposerState();
+
     autosize();
+
+    // Una única conexión WebSocket para este chat.
     connect();
 
 })();
