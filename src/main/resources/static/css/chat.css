@@ -1,5 +1,6 @@
 /* =========================================================
-   BÚSQUEDA DE CONVERSACIONES
+   Chat.js
+    BÚSQUEDA DE CONVERSACIONES
    ========================================================= */
 
 .ek-search {
@@ -28,7 +29,6 @@
     display: none !important;
 }
 
-
 /* =========================================================
    LISTA DE CONVERSACIONES
    ========================================================= */
@@ -46,7 +46,6 @@
 .ek-conv-list:empty {
     display: none;
 }
-
 
 /* ---------- Tarjeta individual ---------- */
 
@@ -68,7 +67,6 @@
 .ek-conv:hover {
     background: var(--ek-hover);
 }
-
 
 /* ---------- Avatar ---------- */
 
@@ -93,7 +91,6 @@
     background: var(--ek-surface-2);
 }
 
-
 /* ---------- Contenido de la tarjeta ---------- */
 
 .ek-conv-body {
@@ -101,7 +98,6 @@
     min-width: 0;
     overflow: hidden;
 }
-
 
 /* ---------- Nombre y fecha ---------- */
 
@@ -142,7 +138,6 @@
     white-space: nowrap;
 }
 
-
 /* ---------- Último mensaje ---------- */
 
 .ek-conv-last {
@@ -170,14 +165,12 @@
     display: none !important;
 }
 
-
 /* ---------- Último mensaje cuando hay mensajes pendientes ---------- */
 
 .ek-conv:has(.has-unread) .ek-conv-last {
     color: var(--ek-text);
     font-weight: 600;
 }
-
 
 /* =========================================================
    INDICADOR DE ESCRITURA EN LA LISTA DE CONVERSACIONES
@@ -229,7 +222,6 @@
     animation-delay: .3s;
 }
 
-
 /* ---------- Animación de escritura ---------- */
 
 @keyframes ekTypingBounce {
@@ -245,7 +237,6 @@
         transform: translateY(-3px);
     }
 }
-
 
 /* =========================================================
    CONTADOR DE MENSAJES NO LEÍDOS
@@ -275,7 +266,6 @@
 .ek-unread-pill .unread-count {
     line-height: 1;
 }
-
 
 /* =========================================================
    PANTALLA DE CONVERSACIÓN
@@ -316,7 +306,6 @@
     padding-bottom: 0;
 }
 
-
 /* ---------- Contenedor general del chat ---------- */
 
 .ek-chat {
@@ -325,7 +314,6 @@
     flex-direction: column;
     min-height: 0;
 }
-
 
 /* =========================================================
    CABECERA DE LA CONVERSACIÓN
@@ -374,12 +362,127 @@
     margin: .5rem 1rem 0;
 }
 
+/* =========================================================
+   ESTADO DE BLOQUEO
+   ========================================================= */
+
+.ek-chat-block-status {
+    display: flex;
+    flex-direction: column;
+    gap: .85rem;
+    margin: .75rem 1rem;
+    padding: 1rem;
+    border: 1px solid var(--ek-border-neon);
+    border-radius: 16px;
+    background: var(--ek-surface);
+    box-shadow: var(--ek-card-glow);
+}
+
+.ek-chat-block-message {
+    display: flex;
+    align-items: flex-start;
+    gap: .8rem;
+    min-width: 0;
+}
+
+.ek-chat-block-icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--ek-border-neon);
+    border-radius: 12px;
+    background: var(--ek-surface-2);
+    color: var(--ek-primary);
+    font-size: 1.15rem;
+}
+
+.ek-chat-block-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.ek-chat-block-content strong {
+    display: block;
+    margin: 0 0 .25rem;
+    color: var(--ek-text);
+    font-size: .9rem;
+    font-weight: 800;
+}
+
+.ek-chat-block-content p {
+    margin: 0;
+    color: var(--ek-muted);
+    font-size: .82rem;
+    line-height: 1.5;
+}
+
+/* ---------- Formulario de desbloqueo ---------- */
+
+.ek-unblock-form {
+    display: flex;
+    justify-content: flex-end;
+    margin: 0;
+    padding-top: .75rem;
+    border-top: 1px solid var(--ek-border);
+}
+
+.ek-unblock-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    min-height: 40px;
+    padding: .55rem 1rem;
+    border: 1px solid var(--ek-border-neon);
+    border-radius: 12px;
+    background: var(--ek-grad);
+    color: var(--ek-on-grad);
+    font-size: .85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        transform .15s ease,
+        box-shadow .15s ease,
+        opacity .15s ease;
+}
+
+.ek-unblock-btn:hover {
+    box-shadow: var(--ek-btn-glow);
+    transform: translateY(-1px);
+}
+
+.ek-unblock-btn:focus-visible {
+    outline: 2px solid var(--ek-primary);
+    outline-offset: 3px;
+}
+
+.ek-unblock-btn:active {
+    transform: translateY(0);
+}
+
+.ek-unblock-btn i {
+    font-size: .95rem;
+}
+
+/* ---------- Ocultar completamente el compositor ---------- */
+
+.ek-chat-composer-blocked {
+    display: none !important;
+}
+
+/* ---------- Estado de cuenta eliminada ---------- */
+
+.ek-chat-block-status:has(.bi-person-x) {
+    border-style: dashed;
+}
 
 /* =========================================================
    CUERPO DE LOS MENSAJES
    ========================================================= */
 
-.ek-chat-body{
+.ek-chat-body {
     position: relative;
     display: flex;
     flex: 1;
@@ -402,7 +505,6 @@
     touch-action: pan-y;
 }
 
-
 /* ---------- Avisos dentro del chat ---------- */
 
 .ek-chat-note {
@@ -417,7 +519,6 @@
     font-size: .7rem;
     text-align: center;
 }
-
 
 /* ---------- Estado de conversación vacía ---------- */
 
@@ -438,7 +539,6 @@
     color: var(--ek-primary);
     font-size: 1.8rem;
 }
-
 
 /* =========================================================
    BURBUJAS DE MENSAJES
@@ -464,7 +564,6 @@
     white-space: pre-wrap;
 }
 
-
 /* ---------- Mensajes recibidos ---------- */
 
 .message-other {
@@ -474,7 +573,6 @@
     background: var(--ek-in-bg);
     color: var(--ek-in-text);
 }
-
 
 /* ---------- Mensajes enviados ---------- */
 
@@ -486,14 +584,12 @@
     color: var(--ek-out-text);
 }
 
-
 /* ---------- Agrupación de mensajes ---------- */
 
 .message-mine + .message-mine,
 .message-other + .message-other {
     margin-top: 3px;
 }
-
 
 /* ---------- Metadatos de los mensajes ---------- */
 
@@ -520,14 +616,12 @@
     color: var(--ek-muted);
 }
 
-
 /* ---------- Estado de lectura ---------- */
 
 .message-mine .message-status[data-state="read"] {
     color: var(--ek-out-read);
     font-weight: 600;
 }
-
 
 /* =========================================================
    BOTÓN PARA IR AL FINAL DEL CHAT
@@ -560,7 +654,6 @@
     border-color: var(--ek-surface);
 }
 
-
 /* =========================================================
    ERRORES DE ENVÍO
    ========================================================= */
@@ -573,7 +666,6 @@
     font-size: .85rem;
     font-weight: 600;
 }
-
 
 /* =========================================================
    BARRA DE ESCRITURA
@@ -591,7 +683,6 @@
     background: var(--ek-surface);
 }
 
-
 /* ---------- Botones de la barra ---------- */
 
 .ek-composer .ek-icon-btn {
@@ -601,7 +692,6 @@
     padding: 0;
     font-size: 1.35rem;
 }
-
 
 /* ---------- Área de texto ---------- */
 
@@ -629,7 +719,6 @@
     border-color: var(--ek-primary);
     box-shadow: var(--ek-focus);
 }
-
 
 /* ---------- Botón enviar ---------- */
 
@@ -663,7 +752,6 @@
     font-weight: 500;
 }
 
-
 /* ---------- Contador de caracteres ---------- */
 
 .ek-counter {
@@ -678,7 +766,6 @@
     font-family: var(--ek-mono);
     font-size: .7rem;
 }
-
 
 /* =========================================================
    PANEL DE EMOJIS
@@ -713,7 +800,6 @@
 .ek-emoji-panel button:hover {
     background: var(--ek-hover);
 }
-
 
 /* =========================================================
    INDICADOR DE ESCRITURA EN EL CHAT ABIERTO
@@ -755,7 +841,6 @@
     animation-delay: .3s;
 }
 
-
 /* =========================================================
    ELIMINAR MENSAJES
    ========================================================= */
@@ -788,10 +873,16 @@
     background: rgba(128, 128, 128, .25);
 }
 
-/* En pantallas táctiles se usa la pulsación larga */
+/* ---------- En pantallas táctiles se usa la pulsación larga ---------- */
+
 @media (hover: none) {
-    .message-menu-btn { display: none; }
-    .message { -webkit-touch-callout: none; }
+    .message-menu-btn {
+        display: none;
+    }
+
+    .message {
+        -webkit-touch-callout: none;
+    }
 }
 
 /* ---------- Diálogo de confirmación ---------- */
@@ -857,14 +948,38 @@
     cursor: pointer;
 }
 
-.ek-dialog-btn:hover { background: var(--ek-hover); }
-.ek-dialog-btn.is-danger { color: var(--ek-err); }
-.ek-dialog-btn.is-danger:hover { background: var(--ek-err-soft); }
-
-@keyframes ekDialogIn {
-    from { opacity: 0; transform: scale(.96); }
+.ek-dialog-btn:hover {
+    background: var(--ek-hover);
 }
 
+.ek-dialog-btn.is-danger {
+    color: var(--ek-err);
+}
+
+.ek-dialog-btn.is-danger:hover {
+    background: var(--ek-err-soft);
+}
+
+/* =========================================================
+   ESTADO DE BLOQUEO EN LA LISTA DE CONVERSACIONES
+   ========================================================= */
+.ek-conv-block-status {
+    display: block;
+    margin-top: .25rem;
+    overflow: hidden;
+    color: var(--ek-muted);
+    font-size: .75rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@keyframes ekDialogIn {
+    from {
+        opacity: 0;
+        transform: scale(.96);
+    }
+}
 
 /* =========================================================
    ACCESIBILIDAD: MOVIMIENTO REDUCIDO
@@ -879,11 +994,11 @@
 
     .ek-conv,
     .ek-send,
-    .message-menu-btn {
+    .message-menu-btn,
+    .ek-unblock-btn {
         transition: none;
     }
 }
-
 
 /* =========================================================
    RESPONSIVE: TABLET Y MÓVILES
@@ -949,6 +1064,42 @@
         padding: 0;
     }
 
+    /* ---------- Estado de bloqueo ---------- */
+
+    .ek-chat-block-status {
+        gap: .75rem;
+        margin: .6rem .75rem;
+        padding: .85rem;
+    }
+
+    .ek-chat-block-message {
+        gap: .65rem;
+    }
+
+    .ek-chat-block-icon {
+        flex-basis: 36px;
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+
+    .ek-chat-block-content strong {
+        font-size: .85rem;
+    }
+
+    .ek-chat-block-content p {
+        font-size: .78rem;
+    }
+
+    .ek-unblock-form {
+        padding-top: .65rem;
+    }
+
+    .ek-unblock-btn {
+        width: 100%;
+        min-height: 42px;
+    }
+
     /* ---------- Lista de conversaciones ---------- */
 
     .ek-conv {
@@ -989,7 +1140,6 @@
         font-size: .7rem;
     }
 }
-
 
 /* =========================================================
    RESPONSIVE: PANTALLAS MUY PEQUEÑAS
@@ -1037,5 +1187,10 @@
         min-width: 20px;
         height: 20px;
         padding: 0 5px;
+    }
+
+    .ek-chat-block-status {
+        margin: .5rem;
+        padding: .75rem;
     }
 }
