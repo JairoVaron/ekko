@@ -1,3 +1,6 @@
+/* =====================================================
+   EKKO · conversaciones.js
+===================================================== */
 (() => {
     "use strict";
 
@@ -1037,5 +1040,79 @@
     applyConversationFilter();
 
     connect();
+
+    /* =========================================================
+    ACTUALIZACIÓN EN TIEMPO REAL DEL ESTADO DE BLOQUEO
+    ========================================================= */
+
+    function updateConversationBlockStatus(data) {
+
+        if (!data || data.otherUserId == null) {
+            return;
+        }
+
+        const otherUserId = Number(data.otherUserId);
+
+        const conversation = conversations.find(item => {
+            return Number(item.dataset.otherUserId) === otherUserId;
+        });
+
+        if (!conversation) {
+            return;
+        }
+
+        const blockedByMe = data.blockedByMe === true;
+        const blockedByOther = data.blockedByOther === true;
+        const isBlocked = blockedByMe || blockedByOther;
+
+        conversation.dataset.blockedByMe = String(blockedByMe);
+        conversation.dataset.blockedByOther = String(blockedByOther);
+
+        let status = conversation.querySelector(
+            ".ek-conv-block-status"
+        );
+
+        if (!isBlocked) {
+
+            if (status) {
+                status.remove();
+            }
+
+            return;
+        }
+
+        if (!status) {
+
+            status = document.createElement("div");
+            status.className = "ek-conv-block-status";
+
+            const body = conversation.querySelector(".ek-conv-body");
+
+            if (body) {
+                body.appendChild(status);
+            }
+        }
+
+        if (blockedByMe) {
+            status.textContent = "Has bloqueado a esta persona";
+        } else {
+            status.textContent = "Esta persona te ha bloqueado";
+        }
+
+        const typing = conversation.querySelector(
+            ".conversation-typing"
+        );
+
+        if (typing) {
+            typing.hidden = isBlocked;
+        }
+    }
+
+    window.addEventListener(
+        "ekko:block-status-updated",
+        event => {
+            updateConversationBlockStatus(event.detail);
+        }
+    );
 
 })();
