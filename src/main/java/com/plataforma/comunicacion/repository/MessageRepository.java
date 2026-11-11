@@ -22,6 +22,15 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             Long conversationId
     );
 
+    /*
+     * MENSAJES VISIBLES
+     *
+     * Los mensajes eliminados globalmente permanecen visibles
+     * como marcadores de mensaje eliminado.
+     *
+     * Los mensajes ocultos para el usuario no se muestran.
+     */
+
     @Query("""
         SELECT m
         FROM Message m
@@ -39,6 +48,15 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             @Param("userId") Long userId,
             Pageable pageable
     );
+
+    /*
+     * MENSAJES NO LEÍDOS
+     *
+     * No incluye:
+     * - Mensajes propios.
+     * - Mensajes eliminados globalmente.
+     * - Mensajes ocultos para el usuario.
+     */
 
     @Query("""
         SELECT m
@@ -59,6 +77,10 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             @Param("userId") Long userId
     );
 
+    /*
+     * CONTADOR DE MENSAJES NO LEÍDOS
+     */
+
     @Query("""
         SELECT COUNT(m)
         FROM Message m
@@ -77,6 +99,13 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
             @Param("conversationId") Long conversationId,
             @Param("userId") Long userId
     );
+
+    /*
+     * CONTADORES GENERALES
+     *
+     * Se conservan por compatibilidad con otras partes
+     * del proyecto.
+     */
 
     long countByConversation_Id(Long conversationId);
 

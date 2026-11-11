@@ -29,6 +29,10 @@ public class MessageReceiptWebSocketController {
         this.messagingTemplate = messagingTemplate;
     }
 
+    /*
+     * CONFIRMACIÓN DE ENTREGA
+     */
+
     @MessageMapping("/chat.delivered")
     public void markDelivered(
             MessageReceiptRequest request,
@@ -39,6 +43,7 @@ public class MessageReceiptWebSocketController {
         if (request == null
                 || request.messageId() == null
                 || request.conversationId() == null) {
+
             throw new IllegalArgumentException(
                     "La confirmación de entrega no es válida.");
         }
@@ -50,6 +55,14 @@ public class MessageReceiptWebSocketController {
                         userId
                 );
 
+        /*
+         * Si el mensaje fue eliminado, ocultado
+         * o ya no existe, no publicamos ningún estado.
+         */
+        if (status == null) {
+            return;
+        }
+
         messagingTemplate.convertAndSend(
                 "/topic/conversations/"
                         + status.conversationId()
@@ -57,6 +70,10 @@ public class MessageReceiptWebSocketController {
                 status
         );
     }
+
+    /*
+     * CONFIRMACIÓN DE LECTURA
+     */
 
     @MessageMapping("/chat.read")
     public void markRead(
@@ -68,6 +85,7 @@ public class MessageReceiptWebSocketController {
         if (request == null
                 || request.messageId() == null
                 || request.conversationId() == null) {
+
             throw new IllegalArgumentException(
                     "La confirmación de lectura no es válida.");
         }
@@ -79,6 +97,14 @@ public class MessageReceiptWebSocketController {
                         userId
                 );
 
+        /*
+         * Las confirmaciones atrasadas se ignoran
+         * sin generar publicaciones innecesarias.
+         */
+        if (status == null) {
+            return;
+        }
+
         messagingTemplate.convertAndSend(
                 "/topic/conversations/"
                         + status.conversationId()
@@ -87,9 +113,16 @@ public class MessageReceiptWebSocketController {
         );
     }
 
+    /*
+     * IDENTIFICAR USUARIO AUTENTICADO
+     */
+
     private Long getAuthenticatedUserId(Principal principal) {
 
-        if (principal == null || principal.getName() == null) {
+        if (principal == null
+                || principal.getName() == null
+                || principal.getName().isBlank()) {
+
             throw new IllegalArgumentException(
                     "Debes iniciar sesión.");
         }

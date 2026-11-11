@@ -89,31 +89,28 @@ public class ConversationService {
         }
     }
 
-    private void requireAcceptedContact(
-            Long firstUserId,
-            Long secondUserId) {
+        private void requireAcceptedContact(
+                Long firstUserId,
+                Long secondUserId) {
 
-        Optional<ContactRequest> outgoing =
-                contactRequestRepository.findByRequester_IdAndAddressee_Id(
-                        firstUserId, secondUserId);
+        if (firstUserId == null || secondUserId == null
+                || Objects.equals(firstUserId, secondUserId)) {
 
-        Optional<ContactRequest> incoming =
-                contactRequestRepository.findByRequester_IdAndAddressee_Id(
-                        secondUserId, firstUserId);
+                throw new IllegalArgumentException(
+                        "La relación entre los usuarios no es válida.");
+        }
 
         boolean accepted =
-                outgoing.map(request ->
-                        "ACCEPTED".equals(request.getStatus())
-                ).orElse(false)
-                || incoming.map(request ->
-                        "ACCEPTED".equals(request.getStatus())
-                ).orElse(false);
+                contactRequestRepository.existsAcceptedContact(
+                        firstUserId,
+                        secondUserId
+                );
 
         if (!accepted) {
-            throw new IllegalArgumentException(
-                    "Solo puedes conversar con contactos aceptados.");
+                throw new IllegalArgumentException(
+                        "Solo puedes conversar con contactos aceptados.");
         }
-    }
+        }
 
     private void requireMembership(
             Long conversationId,
@@ -127,6 +124,71 @@ public class ConversationService {
                     "No tienes permiso para acceder a esta conversación.");
         }
     }
+
+        /**
+         * Obtiene el identificador del otro participante.
+         */
+        private Long getOtherParticipantId(
+                Long conversationId,
+                Long currentUserId) {
+
+        requireMembership(conversationId, currentUserId);
+
+        List<ConversationMember> members =
+                conversationMemberRepository.findByConversation_Id(
+                        conversationId);
+
+        if (members.size() != 2) {
+                throw new IllegalArgumentException(
+                        "La conversación no es privada o no tiene dos participantes.");
+        }
+
+        return members.stream()
+                .map(member -> member.getUser().getId())
+                .filter(id -> !Objects.equals(id, currentUserId))
+                .findFirst()
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "No se encontró al otro participante."));
+        }
+
+        /**
+         * Indica si el usuario actual bloqueó al otro participante.
+         */
+        @Transactional(readOnly = true)
+        public boolean isBlockedByCurrentUser(
+                Long conversationId,
+                Long currentUserId) {
+
+        requireActiveUser(currentUserId);
+
+        Long otherUserId = getOtherParticipantId(
+                conversationId,
+                currentUserId);
+
+        return userBlockRepository.existsByBlocker_IdAndBlocked_Id(
+                currentUserId,
+                otherUserId);
+        }
+
+        /**
+         * Indica si el otro participante bloqueó al usuario actual.
+         */
+        @Transactional(readOnly = true)
+        public boolean isBlockedByOtherUser(
+                Long conversationId,
+                Long currentUserId) {
+
+        requireActiveUser(currentUserId);
+
+        Long otherUserId = getOtherParticipantId(
+                conversationId,
+                currentUserId);
+
+        return userBlockRepository.existsByBlocker_IdAndBlocked_Id(
+                otherUserId,
+                currentUserId);
+        }
 
     private void requireConversationAvailable(
             Long conversationId,
@@ -156,14 +218,31 @@ public class ConversationService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public void validateConversationAccess(
-            Long conversationId,
-            Long currentUserId) {
+        /**
+         * Comprueba que el usuario pertenece a la conversación.
+         *
+         * Este permiso permite consultar el historial incluso
+         * cuando existe un bloqueo entre los participantes.
+         */
+        private void requireConversationMembership(
+                Long conversationId,
+                Long currentUserId) {
+
+        requireMembership(conversationId, currentUserId);
+        }
+
+        @Transactional(readOnly = true)
+        public void validateConversationAccess(
+                Long conversationId,
+                Long currentUserId) {
 
         requireActiveUser(currentUserId);
-        requireConversationAvailable(conversationId, currentUserId);
-    }
+
+        // La suscripción al historial no se bloquea.
+        requireConversationMembership(
+                conversationId,
+                currentUserId);
+        }
 
     @Transactional(readOnly = true)
     public void validateTypingAccess(
@@ -212,9 +291,6 @@ public class ConversationService {
         AppUser currentUser = requireActiveUser(currentUserId);
         AppUser otherUser = requireActiveUser(otherUserId);
 
-        requireAcceptedContact(currentUserId, otherUserId);
-        requireNotBlocked(currentUserId, otherUserId);
-
         List<ConversationMember> currentMemberships =
                 conversationMemberRepository
                         .findByUser_IdOrderByJoinedAtDesc(currentUserId);
@@ -237,6 +313,11 @@ public class ConversationService {
             }
         }
 
+        // Solo se permite crear una conversación nueva
+        // cuando existe un contacto aceptado y no hay bloqueos.
+        requireAcceptedContact(currentUserId, otherUserId);
+        requireNotBlocked(currentUserId, otherUserId);
+
         Conversation conversation =
                 conversationRepository.saveAndFlush(new Conversation());
 
@@ -252,8 +333,8 @@ public class ConversationService {
         return conversation.getId();
     }
 
-    @Transactional(readOnly = true)
-    public List<ConversationSummary> listConversations(Long userId) {
+        @Transactional(readOnly = true)
+        public List<ConversationSummary> listConversations(Long userId) {
 
         requireActiveUser(userId);
 
@@ -264,54 +345,66 @@ public class ConversationService {
                         .findByUser_IdOrderByJoinedAtDesc(userId);
 
         for (ConversationMember membership : memberships) {
-            Long conversationId = membership.getConversation().getId();
 
-            List<ConversationMember> members =
-                    conversationMemberRepository.findByConversation_Id(
-                            conversationId);
+                Long conversationId =
+                        membership.getConversation().getId();
 
-            Optional<ConversationMember> otherMembership =
-                    members.stream()
-                            .filter(member ->
-                                    !Objects.equals(
-                                            member.getUser().getId(),
-                                            userId))
-                            .findFirst();
+                List<ConversationMember> members =
+                        conversationMemberRepository.findByConversation_Id(
+                                conversationId);
 
-            if (otherMembership.isEmpty()) {
+                Optional<ConversationMember> otherMembership =
+                        members.stream()
+                                .filter(member ->
+                                        !Objects.equals(
+                                                member.getUser().getId(),
+                                                userId))
+                                .findFirst();
+
+                if (otherMembership.isEmpty()) {
                 continue;
-            }
-
-            AppUser otherUser = otherMembership.get().getUser();
-            boolean deleted = otherUser.isAccountDeleted();
-
-            if (!deleted) {
-                boolean blocked =
-                        userBlockRepository
-                                .existsByBlocker_IdAndBlocked_Id(
-                                        userId, otherUser.getId())
-                        || userBlockRepository
-                                .existsByBlocker_IdAndBlocked_Id(
-                                        otherUser.getId(), userId);
-
-                if (blocked) {
-                    continue;
                 }
-            }
 
-            List<Message> latestMessages =
-                    messageRepository.findVisibleMessagesForUser(
-                            conversationId,
-                            userId,
-                            PageRequest.of(0, 1));
+                AppUser otherUser = otherMembership.get().getUser();
 
-            String lastMessage;
-            Instant lastMessageAt;
+                boolean deleted = otherUser.isAccountDeleted();
 
-            if (latestMessages.isEmpty()) {
+                // Se consulta cada sentido del bloqueo por separado.
+                boolean blockedByMe = !deleted
+                        && userBlockRepository.existsByBlocker_IdAndBlocked_Id(
+                                userId,
+                                otherUser.getId());
+
+                boolean blockedByOther = !deleted
+                        && userBlockRepository.existsByBlocker_IdAndBlocked_Id(
+                                otherUser.getId(),
+                                userId);
+
+                /*
+                * IMPORTANTE:
+                * No eliminamos ni ocultamos conversaciones bloqueadas.
+                * El historial y la información de la conversación
+                * permanecen disponibles.
+                */
+
+                List<Message> latestMessages =
+                        messageRepository.findVisibleMessagesForUser(
+                                conversationId,
+                                userId,
+                                PageRequest.of(0, 1));
+
+                String lastMessage;
+                Instant lastMessageAt;
+
+                if (latestMessages.isEmpty()) {
+
                 lastMessage = "Todavía no hay mensajes.";
-                lastMessageAt = membership.getConversation().getCreatedAt();
-            } else {
+
+                lastMessageAt =
+                        membership.getConversation().getCreatedAt();
+
+                } else {
+
                 Message latest = latestMessages.get(0);
 
                 lastMessage = latest.isDeletedForEveryone()
@@ -319,38 +412,40 @@ public class ConversationService {
                         : latest.getContent();
 
                 lastMessageAt = latest.getSentAt();
-            }
+                }
 
-            long unreadCount =
-                    messageRepository.countUnreadMessagesForUser(
-                            conversationId,
-                            userId);
+                long unreadCount =
+                        messageRepository.countUnreadMessagesForUser(
+                                conversationId,
+                                userId);
 
-            String otherUsername = deleted
-                    ? "Cuenta eliminada"
-                    : otherUser.getUsername();
+                String otherUsername = deleted
+                        ? "Cuenta eliminada"
+                        : otherUser.getUsername();
 
-            String otherDisplayName = deleted
-                    ? "Cuenta eliminada"
-                    : (otherUser.getDisplayName() != null
+                String otherDisplayName = deleted
+                        ? "Cuenta eliminada"
+                        : (otherUser.getDisplayName() != null
                         && !otherUser.getDisplayName().isBlank()
-                            ? otherUser.getDisplayName()
-                            : otherUser.getUsername());
+                                ? otherUser.getDisplayName()
+                                : otherUser.getUsername());
 
-            String otherAvatarUrl = deleted
-                    ? null
-                    : otherUser.getAvatarUrl();
+                String otherAvatarUrl = deleted
+                        ? null
+                        : otherUser.getAvatarUrl();
 
-            summaries.add(new ConversationSummary(
-                    conversationId,
-                    otherUser.getId(),
-                    otherUsername,
-                    otherDisplayName,
-                    lastMessage,
-                    lastMessageAt,
-                    unreadCount,
-                    otherAvatarUrl
-            ));
+                summaries.add(new ConversationSummary(
+                        conversationId,
+                        otherUser.getId(),
+                        otherUsername,
+                        otherDisplayName,
+                        lastMessage,
+                        lastMessageAt,
+                        unreadCount,
+                        otherAvatarUrl,
+                        blockedByMe,
+                        blockedByOther
+                ));
         }
 
         summaries.sort(
@@ -360,7 +455,7 @@ public class ConversationService {
                                 Comparator.reverseOrder())));
 
         return summaries;
-    }
+        }
 
     /**
      * Recupera los últimos 50 mensajes visibles para el usuario.
@@ -371,7 +466,7 @@ public class ConversationService {
             Long currentUserId) {
 
         requireActiveUser(currentUserId);
-        requireConversationAvailable(conversationId, currentUserId);
+        requireConversationMembership(conversationId, currentUserId);
 
         List<Message> unreadMessages =
                 messageRepository.findUnreadMessagesForUser(
@@ -541,7 +636,7 @@ public class ConversationService {
 
         AppUser currentUser = requireActiveUser(currentUserId);
 
-        requireConversationAvailable(
+        requireConversationMembership(
                 expectedConversationId,
                 currentUserId);
 
@@ -607,122 +702,187 @@ public class ConversationService {
         );
     }
 
-    public MessageStatusView markMessageDelivered(
-            Long messageId,
-            Long expectedConversationId,
-            Long currentUserId) {
+        public MessageStatusView markMessageDelivered(
+                        Long messageId,
+                        Long expectedConversationId,
+                        Long currentUserId) {
 
-        requireActiveUser(currentUserId);
+                requireActiveUser(currentUserId);
 
-        Message message = messageRepository.findById(messageId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "El mensaje no existe."));
+                if (messageId == null || expectedConversationId == null) {
+                        return null;
+                }
 
-        Long conversationId = message.getConversation().getId();
+                /*
+                * Primero comprobamos que el usuario pertenece
+                * a la conversación indicada.
+                */
+                requireConversationMembership(
+                        expectedConversationId,
+                        currentUserId
+                );
 
-        if (!Objects.equals(conversationId, expectedConversationId)) {
-            throw new IllegalArgumentException(
-                    "El mensaje no pertenece a esa conversación.");
+                /*
+                * Buscamos el mensaje dentro de esa conversación.
+                * Si ya no existe, ignoramos la confirmación atrasada.
+                */
+                Optional<Message> optionalMessage =
+                        messageRepository.findByIdAndConversation_Id(
+                                messageId,
+                                expectedConversationId
+                        );
+
+                if (optionalMessage.isEmpty()) {
+                        return null;
+                }
+
+                Message message = optionalMessage.get();
+
+                /*
+                * Los mensajes eliminados globalmente no reciben
+                * nuevas confirmaciones.
+                */
+                if (message.isDeletedForEveryone()) {
+                        return null;
+                }
+
+                /*
+                * Si el usuario ocultó el mensaje, tampoco
+                * debe actualizar su estado.
+                */
+                if (messageHiddenRepository.existsByMessage_IdAndUser_Id(
+                        messageId,
+                        currentUserId)) {
+
+                        return null;
+                }
+
+                /*
+                * No se puede confirmar la entrega de un mensaje propio.
+                */
+                if (message.getSender() == null
+                        || Objects.equals(
+                                message.getSender().getId(),
+                                currentUserId)) {
+
+                        return null;
+                }
+
+                /*
+                * La confirmación es idempotente:
+                * nunca sobrescribimos una fecha existente.
+                */
+                if (message.getDeliveredAt() == null) {
+
+                        message.setDeliveredAt(Instant.now());
+
+                        messageRepository.save(message);
+                }
+
+                return new MessageStatusView(
+                        expectedConversationId,
+                        message.getId(),
+                        message.getSender().getId(),
+                        message.getDeliveredAt(),
+                        message.getReadAt()
+                );
+                }
+
+                public MessageStatusView markMessageRead(
+                        Long messageId,
+                        Long expectedConversationId,
+                        Long currentUserId) {
+
+                requireActiveUser(currentUserId);
+
+                if (messageId == null || expectedConversationId == null) {
+                        return null;
+                }
+
+                /*
+                * Comprobamos primero la pertenencia.
+                */
+                requireConversationMembership(
+                        expectedConversationId,
+                        currentUserId
+                );
+
+                /*
+                * Buscamos el mensaje dentro de la conversación.
+                */
+                Optional<Message> optionalMessage =
+                        messageRepository.findByIdAndConversation_Id(
+                                messageId,
+                                expectedConversationId
+                        );
+
+                /*
+                * Si el mensaje ya no existe, ignoramos
+                * la confirmación atrasada.
+                */
+                if (optionalMessage.isEmpty()) {
+                        return null;
+                }
+
+                Message message = optionalMessage.get();
+
+                /*
+                * Un mensaje eliminado globalmente no puede
+                * recibir nuevas confirmaciones de lectura.
+                */
+                if (message.isDeletedForEveryone()) {
+                        return null;
+                }
+
+                /*
+                * Tampoco permitimos confirmar mensajes
+                * ocultos para el usuario actual.
+                */
+                if (messageHiddenRepository.existsByMessage_IdAndUser_Id(
+                        messageId,
+                        currentUserId)) {
+
+                        return null;
+                }
+
+                /*
+                * No se puede marcar como leído un mensaje propio.
+                */
+                if (message.getSender() == null
+                        || Objects.equals(
+                                message.getSender().getId(),
+                                currentUserId)) {
+
+                        return null;
+                }
+
+                Instant now = Instant.now();
+
+                /*
+                * Si todavía no estaba entregado,
+                * registramos también la entrega.
+                */
+                if (message.getDeliveredAt() == null) {
+                        message.setDeliveredAt(now);
+                }
+
+                /*
+                * Solo establecemos la primera fecha de lectura.
+                */
+                if (message.getReadAt() == null) {
+                        message.setReadAt(now);
+                }
+
+                messageRepository.save(message);
+
+                return new MessageStatusView(
+                        expectedConversationId,
+                        message.getId(),
+                        message.getSender().getId(),
+                        message.getDeliveredAt(),
+                        message.getReadAt()
+                );
         }
-
-        requireConversationAvailable(conversationId, currentUserId);
-
-        if (message.isDeletedForEveryone()) {
-            throw new IllegalArgumentException(
-                    "No se puede confirmar la entrega de un mensaje eliminado.");
-        }
-
-        if (messageHiddenRepository.existsByMessage_IdAndUser_Id(
-                messageId,
-                currentUserId)) {
-            throw new IllegalArgumentException(
-                    "El mensaje ya no está disponible en tu historial.");
-        }
-
-        if (message.getSender() != null
-                && Objects.equals(
-                        message.getSender().getId(), currentUserId)) {
-            throw new IllegalArgumentException(
-                    "No puedes confirmar la entrega de tu propio mensaje.");
-        }
-
-        if (message.getDeliveredAt() == null) {
-            message.setDeliveredAt(Instant.now());
-            messageRepository.save(message);
-        }
-
-        return new MessageStatusView(
-                conversationId,
-                message.getId(),
-                message.getSender() == null
-                        ? null
-                        : message.getSender().getId(),
-                message.getDeliveredAt(),
-                message.getReadAt());
-    }
-
-    public MessageStatusView markMessageRead(
-            Long messageId,
-            Long expectedConversationId,
-            Long currentUserId) {
-
-        requireActiveUser(currentUserId);
-
-        Message message = messageRepository.findById(messageId)
-                .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "El mensaje no existe."));
-
-        Long conversationId = message.getConversation().getId();
-
-        if (!Objects.equals(conversationId, expectedConversationId)) {
-            throw new IllegalArgumentException(
-                    "El mensaje no pertenece a esa conversación.");
-        }
-
-        requireConversationAvailable(conversationId, currentUserId);
-
-        if (message.isDeletedForEveryone()) {
-            throw new IllegalArgumentException(
-                    "No se puede marcar como leído un mensaje eliminado.");
-        }
-
-        if (messageHiddenRepository.existsByMessage_IdAndUser_Id(
-                messageId,
-                currentUserId)) {
-            throw new IllegalArgumentException(
-                    "El mensaje ya no está disponible en tu historial.");
-        }
-
-        if (message.getSender() != null
-                && Objects.equals(
-                        message.getSender().getId(), currentUserId)) {
-            throw new IllegalArgumentException(
-                    "No puedes marcar tu propio mensaje como leído.");
-        }
-
-        Instant now = Instant.now();
-
-        if (message.getDeliveredAt() == null) {
-            message.setDeliveredAt(now);
-        }
-
-        if (message.getReadAt() == null) {
-            message.setReadAt(now);
-        }
-
-        messageRepository.save(message);
-
-        return new MessageStatusView(
-                conversationId,
-                message.getId(),
-                message.getSender() == null
-                        ? null
-                        : message.getSender().getId(),
-                message.getDeliveredAt(),
-                message.getReadAt());
-    }
 
     @Transactional(readOnly = true)
     public String getOtherParticipantUsername(
@@ -730,7 +890,7 @@ public class ConversationService {
             Long currentUserId) {
 
         requireActiveUser(currentUserId);
-        requireConversationAvailable(conversationId, currentUserId);
+        requireConversationMembership(conversationId, currentUserId);
 
         List<ConversationMember> members =
                 conversationMemberRepository.findByConversation_Id(
