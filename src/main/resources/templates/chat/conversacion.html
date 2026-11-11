@@ -1,9 +1,13 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="~{fragments/head :: head('Conversación')}"></head>
 
 <body class="ek-chat-page"
-      th:attr="data-current-user-id=${currentUserId},data-conversation-id=${conversationId}">
+      th:attr="data-current-user-id=${currentUserId},
+               data-conversation-id=${conversationId},
+               data-blocked-by-me=${blockedByMe},
+               data-blocked-by-other=${blockedByOther}">
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
@@ -17,7 +21,9 @@
             <!-- Cabecera -->
             <header class="ek-chat-head">
 
-                <a class="ek-icon-btn" th:href="@{/mensajes}" aria-label="Volver a chats">
+                <a class="ek-icon-btn"
+                   th:href="@{/mensajes}"
+                   aria-label="Volver a chats">
                     <i class="bi bi-arrow-left"></i>
                 </a>
 
@@ -26,96 +32,171 @@
                          th:src="${otherAvatarUrl != null and !#strings.isEmpty(otherAvatarUrl)} ? ${otherAvatarUrl} : @{/images/avatar-default.svg}"
                          th:attr="data-fallback=@{/images/avatar-default.svg}"
                          referrerpolicy="no-referrer"
-                         alt="Foto de perfil del contacto" width="44" height="44">
+                         alt="Foto de perfil del contacto"
+                         width="44"
+                         height="44">
                 </span>
 
                 <div class="min-w-0 flex-grow-1">
+
                     <h1 class="ek-chat-name">
                         <span class="visually-hidden">Conversación con </span>
                         <span th:text="${nombreOtro}">Nombre del contacto</span>
                     </h1>
 
-                    <p th:text="${otherBio != null and !#strings.isEmpty(otherBio) ? otherBio : 'Este usuario todavía no tiene biografía.'}">Biografía</p>
+                    <p th:text="${otherBio != null and !#strings.isEmpty(otherBio) ? otherBio : 'Este usuario todavía no tiene biografía.'}">
+                        Biografía
+                    </p>
 
-                    <p id="connectionStatus" class="ek-status-pill" role="status" aria-live="polite" data-state="connecting">
+                    <p id="connectionStatus"
+                       class="ek-status-pill"
+                       role="status"
+                       aria-live="polite"
+                       data-state="connecting">
                         Conectando al chat...
                     </p>
-                    <p id="typingIndicator" class="ek-typing-indicator" role="status" aria-live="polite" hidden>
+
+                    <p id="typingIndicator"
+                       class="ek-typing-indicator"
+                       role="status"
+                       aria-live="polite"
+                       hidden>
+
                         <span class="ek-typing-dots" aria-hidden="true">
                             <span></span>
                             <span></span>
                             <span></span>
                         </span>
+
                         Está escribiendo...
                     </p>
+
                 </div>
 
-                <a class="ek-icon-btn" th:href="@{/contactos}" aria-label="Contactos"
-                   data-bs-toggle="tooltip" title="Contactos">
+                <a class="ek-icon-btn"
+                   th:href="@{/contactos}"
+                   aria-label="Contactos"
+                   data-bs-toggle="tooltip"
+                   title="Contactos">
                     <i class="bi bi-people-fill"></i>
                 </a>
 
             </header>
 
-            <p class="alert alert-ek-error ek-chat-alert" th:if="${error}" th:text="${error}" role="alert"></p>
+            <p class="alert alert-ek-error ek-chat-alert"
+               th:if="${error}"
+               th:text="${error}"
+               role="alert">
+            </p>
+
+            <!-- Estado del bloqueo -->
+            <div class="ek-chat-block-status"
+                 th:if="${blockedByMe or blockedByOther}"
+                 role="status"
+                 aria-live="polite">
+
+                <div th:if="${blockedByMe}">
+
+                    <i class="bi bi-slash-circle"></i>
+
+                    <strong>Has bloqueado a esta persona.</strong>
+
+                    <p>
+                        La conversación y el historial siguen disponibles.
+                        No puedes enviar mensajes mientras el bloqueo esté activo.
+                    </p>
+
+                </div>
+
+                <div th:if="${blockedByOther}">
+
+                    <i class="bi bi-lock-fill"></i>
+
+                    <strong>Esta persona te ha bloqueado.</strong>
+
+                    <p>
+                        Puedes consultar el historial de la conversación,
+                        pero no puedes enviar mensajes mientras el bloqueo esté activo.
+                    </p>
+
+                </div>
+
+            </div>
 
             <!-- Historial -->
             <div class="ek-chat-body">
 
-                <div id="messageList" aria-live="polite" aria-label="Historial de mensajes">
+                <div id="messageList"
+                     aria-live="polite"
+                     aria-label="Historial de mensajes">
 
-                    <span class="ek-chat-note">Se muestran los 50 mensajes más recientes.</span>
+                    <span class="ek-chat-note">
+                        Se muestran los 50 mensajes más recientes.
+                    </span>
 
-                    <p th:if="${#lists.isEmpty(messages)}" id="emptyMessages">
+                    <p th:if="${#lists.isEmpty(messages)}"
+                       id="emptyMessages">
+
                         <i class="bi bi-chat-heart"></i>
+
                         Todavía no hay mensajes. ¡Envía el primero!
+
                     </p>
 
                     <article th:each="message : ${messages}"
-                            class="message"
-                            th:classappend="${message.mine ? ' message-mine' : ' message-other'}"
-                            th:attr="
-                                data-message-id=${message.id},
-                                data-mine=${message.mine},
-                                data-deleted=${message.deletedForEveryone}">
+                             class="message"
+                             th:classappend="${message.mine ? ' message-mine' : ' message-other'}"
+                             th:attr="data-message-id=${message.id},
+                                      data-mine=${message.mine},
+                                      data-deleted=${message.deletedForEveryone}">
 
                         <p class="sender visually-hidden">
                             <strong th:text="${message.mine ? 'Tú' : message.senderUsername}"></strong>
                         </p>
 
                         <p class="text"
-                        th:text="${message.deletedForEveryone
-                                ? 'Este mensaje fue eliminado'
-                                : message.content}">
+                           th:text="${message.deletedForEveryone
+                               ? 'Este mensaje fue eliminado'
+                               : message.content}">
                         </p>
 
                         <div class="message-meta">
 
                             <small class="message-time"
-                                th:if="${message.sentAt != null}"
-                                th:text="${#temporals.format(message.sentAt, 'dd/MM HH:mm')}">
+                                   th:if="${message.sentAt != null}"
+                                   th:text="${#temporals.format(message.sentAt, 'dd/MM HH:mm')}">
                             </small>
 
                             <small class="message-status"
-                                th:if="${message.mine and !message.deletedForEveryone}"
-                                th:attr="data-state=${message.readAt != null
-                                        ? 'read'
-                                        : (message.deliveredAt != null ? 'delivered' : 'sent')}"
-                                th:text="${message.readAt != null
-                                        ? '✓✓ Leído'
-                                        : (message.deliveredAt != null
-                                            ? '✓✓ Entregado'
-                                            : '✓ Enviado')}">
+                                   th:if="${message.mine and !message.deletedForEveryone}"
+                                   th:attr="data-state=${message.readAt != null
+                                       ? 'read'
+                                       : (message.deliveredAt != null ? 'delivered' : 'sent')}"
+                                   th:text="${message.readAt != null
+                                       ? '✓✓ Leído'
+                                       : (message.deliveredAt != null
+                                           ? '✓✓ Entregado'
+                                           : '✓ Enviado')}">
                             </small>
 
                         </div>
+
                     </article>
 
                 </div>
 
-                <button type="button" id="scrollDown" class="ek-scroll-down" hidden aria-label="Ir a los mensajes más recientes">
+                <button type="button"
+                        id="scrollDown"
+                        class="ek-scroll-down"
+                        hidden
+                        aria-label="Ir a los mensajes más recientes">
+
                     <i class="bi bi-chevron-double-down"></i>
-                    <span id="scrollDownCount" class="ek-dot" hidden>0</span>
+
+                    <span id="scrollDownCount" class="ek-dot" hidden>
+                        0
+                    </span>
+
                 </button>
 
             </div>
@@ -123,20 +204,36 @@
             <p id="sendError" role="alert" hidden></p>
 
             <!-- Envío: los IDs se conservan para chat.js -->
-            <form id="messageForm" class="ek-composer"
-                  th:action="@{/mensajes/{id}/enviar(id=${conversationId})}" method="post">
+            <form id="messageForm"
+                  class="ek-composer"
+                  th:action="@{/mensajes/{id}/enviar(id=${conversationId})}"
+                  method="post">
 
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}">
 
                 <div id="emojiPanel" class="ek-emoji-panel" hidden></div>
+
                 <span id="charCounter" class="ek-counter" hidden></span>
 
-                <button type="button" id="emojiToggle" class="ek-icon-btn" aria-label="Insertar emoji">
+                <button type="button"
+                        id="emojiToggle"
+                        class="ek-icon-btn"
+                        aria-label="Insertar emoji">
                     <i class="bi bi-emoji-smile"></i>
                 </button>
 
-                <label for="content" class="visually-hidden">Escribe tu mensaje</label>
-                <textarea id="content" name="content" rows="1" maxlength="5000" required placeholder="Escribe un mensaje"></textarea>
+                <label for="content" class="visually-hidden">
+                    Escribe tu mensaje
+                </label>
+
+                <textarea id="content"
+                          name="content"
+                          rows="1"
+                          maxlength="5000"
+                          required
+                          placeholder="Escribe un mensaje"></textarea>
 
                 <button id="sendButton" type="submit" class="ek-send">
                     <i class="bi bi-send-fill"></i>
@@ -150,5 +247,6 @@
 </div>
 
 <script th:src="@{/js/chat.js}" defer></script>
+
 </body>
 </html>
