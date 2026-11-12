@@ -1,3 +1,4 @@
+# application.yaml
 spring:
   application:
     name: plataforma-comunicacion
@@ -18,6 +19,11 @@ spring:
 
   thymeleaf:
     cache: true
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
 
 server:
   port: ${PORT:8080}

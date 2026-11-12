@@ -1,5 +1,5 @@
-package com.plataforma.comunicacion.controller;
 
+package com.plataforma.comunicacion.controller;
 import com.plataforma.comunicacion.dto.ProfileUpdateForm;
 import com.plataforma.comunicacion.entity.AppUser;
 import com.plataforma.comunicacion.service.ProfileService;
@@ -25,52 +25,59 @@ public class ProfileController {
 
     @GetMapping
     public String mostrarPerfil(
-            Authentication authentication,
-            Model model) {
+        Authentication authentication,
+        Model model
+    ) {
 
         AppUser user = profileService.getCurrentUser(
-                authentication.getName()
+            authentication.getName()
+        );
+
+        ProfileUpdateForm form = new ProfileUpdateForm(
+            user.getDisplayName(),
+            user.getBio(),
+            null
         );
 
         model.addAttribute("profileUser", user);
-        model.addAttribute(
-                "profileForm",
-                new ProfileUpdateForm(
-                        user.getDisplayName(),
-                        user.getBio(),
-                        user.getAvatarUrl()
-                )
-        );
+        model.addAttribute("profileForm", form);
 
         return "profile/editar";
     }
 
     @PostMapping
     public String actualizarPerfil(
-            Authentication authentication,
-            @ModelAttribute("profileForm") ProfileUpdateForm form,
-            Model model,
-            RedirectAttributes redirectAttributes) {
+        Authentication authentication,
+        @ModelAttribute("profileForm") ProfileUpdateForm form,
+        Model model,
+        RedirectAttributes redirectAttributes
+    ) {
 
         try {
+
             profileService.updateProfile(
-                    authentication.getName(),
-                    form
+                authentication.getName(),
+                form
             );
 
             redirectAttributes.addFlashAttribute(
-                    "successMessage",
-                    "Tu perfil se ha actualizado correctamente."
+                "successMessage",
+                "Tu perfil se ha actualizado correctamente."
             );
 
             return "redirect:/perfil?actualizado";
-        } catch (IllegalArgumentException exception) {
+
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+
             AppUser user = profileService.getCurrentUser(
-                    authentication.getName()
+                authentication.getName()
             );
 
             model.addAttribute("profileUser", user);
-            model.addAttribute("errorMessage", exception.getMessage());
+            model.addAttribute(
+                "errorMessage",
+                exception.getMessage()
+            );
 
             return "profile/editar";
         }
