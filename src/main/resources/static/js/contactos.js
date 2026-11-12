@@ -3,6 +3,11 @@
  * Actualización en tiempo real de contactos, solicitudes y bloqueados.
  * Las acciones peligrosas (bloquear / eliminar) viven en un menú ⋮ y piden
  * confirmación con un diálogo propio de Ekko (sin alertas del navegador).
+ *
+ * Avatares:
+ * - Compatible con .ek-avatar-ring, .ek-initial y .ek-avatar-photo.
+ * - Conserva las URL de las fotografías al reconstruir las tarjetas.
+ * - Muestra la inicial cuando no hay fotografía o cuando falla su carga.
  */
 (function () {
     'use strict';
@@ -40,6 +45,106 @@
         block: '/contactos/bloquear/',
         unblock: '/contactos/desbloquear/'
     };
+
+    /*
+     * Caché temporal de fotografías.
+     *
+     * Es importante porque updateSection() reconstruye las tarjetas
+     * mediante replaceChildren(). Si una actualización WebSocket no
+     * incluye avatarUrl, podemos conservar la fotografía que ya conocíamos.
+     *
+     * La caché vive únicamente mientras la página está abierta.
+     */
+    var avatarUrlCache = Object.create(null);
+
+    function rememberAvatar(userId, avatarUrl) {
+        if (
+            userId === undefined
+            || userId === null
+            || avatarUrl === undefined
+            || avatarUrl === null
+        ) {
+            return;
+        }
+
+        var id = String(userId);
+        var url = String(avatarUrl).trim();
+
+        if (!id || !url) {
+            return;
+        }
+
+        avatarUrlCache[id] = url;
+    }
+
+    function rememberUserAvatar(user) {
+        if (!user || typeof user !== 'object') {
+            return;
+        }
+
+        rememberAvatar(user.id, user.avatarUrl);
+    }
+
+    /*
+     * Recupera las fotografías que ya están presentes en el HTML.
+     * Se ejecuta antes de reconstruir las listas.
+     */
+    function rememberExistingAvatars() {
+        var avatars = root.querySelectorAll(
+            '.ek-avatar-ring[data-user-id]'
+        );
+
+        avatars.forEach(function (wrapper) {
+            var userId = wrapper.dataset.userId;
+
+            if (!userId) {
+                return;
+            }
+
+            var img = wrapper.querySelector(
+                '.ek-avatar-photo'
+            );
+
+            if (!img) {
+                return;
+            }
+
+            var url = img.getAttribute('src');
+
+            if (url) {
+                rememberAvatar(userId, url);
+            }
+        });
+    }
+
+    function getAvatarUrl(user) {
+        if (!user) {
+            return '';
+        }
+
+        var id = user.id;
+
+        /*
+         * Si el servidor envía una URL nueva, actualizamos la caché.
+         */
+        if (
+            user.avatarUrl !== undefined
+            && user.avatarUrl !== null
+            && String(user.avatarUrl).trim() !== ''
+        ) {
+            rememberAvatar(id, user.avatarUrl);
+            return String(user.avatarUrl).trim();
+        }
+
+        /*
+         * Si el evento no incluye avatarUrl, recuperamos la anterior.
+         */
+        if (id !== undefined && id !== null) {
+            return avatarUrlCache[String(id)] || '';
+        }
+
+        return '';
+    }
 
     function element(tag, className, text) {
         var node = document.createElement(tag);
@@ -119,16 +224,30 @@
                 'ek-dialog-btn' + (opts.danger ? ' is-danger' : ''),
                 opts.okText || 'Aceptar'
             );
+
             ok.type = 'button';
-            ok.addEventListener('click', function () { close(true); });
+
+            ok.addEventListener('click', function () {
+                close(true);
+            });
+
             actions.appendChild(ok);
 
             var cancel = null;
 
             if (opts.cancelText !== null) {
-                cancel = element('button', 'ek-dialog-btn', opts.cancelText || 'Cancelar');
+                cancel = element(
+                    'button',
+                    'ek-dialog-btn',
+                    opts.cancelText || 'Cancelar'
+                );
+
                 cancel.type = 'button';
-                cancel.addEventListener('click', function () { close(false); });
+
+                cancel.addEventListener('click', function () {
+                    close(false);
+                });
+
                 actions.appendChild(cancel);
             }
 
@@ -141,6 +260,7 @@
             box.appendChild(title);
             box.appendChild(text);
             box.appendChild(actions);
+
             overlay.appendChild(box);
             document.body.appendChild(overlay);
 
@@ -151,26 +271,77 @@
         });
     }
 
-    /* ---------- Construcción de tarjetas ---------- */
+    /* ---------- Construcción de avatares ---------- */
 
-    function avatar(url, alt) {
-        var img = element('img', 'ek-initial');
+    function avatar(user, alt) {
+        user = user || {};
 
-        img.src = url || '/images/avatar-default.svg';
+        var username = String(user.username || 'usuario').trim();
+
+        var initial = username
+            ? username.charAt(0).toLocaleUpperCase('es')
+            : '?';
+
+        var wrapper = element('div', 'ek-avatar-ring');
+
+        if (user.id !== undefined && user.id !== null) {
+            wrapper.dataset.userId = String(user.id);
+        }
+
+        /*
+         * La inicial siempre existe.
+         * Si la foto no carga, permanece visible como alternativa.
+         */
+        var initialElement = element(
+            'span',
+            'ek-initial',
+            initial
+        );
+
+        wrapper.appendChild(initialElement);
+
+        /*
+         * Recuperamos la URL actual o la conservada en caché.
+         */
+        var avatarUrl = getAvatarUrl(user);
+
+        if (!avatarUrl) {
+            return wrapper;
+        }
+
+        var img = element('img', 'ek-avatar-photo');
+
         img.alt = alt || 'Foto de perfil';
         img.width = 48;
         img.height = 48;
         img.loading = 'lazy';
+        img.decoding = 'async';
         img.referrerPolicy = 'no-referrer';
 
+        /*
+         * Si falla la fotografía, ocultamos la imagen.
+         * La inicial queda visible debajo.
+         */
         img.addEventListener('error', function () {
-            if (img.src.indexOf('/images/avatar-default.svg') === -1) {
-                img.src = '/images/avatar-default.svg';
-            }
-        }, { once: true });
+            img.hidden = true;
+            img.removeAttribute('src');
+        });
 
-        return img;
+        img.addEventListener('load', function () {
+            img.hidden = false;
+        });
+
+        wrapper.appendChild(img);
+
+        /*
+         * Asignamos src después de registrar los eventos.
+         */
+        img.src = avatarUrl;
+
+        return wrapper;
     }
+
+    /* ---------- Construcción de formularios ---------- */
 
     /**
      * confirm (opcional): { title, message, ok } -> pide confirmación antes de enviar.
@@ -215,15 +386,20 @@
         var wrap = element('div', 'dropdown');
 
         var toggle = element('button', 'ek-icon-btn ek-person-more');
+
         toggle.type = 'button';
         toggle.setAttribute('data-bs-toggle', 'dropdown');
         toggle.setAttribute('aria-expanded', 'false');
         toggle.setAttribute('aria-label', 'Más opciones de ' + name);
-        toggle.appendChild(element('i', 'bi bi-three-dots-vertical'));
+
+        toggle.appendChild(
+            element('i', 'bi bi-three-dots-vertical')
+        );
 
         var menu = element('ul', 'dropdown-menu dropdown-menu-end');
 
         var blockItem = element('li');
+
         blockItem.appendChild(createForm(
             endpoints.block + user.id,
             'dropdown-item',
@@ -237,9 +413,13 @@
         ));
 
         var dividerItem = element('li');
-        dividerItem.appendChild(element('hr', 'dropdown-divider'));
+
+        dividerItem.appendChild(
+            element('hr', 'dropdown-divider')
+        );
 
         var removeItem = element('li');
+
         removeItem.appendChild(createForm(
             endpoints.remove + user.id,
             'dropdown-item is-danger',
@@ -267,16 +447,23 @@
 
         var name = user.displayName || user.username || 'Usuario';
 
-        info.appendChild(element('strong', '', name));
+        info.appendChild(
+            element('strong', '', name)
+        );
 
         var username = element('small');
-        username.appendChild(document.createTextNode('(@'));
+
+        username.appendChild(
+            document.createTextNode('(@')
+        );
 
         username.appendChild(
             element('span', '', user.username || 'usuario')
         );
 
-        username.appendChild(document.createTextNode(')'));
+        username.appendChild(
+            document.createTextNode(')')
+        );
 
         info.appendChild(username);
 
@@ -295,7 +482,7 @@
         var card = element('article', 'ek-person');
 
         card.appendChild(avatar(
-            user.avatarUrl,
+            user,
             'Foto de perfil de ' + (user.username || 'usuario')
         ));
 
@@ -350,6 +537,8 @@
         return card;
     }
 
+    /* ---------- Contadores y actualización de listas ---------- */
+
     function updateCounter(tabId, count, alert) {
         var tabButton = document.querySelector(
             '[data-bs-target="#' + tabId + '"]'
@@ -366,7 +555,11 @@
         }
 
         counter.textContent = String(count);
-        counter.classList.toggle('is-alert', !!alert && count > 0);
+
+        counter.classList.toggle(
+            'is-alert',
+            !!alert && count > 0
+        );
     }
 
     function updateSection(tabId, items, type, emptyMessage, emptyIcon) {
@@ -390,7 +583,10 @@
                 empty.hidden = false;
                 empty.replaceChildren();
 
-                empty.appendChild(element('i', emptyIcon));
+                empty.appendChild(
+                    element('i', emptyIcon)
+                );
+
                 empty.appendChild(
                     document.createTextNode(emptyMessage)
                 );
@@ -404,7 +600,9 @@
         }
 
         items.forEach(function (item) {
-            list.appendChild(personCard(item, type));
+            list.appendChild(
+                personCard(item, type)
+            );
         });
     }
 
@@ -412,6 +610,12 @@
         if (!data || data.type !== 'CONTACTS_UPDATED') {
             return;
         }
+
+        /*
+         * Primero recuperamos las fotos del HTML que todavía existe.
+         * Esto debe suceder antes de replaceChildren().
+         */
+        rememberExistingAvatars();
 
         var contacts = Array.isArray(data.contacts)
             ? data.contacts
@@ -424,6 +628,13 @@
         var blocked = Array.isArray(data.blockedUsers)
             ? data.blockedUsers
             : [];
+
+        /*
+         * Guardamos también las fotografías que lleguen en el evento.
+         */
+        contacts.forEach(rememberUserAvatar);
+        requests.forEach(rememberUserAvatar);
+        blocked.forEach(rememberUserAvatar);
 
         updateSection(
             'tab-contactos',
@@ -449,9 +660,23 @@
             'bi bi-shield-check'
         );
 
-        updateCounter('tab-contactos', contacts.length, false);
-        updateCounter('tab-solicitudes', requests.length, true);
-        updateCounter('tab-bloqueados', blocked.length, false);
+        updateCounter(
+            'tab-contactos',
+            contacts.length,
+            false
+        );
+
+        updateCounter(
+            'tab-solicitudes',
+            requests.length,
+            true
+        );
+
+        updateCounter(
+            'tab-bloqueados',
+            blocked.length,
+            false
+        );
     }
 
     /* ---------- Envío de formularios ---------- */
@@ -487,7 +712,10 @@
                 );
             }
 
-            if (window.Ekko && typeof window.Ekko.notify === 'function') {
+            if (
+                window.Ekko
+                && typeof window.Ekko.notify === 'function'
+            ) {
                 window.Ekko.notify({
                     title: 'Contactos',
                     text: 'La operación se ha procesado correctamente.',
@@ -499,7 +727,10 @@
         } catch (error) {
             console.error('[Ekko contactos]', error);
 
-            if (window.Ekko && typeof window.Ekko.notify === 'function') {
+            if (
+                window.Ekko
+                && typeof window.Ekko.notify === 'function'
+            ) {
                 window.Ekko.notify({
                     title: 'No se pudo completar',
                     text: error.message || 'Inténtalo nuevamente.',
@@ -523,6 +754,8 @@
             }
         }
     }
+
+    /* ---------- Eventos ---------- */
 
     document.addEventListener('submit', function (event) {
         var form = event.target;
@@ -562,6 +795,14 @@
         sendForm(form);
     });
 
+    /*
+     * Capturamos los avatares del HTML original al iniciar el archivo.
+     */
+    rememberExistingAvatars();
+
+    /*
+     * Recibimos las actualizaciones publicadas por el sistema de contactos.
+     */
     window.addEventListener(
         'ekko:contacts-updated',
         function (event) {
