@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/head :: head('Editar perfil')}"></head>
+
 <body>
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <div class="ek-shell">
+
     <aside th:replace="~{fragments/sidebar :: sidebar}"></aside>
 
     <main class="ek-main">
+
         <div class="ek-container">
 
             <header class="ek-page-head">
@@ -18,118 +21,338 @@
                 </div>
             </header>
 
-            <div class="alert-ek-ok" th:if="${successMessage}" role="status" data-ekko-sound-on-load="success">
+            <!-- MENSAJES -->
+
+            <div
+                class="alert-ek-ok"
+                th:if="${successMessage}"
+                role="status"
+                data-ekko-sound-on-load="success">
+
                 <i class="bi bi-check-circle-fill"></i>
-                <span th:text="${successMessage}">Perfil actualizado correctamente.</span>
+
+                <span th:text="${successMessage}">
+                    Perfil actualizado correctamente.
+                </span>
+
             </div>
 
-            <div class="alert-ek-error" th:if="${errorMessage}" role="alert" data-ekko-sound-on-load="error">
+            <div
+                class="alert-ek-error"
+                th:if="${errorMessage}"
+                role="alert"
+                data-ekko-sound-on-load="error">
+
                 <i class="bi bi-exclamation-octagon-fill"></i>
-                <span th:text="${errorMessage}">No se pudieron guardar los cambios.</span>
+
+                <span th:text="${errorMessage}">
+                    No se pudieron guardar los cambios.
+                </span>
+
             </div>
 
             <div class="ek-edit-grid">
 
                 <!-- FORMULARIO -->
-                <form class="ek-card" th:action="@{/perfil}" th:object="${profileForm}" method="post" data-ekko-loading>
+
+                <form
+                    class="ek-card"
+                    th:action="@{/perfil}"
+                    th:object="${profileForm}"
+                    method="post"
+                    enctype="multipart/form-data"
+                    data-ekko-loading
+                    id="profileForm">
+
+                    <!-- DATOS DE CUENTA -->
 
                     <div class="ek-field ek-readonly">
-                        <label for="username">Nombre de usuario</label>
+
+                        <label for="username">
+                            Nombre de usuario
+                        </label>
+
                         <div class="ek-input-group">
+
                             <i class="bi bi-at"></i>
-                            <input id="username" type="text" class="form-control" th:value="${profileUser.username}" readonly>
+
+                            <input
+                                id="username"
+                                type="text"
+                                class="form-control"
+                                th:value="${profileUser.username}"
+                                readonly>
+
                         </div>
-                        <span class="ek-hint">El nombre de usuario no se puede modificar.</span>
+
+                        <span class="ek-hint">
+                            El nombre de usuario no se puede modificar.
+                        </span>
+
                     </div>
 
                     <div class="ek-field ek-readonly">
-                        <label for="email">Correo electrónico</label>
+
+                        <label for="email">
+                            Correo electrónico
+                        </label>
+
                         <div class="ek-input-group">
+
                             <i class="bi bi-envelope-fill"></i>
-                            <input id="email" type="email" class="form-control" th:value="${profileUser.email}" readonly>
+
+                            <input
+                                id="email"
+                                type="email"
+                                class="form-control"
+                                th:value="${profileUser.email}"
+                                readonly>
+
                         </div>
-                        <span class="ek-hint">El correo se administra por separado y no se cambia aquí.</span>
+
+                        <span class="ek-hint">
+                            El correo se administra por separado y no se cambia aquí.
+                        </span>
+
                     </div>
 
+                    <!-- NOMBRE VISIBLE -->
+
                     <div class="ek-field">
-                        <label for="displayName">Nombre visible</label>
+
+                        <label for="displayName">
+                            Nombre visible
+                        </label>
+
                         <div class="ek-input-group">
+
                             <i class="bi bi-emoji-smile-fill"></i>
-                            <input id="displayName" type="text" class="form-control" th:field="*{displayName}"
-                                   th:classappend="${#fields.hasErrors('displayName')} ? 'is-invalid'"
-                                   maxlength="60" minlength="1" required autocomplete="nickname"
-                                   placeholder="¿Cómo quieres que te vean?">
+
+                            <input
+                                id="displayName"
+                                type="text"
+                                class="form-control"
+                                th:field="*{displayName}"
+                                maxlength="60"
+                                minlength="1"
+                                required
+                                autocomplete="nickname"
+                                placeholder="¿Cómo quieres que te vean?">
+
                         </div>
-                        <small class="ek-error" th:if="${#fields.hasErrors('displayName')}" th:errors="*{displayName}"></small>
+
+                        <span class="ek-hint">
+                            Este es el nombre que verán los demás usuarios.
+                        </span>
+
                     </div>
 
+                    <!-- BIOGRAFÍA -->
+
                     <div class="ek-field">
-                        <label for="bio">Biografía</label>
-                        <textarea id="bio" class="form-control ek-textarea" th:field="*{bio}"
-                                  th:classappend="${#fields.hasErrors('bio')} ? 'is-invalid'"
-                                  maxlength="500" placeholder="Cuéntales algo sobre ti..."></textarea>
+
+                        <label for="bio">
+                            Biografía
+                        </label>
+
+                        <textarea
+                            id="bio"
+                            class="form-control ek-textarea"
+                            th:field="*{bio}"
+                            maxlength="500"
+                            placeholder="Cuéntales algo sobre ti..."></textarea>
+
                         <div class="d-flex justify-content-between">
-                            <span class="ek-hint">Máximo 500 caracteres. Puedes dejarla vacía.</span>
-                            <span class="ek-char" id="bioCount">0/500</span>
+
+                            <span class="ek-hint">
+                                Máximo 500 caracteres. Puedes dejarla vacía.
+                            </span>
+
+                            <span class="ek-char" id="bioCount">
+                                0/500
+                            </span>
+
                         </div>
-                        <small class="ek-error" th:if="${#fields.hasErrors('bio')}" th:errors="*{bio}"></small>
+
                     </div>
+
+                    <!-- FOTO DE PERFIL -->
 
                     <div class="ek-field">
-                        <label for="avatarUrl">Foto de perfil</label>
+
+                        <label for="avatarFile">
+                            Foto de perfil
+                        </label>
+
                         <div class="ek-input-group">
+
                             <i class="bi bi-image-fill"></i>
-                            <input id="avatarUrl" type="url" class="form-control" th:field="*{avatarUrl}"
-                                   th:classappend="${#fields.hasErrors('avatarUrl')} ? 'is-invalid'"
-                                   maxlength="500" placeholder="https://ejemplo.com/mi-avatar.jpg">
-                        </div>
-                        <span class="ek-hint">Pega la dirección de una imagen pública que empiece por https:// o http://.</span>
-                        <small class="ek-error" th:if="${#fields.hasErrors('avatarUrl')}" th:errors="*{avatarUrl}"></small>
 
-                        <div class="mt-3" id="avatarActions" th:hidden="${#strings.isEmpty(profileForm.avatarUrl)}">
-                            <button type="button" class="btn btn-ekko-danger btn-sm" id="removeAvatarBtn">
-                                <i class="bi bi-trash3-fill"></i>Eliminar foto de perfil
+                            <input
+                                id="avatarFile"
+                                type="file"
+                                class="form-control"
+                                th:field="*{avatarFile}"
+                                accept="image/jpeg,image/png,image/webp">
+
+                        </div>
+
+                        <span class="ek-hint">
+                            Selecciona una fotografía desde tu dispositivo.
+                        </span>
+
+                        <span class="ek-hint d-block">
+                            Formatos permitidos: JPG, PNG y WebP. Máximo 5 MB.
+                        </span>
+
+                        <div
+                            id="avatarClientError"
+                            class="ek-error"
+                            role="alert"
+                            aria-live="polite"
+                            hidden>
+                        </div>
+
+                        <div
+                            class="mt-3"
+                            id="avatarActions"
+                            th:hidden="${#strings.isEmpty(profileUser.avatarUrl)}">
+
+                            <button
+                                type="button"
+                                class="btn btn-ekko-danger btn-sm"
+                                id="removeAvatarBtn">
+
+                                <i class="bi bi-trash3-fill"></i>
+
+                                Eliminar foto de perfil
+
                             </button>
+
                         </div>
 
-                        <small class="ek-hint d-block mt-2">Sin foto, se usa el avatar predeterminado de Ekko.</small>
+                        <input
+                            type="hidden"
+                            th:field="*{removeAvatar}"
+                            id="removeAvatar">
+
+                        <small class="ek-hint d-block mt-2">
+                            Si no tienes fotografía, Ekko mostrará tu inicial.
+                        </small>
+
                     </div>
+
+                    <!-- BOTONES -->
 
                     <div class="d-flex flex-wrap gap-2 mt-4">
-                        <button type="submit" class="btn btn-ekko" data-loading-text="Guardando…">
-                            <i class="bi bi-check2-circle"></i>Guardar cambios
+
+                        <button
+                            type="submit"
+                            class="btn btn-ekko"
+                            data-loading-text="Guardando…">
+
+                            <i class="bi bi-check2-circle"></i>
+
+                            Guardar cambios
+
                         </button>
-                        <a th:href="@{/configuracion}" class="btn btn-ekko-soft">Volver a ajustes</a>
+
+                        <a
+                            th:href="@{/configuracion}"
+                            class="btn btn-ekko-soft">
+
+                            Volver a ajustes
+
+                        </a>
+
                     </div>
 
                 </form>
 
                 <!-- VISTA PREVIA -->
-                <aside class="ek-card ek-preview" aria-label="Vista previa de tu perfil">
+
+                <aside
+                    class="ek-card ek-preview"
+                    aria-label="Vista previa de tu perfil">
+
                     <div class="ek-cover" aria-hidden="true"></div>
 
-                    <div class="ek-preview-body">
-                        <img id="previewAvatar" class="ek-avatar-xl"
-                             th:src="${!#strings.isEmpty(profileForm.avatarUrl)} ? ${profileForm.avatarUrl} : @{/images/avatar-default.svg}"
-                             th:attr="data-fallback=@{/images/avatar-default.svg}"
-                             referrerpolicy="no-referrer"
-                             alt="Vista previa de tu foto de perfil">
+                    <div
+                        class="ek-avatar-xl"
+                        id="previewAvatarContainer"
+                        th:attr="
+                            data-has-avatar=${!#strings.isEmpty(profileUser.avatarUrl)},
+                            data-user-id=${profileUser.id}">
 
-                        <h3 id="previewName"
-                            th:attr="data-fallback-name=${profileUser.username}"
-                            th:text="${!#strings.isEmpty(profileForm.displayName) ? profileForm.displayName : profileUser.username}">Nombre</h3>
+                        <span
+                            class="ek-initial"
+                            id="previewInitial"
+                            th:hidden="${!#strings.isEmpty(profileUser.avatarUrl)}"
+                            th:text="${#strings.toUpperCase(#strings.substring(
+                                !#strings.isEmpty(profileUser.displayName)
+                                    ? profileUser.displayName
+                                    : profileUser.username,
+                                0,
+                                1
+                            ))}">
 
-                        <small class="ek-handle" th:text="${'@' + profileUser.username}">@usuario</small>
+                            J
 
-                        <p id="previewBio" th:text="${!#strings.isEmpty(profileForm.bio) ? profileForm.bio : 'Aquí aparecerá tu biografía.'}">Biografía</p>
+                        </span>
+
+                        <img
+                            id="previewAvatar"
+                            th:src="${profileUser.avatarUrl}"
+                            th:hidden="${#strings.isEmpty(profileUser.avatarUrl)}"
+                            alt="Vista previa de tu foto de perfil"
+                            referrerpolicy="no-referrer">
+
                     </div>
+
+                    <div class="ek-preview-body">
+
+                        <h3
+                            id="previewName"
+                            th:attr="data-fallback-name=${profileUser.username}"
+                            th:text="${!#strings.isEmpty(profileUser.displayName)
+                                ? profileUser.displayName
+                                : profileUser.username}">
+
+                            Nombre
+
+                        </h3>
+
+                        <small
+                            class="ek-handle"
+                            th:text="${'@' + profileUser.username}">
+
+                            @usuario
+
+                        </small>
+
+                        <p
+                            id="previewBio"
+                            th:text="${!#strings.isEmpty(profileUser.bio)
+                                ? profileUser.bio
+                                : 'Aquí aparecerá tu biografía.'}">
+
+                            Biografía
+
+                        </p>
+
+                    </div>
+
                 </aside>
 
             </div>
+
         </div>
+
     </main>
+
 </div>
 
 <script th:src="@{/js/perfil.js}" defer></script>
+
 </body>
 </html>

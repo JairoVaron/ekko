@@ -5,185 +5,1128 @@
    mantienen para que el resto de CSS y HTML sigan funcionando.
    ========================================================= */
 
-/* ---------- Modo claro ---------- */
-:root{
-  --ek-font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
-  --ek-mono:"Fira Code",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
 
-  --ek-primary:#c2410c;            /* naranja profundo: texto/enlaces legibles sobre blanco */
-  --ek-primary-soft:rgba(249,115,22,.12);
-  --ek-grad:#f97316;               /* naranja sólido (ya no es degradado) */
-  --ek-on-grad:#0b1426;
-  --ek-accent:#c2410c;             /* insignias y contadores */
-  --ek-ok:#15803d;  --ek-ok-soft:rgba(21,128,61,.10);
-  --ek-err:#c0362c; --ek-err-soft:rgba(192,54,44,.09);
-  --ek-info:#0369a1;--ek-info-soft:rgba(56,189,248,.16);   /* celeste */
+/* =========================================================
+   MODO CLARO
+   ========================================================= */
 
-  --ek-bg:#eef3fa; --ek-surface:#ffffff; --ek-surface-2:#e6eef8; --ek-input-bg:#f3f7fc;
-  --ek-border:#dbe5f1; --ek-border-neon:#d3dfee;           /* "neon" ahora es un borde sutil */
-  --ek-text:#0f1b2d; --ek-muted:#5a6b82;
-  --ek-hover:rgba(15,40,80,.05);
+:root {
+    --ek-font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --ek-mono: "Fira Code", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  --ek-focus:0 0 0 3px rgba(56,189,248,.35);
-  --ek-btn-glow:0 2px 6px rgba(194,65,12,.25);
-  --ek-card-glow:0 1px 2px rgba(15,27,45,.06);
-  --ek-bubble-glow:none;
-  --ek-brand-glow:none;
+    --ek-primary: #c2410c;
+    --ek-primary-soft: rgba(249, 115, 22, .12);
+    --ek-grad: #f97316;
+    --ek-on-grad: #0b1426;
+    --ek-accent: #c2410c;
 
-  --ek-in-bg:#ffffff; --ek-in-border:#dbe5f1; --ek-in-text:#0f1b2d;
-  --ek-out-bg:#17325c; --ek-out-text:#ffffff; --ek-out-border:transparent;
-  --ek-out-meta:rgba(255,255,255,.72); --ek-out-read:#7dd3fc;
+    --ek-ok: #15803d;
+    --ek-ok-soft: rgba(21, 128, 61, .10);
+    --ek-err: #c0362c;
+    --ek-err-soft: rgba(192, 54, 44, .09);
+    --ek-info: #0369a1;
+    --ek-info-soft: rgba(56, 189, 248, .16);
 
-  --ek-nav-bg:#0b1426;
-  --ek-nav-h:60px; --ek-side-w:232px;
-  color-scheme:light;
+    --ek-bg: #eef3fa;
+    --ek-surface: #ffffff;
+    --ek-surface-2: #e6eef8;
+    --ek-input-bg: #f3f7fc;
+
+    --ek-border: #dbe5f1;
+    --ek-border-neon: #d3dfee;
+
+    --ek-text: #0f1b2d;
+    --ek-muted: #5a6b82;
+    --ek-hover: rgba(15, 40, 80, .05);
+
+    --ek-focus: 0 0 0 3px rgba(56, 189, 248, .35);
+    --ek-btn-glow: 0 2px 6px rgba(194, 65, 12, .25);
+    --ek-card-glow: 0 1px 2px rgba(15, 27, 45, .06);
+    --ek-bubble-glow: none;
+    --ek-brand-glow: none;
+
+    --ek-in-bg: #ffffff;
+    --ek-in-border: #dbe5f1;
+    --ek-in-text: #0f1b2d;
+
+    --ek-out-bg: #17325c;
+    --ek-out-text: #ffffff;
+    --ek-out-border: transparent;
+    --ek-out-meta: rgba(255, 255, 255, .72);
+    --ek-out-read: #7dd3fc;
+
+    --ek-nav-bg: #0b1426;
+    --ek-nav-h: 60px;
+    --ek-side-w: 232px;
+
+    color-scheme: light;
 }
 
-/* ---------- Modo oscuro: azul noche ---------- */
-[data-bs-theme="dark"]{
-  --ek-primary:#fb923c; --ek-primary-soft:rgba(251,146,60,.14);
-  --ek-grad:#f97316; --ek-on-grad:#0b1426;
-  --ek-accent:#ea580c;
-  --ek-ok:#4ade80; --ek-ok-soft:rgba(74,222,128,.12);
-  --ek-err:#f28b82;--ek-err-soft:rgba(242,139,130,.12);
-  --ek-info:#7dd3fc;--ek-info-soft:rgba(125,211,252,.12);
 
-  --ek-bg:#0a1120; --ek-surface:#101a2e; --ek-surface-2:#172440; --ek-input-bg:#0c1527;
-  --ek-border:rgba(148,180,230,.12); --ek-border-neon:rgba(148,180,230,.16);
-  --ek-text:#e7eef9; --ek-muted:#93a5c0;
-  --ek-hover:rgba(148,180,230,.08);
+/* =========================================================
+   MODO OSCURO: AZUL NOCHE
+   ========================================================= */
 
-  --ek-focus:0 0 0 2px rgba(125,211,252,.45);
-  --ek-btn-glow:0 2px 8px rgba(0,0,0,.35);
-  --ek-card-glow:0 2px 10px rgba(0,0,0,.35);
-  --ek-bubble-glow:none;
-  --ek-brand-glow:none;
+[data-bs-theme="dark"] {
+    --ek-primary: #fb923c;
+    --ek-primary-soft: rgba(251, 146, 60, .14);
+    --ek-grad: #f97316;
+    --ek-on-grad: #0b1426;
+    --ek-accent: #ea580c;
 
-  --ek-in-bg:#172440; --ek-in-border:transparent; --ek-in-text:#e7eef9;
-  --ek-out-bg:#2456a6; --ek-out-text:#ffffff; --ek-out-border:transparent;
-  --ek-out-meta:rgba(255,255,255,.72); --ek-out-read:#bae6fd;
+    --ek-ok: #4ade80;
+    --ek-ok-soft: rgba(74, 222, 128, .12);
+    --ek-err: #f28b82;
+    --ek-err-soft: rgba(242, 139, 130, .12);
+    --ek-info: #7dd3fc;
+    --ek-info-soft: rgba(125, 211, 252, .12);
 
-  --ek-nav-bg:#060b16;
-  color-scheme:dark;
+    --ek-bg: #0a1120;
+    --ek-surface: #101a2e;
+    --ek-surface-2: #172440;
+    --ek-input-bg: #0c1527;
+
+    --ek-border: rgba(148, 180, 230, .12);
+    --ek-border-neon: rgba(148, 180, 230, .16);
+
+    --ek-text: #e7eef9;
+    --ek-muted: #93a5c0;
+    --ek-hover: rgba(148, 180, 230, .08);
+
+    --ek-focus: 0 0 0 2px rgba(125, 211, 252, .45);
+    --ek-btn-glow: 0 2px 8px rgba(0, 0, 0, .35);
+    --ek-card-glow: 0 2px 10px rgba(0, 0, 0, .35);
+    --ek-bubble-glow: none;
+    --ek-brand-glow: none;
+
+    --ek-in-bg: #172440;
+    --ek-in-border: transparent;
+    --ek-in-text: #e7eef9;
+
+    --ek-out-bg: #2456a6;
+    --ek-out-text: #ffffff;
+    --ek-out-border: transparent;
+    --ek-out-meta: rgba(255, 255, 255, .72);
+    --ek-out-read: #bae6fd;
+
+    --ek-nav-bg: #060b16;
+
+    color-scheme: dark;
 }
-:root,[data-bs-theme]{
-  --bs-body-font-family:var(--ek-font); --bs-body-bg:var(--ek-bg); --bs-body-color:var(--ek-text);
-  --bs-border-color:var(--ek-border); --bs-secondary-color:var(--ek-muted);
+
+
+/* =========================================================
+   VARIABLES BOOTSTRAP
+   ========================================================= */
+
+:root,
+[data-bs-theme] {
+    --bs-body-font-family: var(--ek-font);
+    --bs-body-bg: var(--ek-bg);
+    --bs-body-color: var(--ek-text);
+    --bs-border-color: var(--ek-border);
 }
 
-/* ---------- Base ---------- */
-*,*::before,*::after{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;font-family:var(--ek-font);color:var(--ek-text);line-height:1.5;-webkit-font-smoothing:antialiased;background:var(--ek-bg)}
-img{max-width:100%}
-a{color:var(--ek-primary);text-decoration:none}
-a:hover{text-decoration:underline}
-[hidden]{display:none!important}
-:focus-visible{outline:2px solid #38bdf8;outline-offset:2px}
-.visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
-.min-w-0{min-width:0}
-.text-muted-ek{color:var(--ek-muted)}
-.ek-mono{font-family:var(--ek-mono)}
-.ek-display{font-family:var(--ek-font);font-weight:800;letter-spacing:-.02em;line-height:1.15}
-h1,h2,h3,h4,h5,h6{margin-top:0}
-::selection{background:#38bdf8;color:#0b1426}
-*{scrollbar-width:thin;scrollbar-color:var(--ek-border-neon) transparent}
 
-/* ---------- Botones ---------- */
-.btn-ekko,.btn-ekko-soft,.btn-ekko-red,.btn-ekko-danger{
-  display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
-  font-family:var(--ek-font);font-weight:700;font-size:.95rem;line-height:1.2;
-  padding:.62rem 1.2rem;border-radius:12px;border:1px solid transparent;
-  cursor:pointer;text-decoration:none;transition:box-shadow .15s,background-color .15s,border-color .15s,filter .15s}
-.btn-ekko:hover,.btn-ekko-soft:hover,.btn-ekko-red:hover,.btn-ekko-danger:hover{text-decoration:none}
-.btn-sm.btn-ekko,.btn-sm.btn-ekko-soft,.btn-sm.btn-ekko-red,.btn-sm.btn-ekko-danger{padding:.4rem .85rem;font-size:.85rem;border-radius:10px}
-.btn-ekko{background:var(--ek-grad);color:var(--ek-on-grad);border-color:transparent}
-.btn-ekko:hover,.btn-ekko:focus-visible,.btn-ekko:active{color:var(--ek-on-grad);background:var(--ek-grad);filter:brightness(.94);box-shadow:var(--ek-btn-glow);border-color:transparent}
-.btn-ekko-soft{background:var(--ek-surface-2);color:var(--ek-text);border-color:var(--ek-border)}
-.btn-ekko-soft:hover,.btn-ekko-soft:active,.btn-ekko-soft:focus-visible{background:var(--ek-hover);color:var(--ek-primary);border-color:var(--ek-primary)}
-.btn-ekko-red{background:var(--ek-err);color:#fff}
-.btn-ekko-red:hover,.btn-ekko-red:active{background:var(--ek-err);color:#fff;filter:brightness(.92)}
-.btn-ekko-danger{background:var(--ek-err-soft);color:var(--ek-err);border-color:transparent}
-.btn-ekko-danger:hover,.btn-ekko-danger:active{background:var(--ek-err-soft);border-color:var(--ek-err);color:var(--ek-err)}
-.btn:disabled,.btn.disabled,.btn[disabled]{opacity:.55;cursor:not-allowed;box-shadow:none}
-.btn.is-loading{pointer-events:none;opacity:.85}
-.ek-link-btn{background:none;border:0;padding:.2rem .4rem;color:var(--ek-primary);font:inherit;font-weight:700;font-size:.82rem;cursor:pointer;border-radius:8px}
-.ek-link-btn:hover{background:var(--ek-primary-soft)}
+/* =========================================================
+   BASE
+   ========================================================= */
 
-/* ---------- Alertas ---------- */
-.alert-ek-ok,.alert-ek-error,.alert-ek-info{display:flex;align-items:flex-start;gap:.65rem;padding:.8rem 1rem;border-radius:12px;border:1px solid transparent;border-left:4px solid;font-size:.92rem;margin-bottom:1rem}
-.alert-ek-ok{background:var(--ek-ok-soft);border-left-color:var(--ek-ok);color:var(--ek-ok)}
-.alert-ek-error{background:var(--ek-err-soft);border-left-color:var(--ek-err);color:var(--ek-err)}
-.alert-ek-info{background:var(--ek-info-soft);border-left-color:var(--ek-info);color:var(--ek-info)}
-.alert-ek-ok i,.alert-ek-error i,.alert-ek-info i{margin-top:.15rem}
-.alert-ek-ok span,.alert-ek-error span,.alert-ek-info span{color:var(--ek-text)}
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
 
-/* ---------- Tarjetas y portadas ---------- */
-.ek-card{background:var(--ek-surface);border:1px solid var(--ek-border);border-radius:16px;padding:1.25rem;box-shadow:var(--ek-card-glow)}
-/* Portada: franja azul marino con un filo naranja abajo (sello visual de Ekko) */
-.ek-cover{height:96px;background:linear-gradient(180deg,#12305a,#0b1d3a);border-bottom:4px solid #f97316}
+html {
+    -webkit-text-size-adjust: 100%;
+}
 
-/* ---------- Formularios ---------- */
-.ek-field{margin-bottom:1rem}
-.ek-field>label{display:block;font-weight:600;font-size:.86rem;margin-bottom:.35rem}
-.form-control,.ek-textarea{font-family:var(--ek-font);background:var(--ek-input-bg);border:1px solid var(--ek-border);color:var(--ek-text);border-radius:12px;padding:.65rem .9rem;font-size:1rem}
-.form-control::placeholder{color:var(--ek-muted);opacity:.85}
-.form-control:focus{background:var(--ek-input-bg);color:var(--ek-text);border-color:#38bdf8;box-shadow:var(--ek-focus);outline:0}
-.form-control.is-invalid{border-color:var(--ek-err);background-image:none}
-.form-control:-webkit-autofill{-webkit-text-fill-color:var(--ek-text);box-shadow:0 0 0 40px var(--ek-input-bg) inset}
-.ek-textarea{min-height:110px;resize:vertical;width:100%}
-.ek-input-group{position:relative;display:flex;align-items:center}
-.ek-input-group>i{position:absolute;left:.95rem;color:var(--ek-muted);pointer-events:none;z-index:2}
-.ek-input-group .form-control{height:48px;padding-left:2.6rem;width:100%}
-.ek-input-group:focus-within>i{color:var(--ek-primary)}
-.ek-input-group:has(.ek-toggle-pass) .form-control{padding-right:3rem}
-.ek-input-group>.ek-toggle-pass{position:absolute;right:.4rem;top:50%;transform:translateY(-50%);width:40px;height:40px;min-width:0;padding:0;z-index:3}
-.ek-readonly .form-control{opacity:.7;cursor:not-allowed}
-.ek-hint{display:block;font-size:.8rem;color:var(--ek-muted);margin-top:.35rem}
-.ek-error{display:block;font-size:.82rem;color:var(--ek-err);margin-top:.35rem;font-weight:600}
-.ek-char{font-family:var(--ek-mono);font-size:.75rem;color:var(--ek-muted);margin-top:.35rem}
-.ek-strength{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:.5rem}
-.ek-strength span{height:5px;border-radius:99px;background:var(--ek-border);opacity:1}
-.ek-strength[data-level="1"] span:nth-child(-n+1){background:#e0645a}
-.ek-strength[data-level="2"] span:nth-child(-n+2){background:#f59e0b}
-.ek-strength[data-level="3"] span:nth-child(-n+3){background:#38bdf8}
-.ek-strength[data-level="4"] span{background:#22c55e}
-.form-check-input{background-color:var(--ek-input-bg);border-color:var(--ek-border-neon)}
-.form-check-input:checked{background-color:var(--ek-grad);border-color:#f97316}
-.form-check-input:focus{box-shadow:var(--ek-focus);border-color:#38bdf8}
+body {
+    margin: 0;
+    font-family: var(--ek-font);
+    color: var(--ek-text);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    background: var(--ek-bg);
+}
 
-/* ---------- Avatares ---------- */
-.ek-initial{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;flex-shrink:0;
-  background:#f97316;color:#0b1426;font-weight:800;font-size:1.1rem;object-fit:cover}
-img.ek-initial{background:var(--ek-surface-2)}
-.ek-initial.tone-0{background:#1d4ed8;color:#fff}.ek-initial.tone-1{background:#0e7490;color:#fff}.ek-initial.tone-2{background:#15803d;color:#fff}
-.ek-initial.tone-3{background:#4f46e5;color:#fff}.ek-initial.tone-4{background:#c2410c;color:#fff}.ek-initial.tone-5{background:#be185d;color:#fff}
-.ek-avatar-sm{width:34px;height:34px;border-radius:50%;object-fit:cover;background:var(--ek-surface-2)}
-.ek-avatar-xl{width:96px;height:96px;border-radius:50%;object-fit:cover;border:4px solid var(--ek-surface);background:var(--ek-surface-2);flex-shrink:0}
-.ek-avatar-ring{display:inline-flex;flex-shrink:0;padding:2px;border-radius:50%;background:#f97316}
-.ek-avatar-ring>img{border-radius:50%;background:var(--ek-bg);border:2px solid var(--ek-surface)}
-.ek-logo-big{width:112px;height:112px}
+img {
+    max-width: 100%;
+}
 
-/* ---------- Estados vacíos ---------- */
-.ek-empty-state{text-align:center;padding:2.25rem 1rem;color:var(--ek-muted);border:1px dashed var(--ek-border-neon);border-radius:16px;background:var(--ek-surface)}
-.ek-empty-state>i{display:block;font-size:2.2rem;margin-bottom:.5rem;color:var(--ek-primary)}
-.ek-empty{padding:1rem .75rem;text-align:center;color:var(--ek-muted);font-size:.9rem}
-.ek-empty i{display:block;font-size:1.5rem;margin-bottom:.25rem;color:var(--ek-primary)}
+a {
+    color: var(--ek-primary);
+    text-decoration: none;
+}
 
-/* ---------- Avisos (toasts) ---------- */
-.ek-toast-stack{position:fixed;z-index:2000;top:calc(var(--ek-nav-h) + env(safe-area-inset-top) + 10px);right:12px;
-  display:flex;flex-direction:column;gap:8px;width:min(360px,calc(100vw - 24px));pointer-events:none}
-.ek-toast{--c:var(--ek-info);pointer-events:auto;display:flex;align-items:flex-start;gap:.7rem;padding:.75rem 1rem;cursor:pointer;
-  background:var(--ek-surface);color:var(--ek-text);border:1px solid var(--ek-border);border-left:4px solid var(--c);border-radius:12px;box-shadow:0 6px 18px rgba(8,18,40,.18)}
-.ek-toast.success{--c:var(--ek-ok)} .ek-toast.error{--c:var(--ek-err)} .ek-toast.message{--c:#f97316}
-.ek-toast>i{color:var(--c);font-size:1.15rem;margin-top:.1rem}
-.ek-toast strong{display:block;font-size:.92rem}
-.ek-toast span{display:block;font-size:.88rem;color:var(--ek-muted);white-space:pre-line;overflow-wrap:anywhere}
-.ek-toast.out{opacity:0;transition:opacity .2s}
+a:hover {
+    text-decoration: underline;
+}
 
-/* ---------- Diálogo de confirmación ---------- */
-.modal{--bs-modal-bg:var(--ek-surface);--bs-modal-color:var(--ek-text);--bs-modal-border-color:var(--ek-border);--bs-modal-border-radius:18px}
-.modal-backdrop{--bs-backdrop-bg:#050a16;--bs-backdrop-opacity:.65}
-.ek-confirm-icon{width:56px;height:56px;border-radius:50%;margin:0 auto 1rem;display:grid;place-items:center;font-size:1.5rem;background:var(--ek-primary-soft);color:var(--ek-primary)}
-.ek-confirm-icon.is-danger{background:var(--ek-err-soft);color:var(--ek-err)}
-.modal h5{font-size:1.2rem}
+[hidden] {
+    display: none !important;
+}
+
+:focus-visible {
+    outline: 2px solid #38bdf8;
+    outline-offset: 2px;
+}
+
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+.min-w-0 {
+    min-width: 0;
+}
+
+.text-muted-ek {
+    color: var(--ek-muted);
+}
+
+.ek-mono {
+    font-family: var(--ek-mono);
+}
+
+.ek-display {
+    font-family: var(--ek-font);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.15;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-top: 0;
+}
+
+::selection {
+    background: #38bdf8;
+    color: #0b1426;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--ek-border-neon) transparent;
+}
+
+
+/* =========================================================
+   BOTONES
+   ========================================================= */
+
+.btn-ekko,
+.btn-ekko-soft,
+.btn-ekko-red,
+.btn-ekko-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    font-family: var(--ek-font);
+    font-weight: 700;
+    font-size: .95rem;
+    line-height: 1.2;
+    padding: .62rem 1.2rem;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    transition:
+        box-shadow .15s,
+        background-color .15s,
+        border-color .15s,
+        filter .15s;
+}
+
+.btn-ekko:hover,
+.btn-ekko-soft:hover,
+.btn-ekko-red:hover,
+.btn-ekko-danger:hover {
+    text-decoration: none;
+}
+
+.btn-sm.btn-ekko,
+.btn-sm.btn-ekko-soft,
+.btn-sm.btn-ekko-red,
+.btn-sm.btn-ekko-danger {
+    padding: .4rem .85rem;
+    font-size: .85rem;
+    border-radius: 10px;
+}
+
+.btn-ekko {
+    background: var(--ek-grad);
+    color: var(--ek-on-grad);
+    border-color: transparent;
+}
+
+.btn-ekko:hover,
+.btn-ekko:focus-visible,
+.btn-ekko:active {
+    color: var(--ek-on-grad);
+    background: var(--ek-grad);
+    filter: brightness(.94);
+    box-shadow: var(--ek-btn-glow);
+    border-color: transparent;
+}
+
+.btn-ekko-soft {
+    background: var(--ek-surface-2);
+    color: var(--ek-text);
+    border-color: var(--ek-border);
+}
+
+.btn-ekko-soft:hover,
+.btn-ekko-soft:active,
+.btn-ekko-soft:focus-visible {
+    background: var(--ek-hover);
+    color: var(--ek-primary);
+    border-color: var(--ek-primary);
+}
+
+.btn-ekko-red {
+    background: var(--ek-err);
+    color: #fff;
+}
+
+.btn-ekko-red:hover,
+.btn-ekko-red:active {
+    background: var(--ek-err);
+    color: #fff;
+    filter: brightness(.92);
+}
+
+.btn-ekko-danger {
+    background: var(--ek-err-soft);
+    color: var(--ek-err);
+    border-color: transparent;
+}
+
+.btn-ekko-danger:hover,
+.btn-ekko-danger:active {
+    background: var(--ek-err-soft);
+    border-color: var(--ek-err);
+    color: var(--ek-err);
+}
+
+.btn:disabled,
+.btn.disabled,
+.btn[disabled] {
+    opacity: .55;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.btn.is-loading {
+    pointer-events: none;
+    opacity: .85;
+}
+
+.ek-link-btn {
+    background: none;
+    border: 0;
+    padding: .2rem .4rem;
+    color: var(--ek-primary);
+    font: inherit;
+    font-weight: 700;
+    font-size: .82rem;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.ek-link-btn:hover {
+    background: var(--ek-primary-soft);
+}
+
+
+/* =========================================================
+   ALERTAS
+   ========================================================= */
+
+.alert-ek-ok,
+.alert-ek-error,
+.alert-ek-info {
+    display: flex;
+    align-items: flex-start;
+    gap: .65rem;
+    padding: .8rem 1rem;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    border-left: 4px solid;
+    font-size: .92rem;
+    margin-bottom: 1rem;
+}
+
+.alert-ek-ok {
+    background: var(--ek-ok-soft);
+    border-left-color: var(--ek-ok);
+    color: var(--ek-ok);
+}
+
+.alert-ek-error {
+    background: var(--ek-err-soft);
+    border-left-color: var(--ek-err);
+    color: var(--ek-err);
+}
+
+.alert-ek-info {
+    background: var(--ek-info-soft);
+    border-left-color: var(--ek-info);
+    color: var(--ek-info);
+}
+
+.alert-ek-ok i,
+.alert-ek-error i,
+.alert-ek-info i {
+    margin-top: .15rem;
+}
+
+.alert-ek-ok span,
+.alert-ek-error span,
+.alert-ek-info span {
+    color: var(--ek-text);
+}
+
+
+/* =========================================================
+   TARJETAS Y PORTADAS
+   ========================================================= */
+
+.ek-card {
+    background: var(--ek-surface);
+    border: 1px solid var(--ek-border);
+    border-radius: 16px;
+    padding: 1.25rem;
+    box-shadow: var(--ek-card-glow);
+}
+
+.ek-cover {
+    height: 96px;
+    background: linear-gradient(180deg, #12305a, #0b1d3a);
+    border-bottom: 4px solid #f97316;
+}
+
+
+/* =========================================================
+   FORMULARIOS
+   ========================================================= */
+
+.ek-field {
+    margin-bottom: 1rem;
+}
+
+.ek-field > label {
+    display: block;
+    font-weight: 600;
+    font-size: .86rem;
+    margin-bottom: .35rem;
+}
+
+.form-control,
+.ek-textarea {
+    font-family: var(--ek-font);
+    background: var(--ek-input-bg);
+    border: 1px solid var(--ek-border);
+    color: var(--ek-text);
+    border-radius: 12px;
+    padding: .65rem .9rem;
+    font-size: 1rem;
+}
+
+.form-control::placeholder {
+    color: var(--ek-muted);
+    opacity: .85;
+}
+
+.form-control:focus {
+    background: var(--ek-input-bg);
+    color: var(--ek-text);
+    border-color: #38bdf8;
+    box-shadow: var(--ek-focus);
+    outline: 0;
+}
+
+.form-control.is-invalid {
+    border-color: var(--ek-err);
+    background-image: none;
+}
+
+.form-control:-webkit-autofill {
+    -webkit-text-fill-color: var(--ek-text);
+    box-shadow: 0 0 0 40px var(--ek-input-bg) inset;
+}
+
+.ek-textarea {
+    min-height: 110px;
+    resize: vertical;
+    width: 100%;
+}
+
+.ek-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.ek-input-group > i {
+    position: absolute;
+    left: .95rem;
+    color: var(--ek-muted);
+    pointer-events: none;
+    z-index: 2;
+}
+
+.ek-input-group .form-control {
+    height: 48px;
+    padding-left: 2.6rem;
+    width: 100%;
+}
+
+.ek-input-group:focus-within > i {
+    color: var(--ek-primary);
+}
+
+.ek-input-group:has(.ek-toggle-pass) .form-control {
+    padding-right: 3rem;
+}
+
+.ek-input-group > .ek-toggle-pass {
+    position: absolute;
+    right: .4rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    min-width: 0;
+    padding: 0;
+    z-index: 3;
+}
+
+.ek-readonly .form-control {
+    opacity: .7;
+    cursor: not-allowed;
+}
+
+.ek-hint {
+    display: block;
+    font-size: .8rem;
+    color: var(--ek-muted);
+    margin-top: .35rem;
+}
+
+.ek-error {
+    display: block;
+    font-size: .82rem;
+    color: var(--ek-err);
+    margin-top: .35rem;
+    font-weight: 600;
+}
+
+.ek-char {
+    font-family: var(--ek-mono);
+    font-size: .75rem;
+    color: var(--ek-muted);
+    margin-top: .35rem;
+}
+
+.ek-strength {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    margin-top: .5rem;
+}
+
+.ek-strength span {
+    height: 5px;
+    border-radius: 99px;
+    background: var(--ek-border);
+    opacity: 1;
+}
+
+.ek-strength[data-level="1"] span:nth-child(-n+1) {
+    background: #e0645a;
+}
+
+.ek-strength[data-level="2"] span:nth-child(-n+2) {
+    background: #f59e0b;
+}
+
+.ek-strength[data-level="3"] span:nth-child(-n+3) {
+    background: #38bdf8;
+}
+
+.ek-strength[data-level="4"] span {
+    background: #22c55e;
+}
+
+.form-check-input {
+    background-color: var(--ek-input-bg);
+    border-color: var(--ek-border-neon);
+}
+
+.form-check-input:checked {
+    background-color: var(--ek-grad);
+    border-color: #f97316;
+}
+
+.form-check-input:focus {
+    box-shadow: var(--ek-focus);
+    border-color: #38bdf8;
+}
+
+
+/* =========================================================
+   AVATARES
+   ========================================================= */
+
+/*
+ * Inicial de usuario.
+ * El color concreto se asigna mediante tone-0 ... tone-5.
+ */
+
+.ek-initial {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 48px;
+    height: 48px;
+    min-width: 0;
+    min-height: 0;
+
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    background: #f97316;
+    color: #0b1426;
+
+    font-weight: 800;
+    font-size: 1.1rem;
+    line-height: 1;
+
+    text-align: center;
+    text-transform: uppercase;
+
+    overflow: hidden;
+}
+
+/* Colores deterministas */
+
+.ek-initial.tone-0 {
+    background: #1d4ed8;
+    color: #fff;
+}
+
+.ek-initial.tone-1 {
+    background: #0e7490;
+    color: #fff;
+}
+
+.ek-initial.tone-2 {
+    background: #15803d;
+    color: #fff;
+}
+
+.ek-initial.tone-3 {
+    background: #4f46e5;
+    color: #fff;
+}
+
+.ek-initial.tone-4 {
+    background: #c2410c;
+    color: #fff;
+}
+
+.ek-initial.tone-5 {
+    background: #be185d;
+    color: #fff;
+}
+
+
+/* =========================================================
+   AVATAR PEQUEÑO
+   ========================================================= */
+
+.ek-avatar-sm {
+    display: block;
+
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+
+    flex: 0 0 34px;
+
+    background: var(--ek-surface-2);
+}
+
+
+/* =========================================================
+   AVATAR GRANDE DEL PERFIL
+   ========================================================= */
+
+.ek-avatar-xl {
+    position: relative;
+    display: block;
+
+    width: 96px;
+    height: 96px;
+    min-width: 96px;
+    min-height: 96px;
+
+    border-radius: 50%;
+    overflow: hidden;
+    flex: 0 0 96px;
+
+    border: 4px solid var(--ek-surface);
+    background: var(--ek-surface-2);
+}
+
+/* Inicial y fotografía */
+
+.ek-avatar-xl > .ek-initial,
+.ek-avatar-xl > img {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+
+    width: 100%;
+    height: 100%;
+
+    min-width: 0;
+    min-height: 0;
+    max-width: none;
+
+    border: 0;
+    border-radius: 50%;
+
+    margin: 0;
+    padding: 0;
+}
+
+/* Inicial grande */
+
+.ek-avatar-xl > .ek-initial {
+    align-items: center;
+    justify-content: center;
+
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+
+    object-fit: initial;
+}
+
+/* Fotografía grande */
+
+.ek-avatar-xl > img {
+    display: block;
+
+    object-fit: cover;
+    object-position: center;
+
+    background: var(--ek-surface-2);
+}
+
+
+/* =========================================================
+   AVATARES DE CONTACTOS Y SOLICITUDES
+   ========================================================= */
+
+/*
+ * El contenedor siempre mide 48 x 48 px.
+ * Conserva el pequeño borde naranja.
+ */
+ 
+.ek-avatar-ring {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+
+    flex: 0 0 48px;
+    padding: 2px;
+    box-sizing: border-box;
+
+    overflow: hidden;
+    border-radius: 50%;
+    background: #f97316;
+}
+
+.ek-avatar-ring > .ek-initial {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+
+    flex: 0 0 100%;
+
+    border-radius: 50%;
+    font-size: 1rem;
+    line-height: 1;
+
+    background: var(--ek-surface-2);
+    color: var(--ek-text);
+}
+
+/* Conservar los colores personalizados */
+
+.ek-avatar-ring > .ek-initial.tone-0 {
+    background: #1d4ed8;
+    color: #fff;
+}
+
+.ek-avatar-ring > .ek-initial.tone-1 {
+    background: #0e7490;
+    color: #fff;
+}
+
+.ek-avatar-ring > .ek-initial.tone-2 {
+    background: #15803d;
+    color: #fff;
+}
+
+.ek-avatar-ring > .ek-initial.tone-3 {
+    background: #4f46e5;
+    color: #fff;
+}
+
+.ek-avatar-ring > .ek-initial.tone-4 {
+    background: #c2410c;
+    color: #fff;
+}
+
+.ek-avatar-ring > .ek-initial.tone-5 {
+    background: #be185d;
+    color: #fff;
+}
+
+/* Fotografías */
+
+.ek-avatar-ring > img,
+.ek-avatar-ring > .ek-avatar-photo {
+    position: absolute;
+    inset: 2px !important;
+
+    display: block;
+
+    width: calc(100% - 4px) !important;
+    height: calc(100% - 4px) !important;
+
+    min-width: 0 !important;
+    min-height: 0 !important;
+
+    max-width: none !important;
+    max-height: none !important;
+
+    padding: 0;
+    margin: 0;
+
+    border: 2px solid var(--ek-surface);
+    border-radius: 50%;
+
+    object-fit: cover;
+    object-position: center;
+
+    background: var(--ek-surface-2);
+}
+
+.ek-avatar-ring > [hidden] {
+    display: none !important;
+}
+
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
+.ek-logo-big {
+    width: 112px;
+    height: 112px;
+}
+
+
+/* =========================================================
+   AVATAR DEL NAVBAR
+   ========================================================= */
+
+/*
+ * Avatar de 36 x 36 px.
+ * No se deforma aunque existan reglas globales para img.
+ */
+
+.ek-user-avatar {
+    position: relative;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+
+    flex: 0 0 36px;
+
+    overflow: hidden;
+    border-radius: 50%;
+
+    background: var(--ek-surface-2);
+    isolation: isolate;
+}
+
+/* Fotografía del navbar */
+
+.ek-user-avatar-img {
+    position: absolute;
+    inset: 0;
+
+    display: block;
+
+    width: 36px !important;
+    height: 36px !important;
+
+    min-width: 36px !important;
+    min-height: 36px !important;
+
+    max-width: 36px !important;
+    max-height: 36px !important;
+
+    padding: 0;
+    margin: 0;
+    border: 0;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+    object-position: center;
+
+    background: var(--ek-surface-2);
+}
+
+/* Inicial del navbar */
+
+.ek-user-avatar-initial {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+
+    border-radius: 50%;
+    overflow: hidden;
+
+    background: var(--ek-surface-2);
+    color: var(--ek-text);
+
+    font-size: .95rem;
+    font-weight: 800;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+/* Imagen o inicial ocultas */
+
+.ek-user-avatar-img[hidden],
+.ek-user-avatar-initial[hidden] {
+    display: none !important;
+}
+
+
+/* =========================================================
+   ESTADOS VACÍOS
+   ========================================================= */
+
+.ek-empty-state {
+    text-align: center;
+    padding: 2.25rem 1rem;
+
+    color: var(--ek-muted);
+
+    border: 1px dashed var(--ek-border-neon);
+    border-radius: 16px;
+
+    background: var(--ek-surface);
+}
+
+.ek-empty-state > i {
+    display: block;
+
+    font-size: 2.2rem;
+    margin-bottom: .5rem;
+
+    color: var(--ek-primary);
+}
+
+.ek-empty {
+    padding: 1rem .75rem;
+
+    text-align: center;
+    color: var(--ek-muted);
+
+    font-size: .9rem;
+}
+
+.ek-empty i {
+    display: block;
+
+    font-size: 1.5rem;
+    margin-bottom: .25rem;
+
+    color: var(--ek-primary);
+}
+
+
+/* =========================================================
+   AVISOS (TOASTS)
+   ========================================================= */
+
+.ek-toast-stack {
+    position: fixed;
+    z-index: 2000;
+
+    top: calc(var(--ek-nav-h) + env(safe-area-inset-top) + 10px);
+    right: 12px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    width: min(360px, calc(100vw - 24px));
+
+    pointer-events: none;
+}
+
+.ek-toast {
+    --c: var(--ek-info);
+
+    pointer-events: auto;
+
+    display: flex;
+    align-items: flex-start;
+    gap: .7rem;
+
+    padding: .75rem 1rem;
+    cursor: pointer;
+
+    background: var(--ek-surface);
+    color: var(--ek-text);
+
+    border: 1px solid var(--ek-border);
+    border-left: 4px solid var(--c);
+    border-radius: 12px;
+
+    box-shadow: 0 6px 18px rgba(8, 18, 40, .18);
+}
+
+.ek-toast.success {
+    --c: var(--ek-ok);
+}
+
+.ek-toast.error {
+    --c: var(--ek-err);
+}
+
+.ek-toast.message {
+    --c: #f97316;
+}
+
+.ek-toast > i {
+    color: var(--c);
+    font-size: 1.15rem;
+    margin-top: .1rem;
+}
+
+.ek-toast strong {
+    display: block;
+    font-size: .92rem;
+}
+
+.ek-toast span {
+    display: block;
+
+    font-size: .88rem;
+    color: var(--ek-muted);
+
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.ek-toast.out {
+    opacity: 0;
+    transition: opacity .2s;
+}
+
+
+/* =========================================================
+   DIÁLOGO DE CONFIRMACIÓN
+   ========================================================= */
+
+.modal {
+    --bs-modal-bg: var(--ek-surface);
+    --bs-modal-color: var(--ek-text);
+    --bs-modal-border-color: var(--ek-border);
+    --bs-modal-border-radius: 18px;
+}
+
+.modal-backdrop {
+    --bs-backdrop-bg: #050a16;
+    --bs-backdrop-opacity: .65;
+}
+
+.ek-confirm-icon {
+    width: 56px;
+    height: 56px;
+
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+
+    display: grid;
+    place-items: center;
+
+    font-size: 1.5rem;
+
+    background: var(--ek-primary-soft);
+    color: var(--ek-primary);
+}
+
+.ek-confirm-icon.is-danger {
+    background: var(--ek-err-soft);
+    color: var(--ek-err);
+}
+
+.modal h5 {
+    font-size: 1.2rem;
+}

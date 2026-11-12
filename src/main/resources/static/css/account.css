@@ -1,66 +1,558 @@
+
 /* =========================================================
-   EKKO · account.css  (editar perfil, ajustes, eliminar cuenta, política)
+   EKKO · account.css
+   Editar perfil, ajustes, eliminar cuenta y política
    ========================================================= */
 
-/* ---------- Editar perfil ---------- */
-.ek-edit-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:1rem;align-items:start}
-.ek-preview{padding:0;overflow:hidden;position:sticky;top:calc(var(--ek-nav-h) + 16px)}
-.ek-preview-body{padding:0 1.25rem 1.5rem;text-align:center}
-.ek-preview-body .ek-avatar-xl{margin:-48px auto .5rem}
-.ek-preview-body h3{font-size:1.2rem;margin:0}
-.ek-preview-body p{margin:.5rem 0 0;color:var(--ek-muted);overflow-wrap:anywhere}
 
-/* ---------- Ajustes ---------- */
-.ek-section-title{font-size:.95rem;font-weight:800;color:var(--ek-muted);margin:1.5rem .5rem .5rem}
-.ek-settings{background:var(--ek-surface);border:1px solid var(--ek-border-neon);border-radius:20px;overflow:hidden}
-.ek-settings>*{border-bottom:1px solid var(--ek-border)}
-.ek-settings>*:last-child{border-bottom:0}
-.ek-settings form.m-0>.ek-setting{border:0}
-.ek-setting{display:flex;align-items:center;gap:1rem;width:100%;padding:.9rem 1.1rem;background:transparent;border:0;text-align:left;color:var(--ek-text);font:inherit}
-a.ek-setting:hover,button.ek-setting:hover{background:var(--ek-hover);color:var(--ek-text);text-decoration:none;cursor:pointer}
-.ek-setting-icon{flex:none;width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:var(--ek-primary-soft);color:var(--ek-primary);font-size:1.15rem}
-.ek-setting-info{flex:1;min-width:0;display:flex;flex-direction:column}
-.ek-setting-info span{color:var(--ek-muted);font-size:.85rem}
-.ek-setting>.bi-chevron-right{color:var(--ek-muted)}
-.ek-setting.is-danger .ek-setting-icon,.is-danger>.ek-setting-icon{background:var(--ek-err-soft);color:var(--ek-err)}
-.ek-setting.is-danger strong{color:var(--ek-err)}
-.ek-pref{flex-wrap:wrap}
-.ek-pref-control{display:flex;align-items:center;gap:.4rem}
-.ek-pref-control input[type="range"]{width:120px;accent-color:var(--ek-primary)}
-.ek-seg{display:inline-flex;background:var(--ek-surface-2);border-radius:99px;padding:3px}
-.ek-seg .btn{border:0;border-radius:99px;padding:.35rem .8rem;font-size:.85rem;font-weight:700;color:var(--ek-muted);background:transparent}
-.ek-seg .btn-check:checked+.btn{background:var(--ek-surface);color:var(--ek-primary);box-shadow:0 1px 3px rgba(15,27,45,.18)}
-.ek-seg .btn-check:focus-visible+.btn{outline:2px solid var(--ek-primary)}
-.ek-notice{margin-top:1.5rem;padding:1rem 1.1rem;border-radius:16px;background:var(--ek-info-soft);border:1px solid var(--ek-border);font-size:.9rem}
+/* =========================================================
+   EDICIÓN DE PERFIL
+   ========================================================= */
 
-/* ---------- Eliminar cuenta ---------- */
-.ek-danger-card{border-color:var(--ek-err)}
-.ek-danger-head{display:flex;align-items:center;gap:.8rem;margin-bottom:1rem}
-.ek-danger-head h2{font-size:1.3rem}
-.ek-danger-icon{flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:var(--ek-err-soft);color:var(--ek-err);font-size:1.3rem}
-.ek-consequences{list-style:none;margin:0 0 1.25rem;padding:0}
-.ek-consequences li{display:flex;gap:.7rem;padding:.6rem 0;border-bottom:1px solid var(--ek-border)}
-.ek-consequences li:last-child{border-bottom:0}
-.ek-consequences .bi{color:var(--ek-err);margin-top:.2rem}
+/* ---------- Distribución principal ---------- */
 
-/* ---------- Documento (política de privacidad) ---------- */
-.ek-doc{background:var(--ek-surface);border:1px solid var(--ek-border-neon);border-radius:20px;padding:clamp(1.25rem,4vw,2.5rem);line-height:1.7;max-width:78ch;margin:0 auto}
-.ek-doc h1{font-size:clamp(1.5rem,3vw,2rem)}
-.ek-doc h2{font-size:1.25rem;margin:2rem 0 .75rem}
-.ek-doc h3{font-size:1.02rem;margin:1.25rem 0 .5rem}
-.ek-doc ul,.ek-doc ol{padding-left:1.4rem}
-.ek-doc li{margin-bottom:.35rem}
-.ek-doc hr{border-color:var(--ek-border);opacity:1}
-
-@media (max-width:899.98px){
-  .ek-edit-grid{grid-template-columns:1fr}
-  .ek-preview{position:static;order:-1}
+.ek-edit-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
 }
 
-/* ---------- Política: índice y anclas ---------- */
-.ek-doc section{scroll-margin-top:calc(var(--ek-nav-h) + 16px)}
-.ek-doc-toc{margin:1.25rem 0 0;padding:.75rem 1rem;background:var(--ek-surface-2);border:1px solid var(--ek-border);border-radius:14px}
-.ek-doc-toc summary{cursor:pointer;font-weight:700}
-.ek-doc-toc ol{margin:.75rem 0 0;columns:2;column-gap:2rem}
-.ek-doc-toc li{margin-bottom:.3rem;break-inside:avoid}
-@media (max-width:575.98px){.ek-doc-toc ol{columns:1}}
+/* ---------- Tarjeta de vista previa ---------- */
+
+.ek-preview {
+    position: sticky;
+    top: calc(var(--ek-nav-h) + 16px);
+    padding: 0;
+    overflow: hidden;
+}
+
+/* ---------- Portada ---------- */
+
+.ek-preview .ek-cover {
+    width: 100%;
+    height: 110px;
+}
+
+/* ---------- Contenedor del avatar ---------- */
+
+.ek-preview > .ek-avatar-xl {
+    position: relative;
+    z-index: 2;
+
+    display: grid;
+    place-items: center;
+
+    width: 104px;
+    height: 104px;
+    min-width: 104px;
+    min-height: 104px;
+
+    margin: -52px auto .75rem;
+    overflow: hidden;
+    border-radius: 50%;
+}
+
+/* ---------- Inicial del avatar ---------- */
+
+.ek-preview > .ek-avatar-xl > .ek-initial {
+    display: grid;
+    place-items: center;
+
+    width: 100%;
+    height: 100%;
+
+    border-radius: 50%;
+
+    color: #fff;
+    font-size: 2.2rem;
+    font-weight: 750;
+    line-height: 1;
+}
+
+/* ---------- Colores deterministas del avatar ---------- */
+
+.tone-0 {
+    background-color: #1d4ed8;
+}
+
+.tone-1 {
+    background-color: #0e7490;
+}
+
+.tone-2 {
+    background-color: #15803d;
+}
+
+.tone-3 {
+    background-color: #4f46e5;
+}
+
+.tone-4 {
+    background-color: #c2410c;
+}
+
+.tone-5 {
+    background-color: #be185d;
+}
+
+/* ---------- Fotografía del avatar ---------- */
+
+.ek-preview > .ek-avatar-xl > img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.ek-preview > .ek-avatar-xl > img[hidden],
+.ek-preview > .ek-avatar-xl > .ek-initial[hidden] {
+    display: none !important;
+}
+
+/* ---------- Información del perfil ---------- */
+
+.ek-preview-body {
+    padding: 0 1.25rem 1.5rem;
+    text-align: center;
+}
+
+.ek-preview-body h3 {
+    margin: 0;
+
+    font-size: 1.2rem;
+    font-weight: 800;
+
+    overflow-wrap: anywhere;
+}
+
+.ek-preview-body .ek-handle {
+    display: block;
+
+    margin-top: .2rem;
+
+    color: var(--ek-muted);
+    font-size: .85rem;
+
+    overflow-wrap: anywhere;
+}
+
+.ek-preview-body p {
+    margin: .75rem 0 0;
+
+    color: var(--ek-muted);
+
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+/* CAMPOS DEL FORMULARIO */
+
+.ek-field {
+    margin-bottom: 1.35rem;
+}
+
+.ek-field > label {
+    display: block;
+
+    margin-bottom: .55rem;
+
+    color: var(--ek-text);
+    font-weight: 650;
+}
+
+.ek-field .form-control:focus {
+    border-color: var(--ek-primary);
+    box-shadow: 0 0 0 3px rgba(8, 120, 189, .12);
+}
+
+/* Campos que no se pueden editar */
+
+.ek-readonly .form-control {
+    cursor: not-allowed;
+    opacity: .8;
+}
+
+/* Biografía */
+
+.ek-textarea {
+    min-height: 125px;
+    resize: vertical;
+}
+
+/* Ayudas */
+
+.ek-hint {
+    display: block;
+
+    margin-top: .45rem;
+
+    color: var(--ek-muted);
+    font-size: .82rem;
+    line-height: 1.5;
+}
+
+/* Contador de caracteres */
+
+.ek-char {
+    color: var(--ek-muted);
+    font-size: .8rem;
+    font-variant-numeric: tabular-nums;
+}
+
+/* VALIDACIÓN Y ERRORES */
+
+.ek-error {
+    margin-top: .65rem;
+    padding: .7rem .85rem;
+
+    border: 1px solid rgba(220, 53, 69, .25);
+    border-radius: 10px;
+
+    background: rgba(220, 53, 69, .07);
+    color: #dc3545;
+
+    font-size: .86rem;
+    line-height: 1.5;
+}
+
+.ek-error[hidden],
+#avatarActions[hidden] {
+    display: none !important;
+}
+
+/* ACCIONES DE LA FOTOGRAFÍA */
+
+#avatarActions {
+    margin-top: .8rem;
+}
+
+#removeAvatarBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 899.98px) {
+
+    .ek-edit-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .ek-preview {
+        position: static;
+    }
+
+}
+
+@media (max-width: 575.98px) {
+
+    .ek-preview-body {
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+
+    #profileForm .d-flex.flex-wrap.gap-2.mt-4 > * {
+        flex: 1 1 100%;
+    }
+
+}
+
+
+/* =========================================================
+   AJUSTES
+   ========================================================= */
+
+.ek-section-title {
+    font-size: .95rem;
+    font-weight: 800;
+    color: var(--ek-muted);
+    margin: 1.5rem .5rem .5rem;
+}
+
+.ek-settings {
+    background: var(--ek-surface);
+    border: 1px solid var(--ek-border-neon);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.ek-settings > * {
+    border-bottom: 1px solid var(--ek-border);
+}
+
+.ek-settings > *:last-child {
+    border-bottom: 0;
+}
+
+.ek-settings form.m-0 > .ek-setting {
+    border: 0;
+}
+
+.ek-setting {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    padding: .9rem 1.1rem;
+    background: transparent;
+    border: 0;
+    text-align: left;
+    color: var(--ek-text);
+    font: inherit;
+}
+
+a.ek-setting:hover,
+button.ek-setting:hover {
+    background: var(--ek-hover);
+    color: var(--ek-text);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.ek-setting-icon {
+    flex: none;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: var(--ek-primary-soft);
+    color: var(--ek-primary);
+    font-size: 1.15rem;
+}
+
+.ek-setting-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.ek-setting-info span {
+    color: var(--ek-muted);
+    font-size: .85rem;
+}
+
+.ek-setting > .bi-chevron-right {
+    color: var(--ek-muted);
+}
+
+.ek-setting.is-danger .ek-setting-icon,
+.is-danger > .ek-setting-icon {
+    background: var(--ek-err-soft);
+    color: var(--ek-err);
+}
+
+.ek-setting.is-danger strong {
+    color: var(--ek-err);
+}
+
+.ek-pref {
+    flex-wrap: wrap;
+}
+
+.ek-pref-control {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+.ek-pref-control input[type="range"] {
+    width: 120px;
+    accent-color: var(--ek-primary);
+}
+
+.ek-seg {
+    display: inline-flex;
+    background: var(--ek-surface-2);
+    border-radius: 99px;
+    padding: 3px;
+}
+
+.ek-seg .btn {
+    border: 0;
+    border-radius: 99px;
+    padding: .35rem .8rem;
+    font-size: .85rem;
+    font-weight: 700;
+    color: var(--ek-muted);
+    background: transparent;
+}
+
+.ek-seg .btn-check:checked + .btn {
+    background: var(--ek-surface);
+    color: var(--ek-primary);
+    box-shadow: 0 1px 3px rgba(15, 27, 45, .18);
+}
+
+.ek-seg .btn-check:focus-visible + .btn {
+    outline: 2px solid var(--ek-primary);
+}
+
+.ek-notice {
+    margin-top: 1.5rem;
+    padding: 1rem 1.1rem;
+    border-radius: 16px;
+    background: var(--ek-info-soft);
+    border: 1px solid var(--ek-border);
+    font-size: .9rem;
+}
+
+/* =========================================================
+   ELIMINAR CUENTA
+   ========================================================= */
+
+.ek-danger-card {
+    border-color: var(--ek-err);
+}
+
+.ek-danger-head {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    margin-bottom: 1rem;
+}
+
+.ek-danger-head h2 {
+    font-size: 1.3rem;
+}
+
+.ek-danger-icon {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: var(--ek-err-soft);
+    color: var(--ek-err);
+    font-size: 1.3rem;
+}
+
+.ek-consequences {
+    list-style: none;
+    margin: 0 0 1.25rem;
+    padding: 0;
+}
+
+.ek-consequences li {
+    display: flex;
+    gap: .7rem;
+    padding: .6rem 0;
+    border-bottom: 1px solid var(--ek-border);
+}
+
+.ek-consequences li:last-child {
+    border-bottom: 0;
+}
+
+.ek-consequences .bi {
+    color: var(--ek-err);
+    margin-top: .2rem;
+}
+
+/* =========================================================
+   DOCUMENTO: POLÍTICA DE PRIVACIDAD
+   ========================================================= */
+
+.ek-doc {
+    background: var(--ek-surface);
+    border: 1px solid var(--ek-border-neon);
+    border-radius: 20px;
+    padding: clamp(1.25rem, 4vw, 2.5rem);
+    line-height: 1.7;
+    max-width: 78ch;
+    margin: 0 auto;
+}
+
+.ek-doc h1 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.ek-doc h2 {
+    font-size: 1.25rem;
+    margin: 2rem 0 .75rem;
+}
+
+.ek-doc h3 {
+    font-size: 1.02rem;
+    margin: 1.25rem 0 .5rem;
+}
+
+.ek-doc ul,
+.ek-doc ol {
+    padding-left: 1.4rem;
+}
+
+.ek-doc li {
+    margin-bottom: .35rem;
+}
+
+.ek-doc hr {
+    border-color: var(--ek-border);
+    opacity: 1;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 899.98px) {
+
+    .ek-edit-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ek-preview {
+        position: static;
+        order: -1;
+    }
+
+}
+
+/* =========================================================
+   POLÍTICA: ÍNDICE Y ANCLAS
+   ========================================================= */
+
+.ek-doc section {
+    scroll-margin-top: calc(var(--ek-nav-h) + 16px);
+}
+
+.ek-doc-toc {
+    margin: 1.25rem 0 0;
+    padding: .75rem 1rem;
+    background: var(--ek-surface-2);
+    border: 1px solid var(--ek-border);
+    border-radius: 14px;
+}
+
+.ek-doc-toc summary {
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.ek-doc-toc ol {
+    margin: .75rem 0 0;
+    columns: 2;
+    column-gap: 2rem;
+}
+
+.ek-doc-toc li {
+    margin-bottom: .3rem;
+    break-inside: avoid;
+}
+
+@media (max-width: 575.98px) {
+
+    .ek-doc-toc ol {
+        columns: 1;
+    }
+
+}
