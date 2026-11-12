@@ -129,6 +129,71 @@
        UTILIDADES DE INTERFAZ
        ===================================================== */
 
+    /* AVATAR DEL CONTACTO */
+    function getAvatarTone(userId) {
+        const value = String(userId ?? "");
+        let hash = 2166136261;
+
+        for (let i = 0; i < value.length; i++) {
+            hash = Math.imul(
+                hash ^ value.charCodeAt(i),
+                16777619
+            );
+        }
+
+        return "tone-" + ((hash >>> 0) % 6);
+    }
+
+    function setupChatAvatar() {
+        const initial = document.querySelector(
+            ".ek-chat-head .ek-initial"
+        );
+
+        const photo = document.querySelector(
+            ".ek-chat-head .ek-avatar-photo"
+        );
+
+        if (!initial) return;
+
+        // Mantener el mismo color en todas las vistas.
+        const tone = getAvatarTone(
+            initial.dataset.userId || otherUserId
+        );
+
+        initial.classList.remove(
+            "tone-0",
+            "tone-1",
+            "tone-2",
+            "tone-3",
+            "tone-4",
+            "tone-5"
+        );
+
+        initial.classList.add(tone);
+
+        // Asegurar una inicial visible.
+        if (!initial.textContent.trim()) {
+            const name = initial.dataset.name || otherName;
+
+            initial.textContent =
+                name.trim().charAt(0).toUpperCase() || "U";
+        }
+
+        // Si no hay fotografía, la inicial queda visible.
+        if (!photo) return;
+
+        // Si la fotografía falla, revelamos la inicial.
+        photo.addEventListener("error", () => {
+            photo.hidden = true;
+        });
+
+        // También contemplar imágenes que ya fallaron
+        // antes de registrar el evento.
+        if (photo.complete && photo.naturalWidth === 0) {
+            photo.hidden = true;
+        }
+    }
+
     function showError(message) {
         if (!errorBox) return;
 
@@ -1849,6 +1914,9 @@
        ===================================================== */
 
     list.style.scrollBehavior = "auto";
+
+    // Avatar del otro participante.
+    setupChatAvatar();
 
     scrollToBottom(false);
 

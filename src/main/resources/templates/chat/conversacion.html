@@ -33,19 +33,25 @@
                    aria-label="Volver a chats">
 
                     <i class="bi bi-arrow-left"></i>
-
                 </a>
 
                 <span class="ek-avatar-ring">
-
-                    <img class="ek-initial"
-                         th:src="${otherAvatarUrl != null and !#strings.isEmpty(otherAvatarUrl)} ? ${otherAvatarUrl} : @{/images/avatar-default.svg}"
-                         th:attr="data-fallback=@{/images/avatar-default.svg}"
-                         referrerpolicy="no-referrer"
-                         alt="Foto de perfil del contacto"
-                         width="44"
-                         height="44">
-
+                    <!-- Inicial de respaldo -->
+                    <span class="ek-initial"
+                        th:text="${#strings.toUpperCase(#strings.substring(nombreOtro, 0, 1))}"
+                        th:attr="data-name=${nombreOtro},
+                                data-user-id=${otherUserId}"
+                        aria-hidden="true">
+                        U
+                    </span>
+                    <!-- Fotografía, solamente si existe -->
+                    <img th:if="${otherAvatarUrl != null and !#strings.isEmpty(otherAvatarUrl)}"
+                        class="ek-avatar-photo"
+                        th:src="${otherAvatarUrl}"
+                        referrerpolicy="no-referrer"
+                        alt=""
+                        width="44"
+                        height="44">
                 </span>
 
                 <div class="min-w-0 flex-grow-1">

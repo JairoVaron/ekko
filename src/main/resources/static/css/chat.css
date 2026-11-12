@@ -328,9 +328,40 @@
     border-bottom: 1px solid var(--ek-border-neon);
 }
 
-.ek-chat-head .ek-initial {
+
+/* ---------- Avatar de la cabecera ---------- */
+.ek-chat-head .ek-avatar-ring {
+    position: relative;
+    display: block;
+    flex: 0 0 44px;
     width: 44px;
     height: 44px;
+    overflow: hidden;
+    border-radius: 50%;
+}
+
+.ek-chat-head .ek-initial {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 800;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.ek-chat-head .ek-avatar-photo {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--ek-surface-2);
 }
 
 .ek-chat-name {
