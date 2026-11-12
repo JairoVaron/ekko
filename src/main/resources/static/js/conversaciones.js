@@ -1,12 +1,14 @@
 /* =====================================================
    EKKO · conversaciones.js
-===================================================== */
+   ===================================================== */
+
 (() => {
     "use strict";
 
     /* =====================================================
        EVITAR INICIALIZACIÓN DUPLICADA
        ===================================================== */
+
     if (window.__ekkoConversationsInitialized) {
         return;
     }
@@ -16,6 +18,7 @@
     /* =====================================================
        ELEMENTOS DEL DOCUMENTO
        ===================================================== */
+
     const E = window.Ekko || {};
 
     const currentUserId = Number(
@@ -47,6 +50,7 @@
     /* =====================================================
        CONFIGURACIÓN
        ===================================================== */
+
     const CONFIG = {
         websocketPath: "/ws",
 
@@ -62,6 +66,7 @@
     /* =====================================================
        ESTADO
        ===================================================== */
+
     let socket = null;
     let buffer = "";
 
@@ -77,6 +82,7 @@
     /* =====================================================
        ESTADO DE CONEXIÓN
        ===================================================== */
+
     function setStatus(message, state = "connecting") {
         if (!status) {
             return;
@@ -89,6 +95,7 @@
     /* =====================================================
        VALIDACIÓN DEL USUARIO
        ===================================================== */
+
     if (
         !Number.isSafeInteger(currentUserId) ||
         currentUserId <= 0
@@ -109,6 +116,7 @@
     /* =====================================================
        UTILIDADES
        ===================================================== */
+
     function findConversation(conversationId) {
         const id = String(conversationId);
 
@@ -173,8 +181,110 @@
     }
 
     /* =====================================================
+       COLORES DE INICIALES
+       MISMO SISTEMA UTILIZADO EN EL PERFIL
+       ===================================================== */
+
+    function getAvatarTone(userId) {
+        const value = String(userId);
+
+        // Algoritmo FNV-1a.
+        let hash = 2166136261;
+
+        for (let i = 0; i < value.length; i++) {
+            hash = Math.imul(
+                hash ^ value.charCodeAt(i),
+                16777619
+            );
+        }
+
+        // Se utilizan los mismos seis tonos del perfil.
+        return "tone-" + ((hash >>> 0) % 6);
+    }
+
+    function applyConversationAvatarTones() {
+        const tones = [
+            "tone-0",
+            "tone-1",
+            "tone-2",
+            "tone-3",
+            "tone-4",
+            "tone-5"
+        ];
+
+        conversations.forEach(element => {
+            const initial = element.querySelector(
+                ".ek-initial"
+            );
+
+            if (!initial) {
+                return;
+            }
+
+            const userId = Number(
+                initial.dataset.userId ||
+                element.dataset.otherUserId
+            );
+
+            if (
+                !Number.isSafeInteger(userId) ||
+                userId <= 0
+            ) {
+                return;
+            }
+
+            // Eliminar cualquier tono anterior.
+            initial.classList.remove(...tones);
+
+            // Aplicar exactamente el mismo tono
+            // que corresponde al usuario en su perfil.
+            initial.classList.add(
+                getAvatarTone(userId)
+            );
+        });
+    }
+
+    /* =====================================================
+       RESPALDO DE FOTOGRAFÍAS DE PERFIL
+       ===================================================== */
+
+    function applyConversationAvatarFallbacks() {
+        conversations.forEach(element => {
+            const initial = element.querySelector(
+                ".ek-initial"
+            );
+
+            const photo = element.querySelector(
+                ".ek-avatar-photo, img[data-hide-on-error]"
+            );
+
+            if (!initial || !photo) {
+                return;
+            }
+
+            function showInitial() {
+                photo.hidden = true;
+                photo.style.display = "none";
+            }
+
+            photo.addEventListener(
+                "error",
+                showInitial,
+                { once: true }
+            );
+
+            // También contempla imágenes que ya fallaron
+            // antes de registrar el evento.
+            if (photo.complete && photo.naturalWidth === 0) {
+                showInitial();
+            }
+        });
+    }
+
+    /* =====================================================
        CONTADORES GLOBALES
        ===================================================== */
+
     function updateGlobalUnreadCount() {
         if (
             !E.chats ||
@@ -233,6 +343,7 @@
     /* =====================================================
        FILTRO DE CONVERSACIONES
        ===================================================== */
+
     function applyConversationFilter() {
         if (!filter) {
             return;
@@ -277,6 +388,7 @@
     /* =====================================================
        INDICADORES DE ESCRITURA
        ===================================================== */
+
     function clearTypingTimer(conversationId) {
         const id = String(conversationId);
 
@@ -455,6 +567,7 @@
     /* =====================================================
        ACTUALIZAR EL ÚLTIMO MENSAJE
        ===================================================== */
+
     function updateLastMessage(message, element) {
         const lastMessage = element.querySelector(
             ".last-message"
@@ -488,10 +601,10 @@
         );
     }
 
-
     /* =====================================================
        ACTUALIZAR ACTIVIDAD DE CONVERSACIÓN
        ===================================================== */
+
     function moveConversationToTop(element) {
         if (!conversationList || !element) {
             return;
@@ -518,6 +631,7 @@
     /* =====================================================
        PROCESAR UN MENSAJE NUEVO
        ===================================================== */
+
     function updateConversation(message, conversationId) {
         if (
             !message ||
@@ -594,11 +708,13 @@
     /* =====================================================
        INICIALIZAR CONTADORES
        ===================================================== */
+
     updateGlobalUnreadCount();
 
     /* =====================================================
        ENVIAR FRAMES STOMP
        ===================================================== */
+
     function sendFrame(
         command,
         headers = {},
@@ -633,6 +749,7 @@
     /* =====================================================
        SUSCRIBIRSE A LAS CONVERSACIONES
        ===================================================== */
+
     function subscribeAll() {
         conversations.forEach(element => {
             const id = element.dataset.conversationId;
@@ -708,6 +825,7 @@
     /* =====================================================
        PROCESAR FRAMES STOMP
        ===================================================== */
+
     function processFrame(frame) {
         frame = frame.replace(/\r\n/g, "\n");
 
@@ -757,6 +875,7 @@
         /* ---------------------------------------------
            CONEXIÓN ESTABLECIDA
            --------------------------------------------- */
+
         if (command === "CONNECTED") {
             try {
                 subscribeAll();
@@ -775,6 +894,7 @@
         /* ---------------------------------------------
            MENSAJES RECIBIDOS
            --------------------------------------------- */
+
         if (command === "MESSAGE") {
             const destination =
                 headers.destination || "";
@@ -844,6 +964,7 @@
         /* ---------------------------------------------
            ERRORES DEL SERVIDOR
            --------------------------------------------- */
+
         if (command === "ERROR") {
             console.error(
                 "Ekko: error STOMP del servidor.",
@@ -862,6 +983,7 @@
     /* =====================================================
        RECONEXIÓN AUTOMÁTICA
        ===================================================== */
+
     function scheduleReconnect() {
         if (manuallyClosed) {
             return;
@@ -884,6 +1006,7 @@
     /* =====================================================
        CONEXIÓN WEBSOCKET
        ===================================================== */
+
     function connect() {
         if (manuallyClosed) {
             return;
@@ -930,6 +1053,7 @@
         /* ---------------------------------------------
            APERTURA
            --------------------------------------------- */
+
         ws.addEventListener("open", () => {
             if (socket !== ws) {
                 return;
@@ -954,6 +1078,7 @@
         /* ---------------------------------------------
            RECEPCIÓN DE DATOS
            --------------------------------------------- */
+
         ws.addEventListener("message", event => {
             if (socket !== ws) {
                 return;
@@ -984,6 +1109,7 @@
         /* ---------------------------------------------
            CIERRE
            --------------------------------------------- */
+
         ws.addEventListener("close", () => {
             if (socket !== ws) {
                 return;
@@ -1008,6 +1134,7 @@
         /* ---------------------------------------------
            ERRORES
            --------------------------------------------- */
+
         ws.addEventListener("error", error => {
             console.error(
                 "Ekko: error en WebSocket.",
@@ -1019,6 +1146,7 @@
     /* =====================================================
        LIMPIEZA AL SALIR
        ===================================================== */
+
     window.addEventListener("beforeunload", () => {
         manuallyClosed = true;
 
@@ -1035,15 +1163,8 @@
     });
 
     /* =====================================================
-       INICIALIZACIÓN
+       ACTUALIZACIÓN EN TIEMPO REAL DEL ESTADO DE BLOQUEO
        ===================================================== */
-    applyConversationFilter();
-
-    connect();
-
-    /* =========================================================
-    ACTUALIZACIÓN EN TIEMPO REAL DEL ESTADO DE BLOQUEO
-    ========================================================= */
 
     function updateConversationBlockStatus(data) {
 
@@ -1068,35 +1189,35 @@
         conversation.dataset.blockedByMe = String(blockedByMe);
         conversation.dataset.blockedByOther = String(blockedByOther);
 
-        let status = conversation.querySelector(
+        let blockStatus = conversation.querySelector(
             ".ek-conv-block-status"
         );
 
         if (!isBlocked) {
 
-            if (status) {
-                status.remove();
+            if (blockStatus) {
+                blockStatus.remove();
             }
 
             return;
         }
 
-        if (!status) {
+        if (!blockStatus) {
 
-            status = document.createElement("div");
-            status.className = "ek-conv-block-status";
+            blockStatus = document.createElement("div");
+            blockStatus.className = "ek-conv-block-status";
 
             const body = conversation.querySelector(".ek-conv-body");
 
             if (body) {
-                body.appendChild(status);
+                body.appendChild(blockStatus);
             }
         }
 
         if (blockedByMe) {
-            status.textContent = "Has bloqueado a esta persona";
+            blockStatus.textContent = "Has bloqueado a esta persona";
         } else {
-            status.textContent = "Esta persona te ha bloqueado";
+            blockStatus.textContent = "Esta persona te ha bloqueado";
         }
 
         const typing = conversation.querySelector(
@@ -1114,5 +1235,21 @@
             updateConversationBlockStatus(event.detail);
         }
     );
+
+    /* =====================================================
+       INICIALIZACIÓN
+       ===================================================== */
+
+    // Aplicar los mismos colores de iniciales que en el perfil.
+    applyConversationAvatarTones();
+
+    // Mostrar la inicial si la fotografía no carga.
+    applyConversationAvatarFallbacks();
+
+    // Inicializar filtro.
+    applyConversationFilter();
+
+    // Conectar WebSocket.
+    connect();
 
 })();

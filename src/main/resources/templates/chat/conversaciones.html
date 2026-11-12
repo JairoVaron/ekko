@@ -130,7 +130,8 @@
                     <div class="ek-conv-avatar">
 
                         <span class="ek-initial"
-                              th:attr="data-name=${nombre}"
+                              th:attr="data-name=${nombre},
+                                       data-user-id=${conversation.otherUserId}"
                               th:text="${!#strings.isEmpty(nombre)
                                   ? #strings.toUpperCase(#strings.substring(nombre, 0, 1))
                                   : '?'}">
